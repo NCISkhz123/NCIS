@@ -70,6 +70,13 @@ Master Data submenu:
 - Satuan
 - Unit
 
+Shell navigation behavior:
+
+- `Master Data` behaves as an accordion menu
+- clicking `Master Data` expands `Item`, `Satuan`, and `Unit`
+- clicking `Master Data` again collapses the submenu
+- module switching is placed in the global header, not inside the sidebar
+
 ## 7. Master Data Scope
 
 ### 7.1 Item
@@ -205,40 +212,41 @@ Scope rule:
 
 Purpose:
 
-- Record internal CSSD usage of consumables such as chemical sterilizer
-
-MVP input scope:
-
-- Item
-- Quantity
-- Date
-- Notes
+- Record CSSD internal usage for internal consumables
 
 Expected effect:
 
-- Reduce CSSD stock for Consumable Internal items
+- Reduce CSSD stock
 - Create stock movement entries
 
-Constraint:
+Minimal input:
 
-- No linkage to sterilization cycle records in MVP
+- item
+- quantity
+- date
+- notes
 
 ### 10.5 Stok Opname
 
 Purpose:
 
-- Reconcile system stock with physical stock counts
-
-Workflow:
-
-- Create draft session
-- Enter count lines
-- Finalize session
+- Record stock checking sessions and finalize stock adjustments
 
 Expected effect:
 
-- Draft does not change balances
-- Finalization generates adjustment movements and updates balances
+- draft entry does not directly change stock
+- finalization creates stock adjustment movements and updates balances
+
+### 10.6 Riwayat transaksi
+
+Purpose:
+
+- Let CSSD staff review operational stock movement history without opening a separate dashboard
+
+Filter behavior:
+
+- support filter by one date
+- support filter by date range
 
 ## 11. Reusable Operational Flows
 
@@ -285,6 +293,11 @@ Must allow users to view current balances. For reusable items, balances should b
 ### 12.2 Riwayat Transaksi
 
 Must present chronological transaction history across the module.
+
+Recommended MVP filter support:
+
+- one-date filter
+- date-range filter
 
 ### 12.3 Kartu Stok per Item
 
@@ -372,30 +385,74 @@ The stock movement table is the authoritative audit trail.
 
 ## 15. Page Pattern
 
-Each transaction menu should use a consistent UI pattern:
+CSSD pages should use a consistent working pattern so operational staff do not need to relearn the interface per menu.
 
-- Transaction list page
-- New transaction action
-- Transaction form page
-- Transaction detail page
+Base pattern:
 
-This consistency is important because early users are operational staff and should not need to learn different interaction models for each menu.
+- page title and short description at the top
+- main working area centered on one table or list
+- inline form, side panel, or lightweight drawer for create and update flows
+- success and failure feedback shown near the relevant form or data area
+
+Per-page pattern:
+
+- Master Data: data table plus compact inline form
+- Pemasukan: transaction form first, recent history below
+- Distribusi: transaction form first, recent history below
+- Pengembalian: transaction form first, recent history below
+- Pemakaian Internal: transaction form first, recent history below
+- Stok Opname: session header, opname lines, and finalization action
+- Laporan: one page with sections or tabs instead of many separate routes
 
 ## 16. UI Direction
 
-The MVP should prioritize clarity over decoration.
+The MVP should prioritize clarity over decoration, while still presenting NCIS as a polished internal product.
 
 UI principles:
 
-- Simple internal-app navigation
-- Fast transaction entry
-- Consistent table and form patterns
-- Clear stock position labels for reusable items
-- Minimal click depth for operational workflows
+- clinical modern visual direction
+- bright, high-contrast workspace
+- stable left sidebar for active-module navigation
+- fast transaction entry
+- consistent table and form patterns
+- clear stock position labels for reusable items
+- minimal click depth for operational workflows
+
+Shell direction:
+
+- `NCIS` is displayed prominently in the sidebar
+- `Non Clinical Integrated System` is shown directly below the NCIS label
+- the active module label remains visible as context
+- CSSD sidebar focuses only on CSSD menus
+- module switching for CSSD, Laundry, and Ambulance is placed in the global header
+- `Master Data` behaves as an accordion menu
+
+Shared UI components:
+
+- `AppSidebar`
+- `SidebarNav`
+- `ModuleHeader`
+- `DataTable`
+- `EmptyState`
+- `FormError`
+
+UI feedback rules:
+
+- validation errors appear near fields or form sections
+- business rule failures appear as concise inline operational messages
+- routine success and failure feedback does not require modal dialogs
 
 Implementation requirement:
 
 - UI work should follow UI Skills workflow and run `npx ui-skills start` before UI-focused implementation
+
+Interaction and data flow:
+
+- `page.tsx` loads initial server data
+- `actions.ts` stays thin and only handles form submission entry points
+- CSSD service modules own business validation and orchestration
+- atomic stock changes remain owned by database transaction functions
+- after submit, the page should surface inline feedback and refresh relevant data views
 
 ## 17. Security and Access Direction
 
@@ -410,6 +467,9 @@ Detailed permission mapping can be refined during implementation planning, but t
 
 The first implementation plan should cover:
 
+- protected shell and CSSD navigation smoke validation
+- working accordion behavior for `Master Data`
+- master data page interaction and server action wiring
 - Reference data CRUD validation
 - Transaction validation by item type
 - Stock balance updates
