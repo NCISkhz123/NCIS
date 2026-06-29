@@ -6,7 +6,7 @@ import { getPublicEnv } from "@/lib/env";
 export async function updateSession(request: NextRequest) {
   const env = getPublicEnv();
 
-  let response = NextResponse.next({
+  let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -20,26 +20,34 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
 
-          response = NextResponse.next({
+          supabaseResponse = NextResponse.next({
             request: {
               headers: request.headers,
             },
           });
 
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options)
           );
+
+          Object.entries(headers ?? {}).forEach(([key, value]) => {
+            supabaseResponse.headers.set(key, value);
+          });
         },
       },
     }
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return response;
+  void user;
+
+  return supabaseResponse;
 }

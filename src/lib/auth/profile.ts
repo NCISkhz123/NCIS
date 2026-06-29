@@ -6,6 +6,7 @@ import { normalizeRole } from "./roles";
 
 export type CurrentProfile = {
   email: string | null;
+  fullName: string | null;
   role: ReturnType<typeof normalizeRole>;
   userId: string;
 };
@@ -20,14 +21,16 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
     return null;
   }
 
-  const rawRole =
-    user.app_metadata?.role ??
-    user.user_metadata?.role ??
-    user.user_metadata?.app_role;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, full_name, app_role")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   return {
-    email: user.email ?? null,
-    role: normalizeRole(rawRole),
+    email: profile?.email ?? user.email ?? null,
+    fullName: profile?.full_name ?? null,
+    role: normalizeRole(profile?.app_role ?? "USER"),
     userId: user.id,
   };
 });
