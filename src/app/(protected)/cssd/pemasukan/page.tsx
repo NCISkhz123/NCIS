@@ -1,11 +1,34 @@
-import { CssdPlaceholderPage } from "@/components/layout/cssd-placeholder-page";
+import { ReceiptTransactionView } from "@/components/cssd/transactions/receipt-transaction-view";
+import {
+  listActiveItems,
+  listRecentTransactionHistory,
+  listStockSummary,
+} from "@/lib/cssd/services/transaction-read-models";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default function PemasukanPage() {
+  return <PemasukanPageContent />;
+}
+
+async function PemasukanPageContent() {
+  const supabase = await createServerSupabaseClient();
+  const [items, recentTransactions, stockSummary] = await Promise.all([
+    listActiveItems(supabase),
+    listRecentTransactionHistory(supabase, {
+      movementType: "RECEIPT",
+      limit: 8,
+    }),
+    listStockSummary(supabase, {
+      positions: ["READY"],
+      limit: 12,
+    }),
+  ]);
+
   return (
-    <CssdPlaceholderPage
-      eyebrow="Transaksi"
-      title="Halaman Pemasukan sedang disiapkan"
-      description="Form pemasukan dan histori transaksi masuk akan dihubungkan pada task transaksi inti CSSD."
+    <ReceiptTransactionView
+      items={items}
+      recentTransactions={recentTransactions}
+      stockSummary={stockSummary}
     />
   );
 }

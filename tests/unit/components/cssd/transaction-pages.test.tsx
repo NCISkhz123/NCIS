@@ -1,0 +1,241 @@
+// @vitest-environment jsdom
+
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { ReceiptTransactionView } from "@/components/cssd/transactions/receipt-transaction-view";
+import { DistributionTransactionView } from "@/components/cssd/transactions/distribution-transaction-view";
+import { ReturnTransactionView } from "@/components/cssd/transactions/return-transaction-view";
+
+vi.mock("@/app/(protected)/cssd/pemasukan/actions", () => ({
+  initialReceiptFormState: {
+    error: null,
+    message: null,
+    impact: null,
+  },
+  saveReceiptAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/distribusi/actions", () => ({
+  initialDistributionFormState: {
+    error: null,
+    message: null,
+    impact: null,
+  },
+  saveDistributionAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/pengembalian/actions", () => ({
+  initialReturnFormState: {
+    error: null,
+    message: null,
+    impact: null,
+  },
+  initialReusableProcessingFormState: {
+    error: null,
+    message: null,
+    impact: null,
+  },
+  saveReturnAction: vi.fn(),
+  processReusableAction: vi.fn(),
+}));
+
+const reusableItem = {
+  id: "11111111-1111-4111-8111-111111111111",
+  code: "R-0001",
+  name: "Set Minor",
+  item_type: "REUSABLE" as const,
+  uom_id: "22222222-2222-4222-8222-222222222222",
+  notes: null,
+  is_active: true,
+};
+
+const distributionConsumableItem = {
+  id: "33333333-3333-4333-8333-333333333333",
+  code: "CD-0001",
+  name: "Wrap CSSD",
+  item_type: "CONSUMABLE_DISTRIBUTION" as const,
+  uom_id: "22222222-2222-4222-8222-222222222222",
+  notes: null,
+  is_active: true,
+};
+
+const internalConsumableItem = {
+  id: "44444444-4444-4444-8444-444444444444",
+  code: "CI-0001",
+  name: "Chemical Sterilizer",
+  item_type: "CONSUMABLE_INTERNAL" as const,
+  uom_id: "22222222-2222-4222-8222-222222222222",
+  notes: null,
+  is_active: true,
+};
+
+const hospitalUnit = {
+  id: "55555555-5555-4555-8555-555555555555",
+  code: "IGD",
+  name: "Instalasi Gawat Darurat",
+  is_active: true,
+};
+
+describe("CSSD transaction pages", () => {
+  it("renders the receipt page with form, recent history, and stock detail", () => {
+    render(
+      <ReceiptTransactionView
+        items={[reusableItem, distributionConsumableItem]}
+        recentTransactions={[
+          {
+            id: "receipt-1",
+            referenceNo: "RCV-001",
+            transactionDate: "2026-06-29",
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            itemType: reusableItem.item_type,
+            quantity: 5,
+            notes: "Pemasukan awal",
+            targetUnitName: null,
+            destinationLabel: "Siap Pakai",
+          },
+        ]}
+        stockSummary={[
+          {
+            itemId: reusableItem.id,
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            itemType: reusableItem.item_type,
+            stockPosition: "READY",
+            stockPositionLabel: "Siap Pakai",
+            quantity: 5,
+            hospitalUnitName: null,
+          },
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /kelola pemasukan stok cssd/i })
+    ).toBeVisible();
+    expect(screen.getByLabelText(/item cssd/i)).toBeVisible();
+    expect(screen.getByLabelText(/tanggal transaksi/i)).toBeVisible();
+    expect(screen.getByLabelText(/jumlah masuk/i)).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: /simpan pemasukan/i })
+    ).toBeVisible();
+    expect(screen.getAllByText(/riwayat pemasukan terbaru/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/posisi stok saat ini/i).length).toBeGreaterThan(0);
+  });
+
+  it("renders the distribution page with target unit and stock availability", () => {
+    render(
+      <DistributionTransactionView
+        items={[reusableItem, distributionConsumableItem]}
+        hospitalUnits={[hospitalUnit]}
+        recentTransactions={[
+          {
+            id: "distribution-1",
+            referenceNo: "DST-001",
+            transactionDate: "2026-06-29",
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            itemType: reusableItem.item_type,
+            quantity: 3,
+            notes: "Distribusi ke IGD",
+            targetUnitName: hospitalUnit.name,
+            destinationLabel: "Di Unit",
+          },
+        ]}
+        stockSummary={[
+          {
+            itemId: reusableItem.id,
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            itemType: reusableItem.item_type,
+            stockPosition: "READY",
+            stockPositionLabel: "Siap Pakai",
+            quantity: 8,
+            hospitalUnitName: null,
+          },
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /kelola distribusi cssd/i })
+    ).toBeVisible();
+    expect(screen.getByLabelText(/unit tujuan/i)).toBeVisible();
+    expect(screen.getByLabelText(/jumlah distribusi/i)).toBeVisible();
+    expect(screen.getAllByText(/stok siap distribusi/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("button", { name: /simpan distribusi/i })
+    ).toBeVisible();
+  });
+
+  it("renders the return page with reusable-only options and reusable processing actions", () => {
+    render(
+      <ReturnTransactionView
+        items={[reusableItem, distributionConsumableItem, internalConsumableItem]}
+        hospitalUnits={[hospitalUnit]}
+        recentTransactions={[
+          {
+            id: "return-1",
+            referenceNo: "RTN-001",
+            transactionDate: "2026-06-29",
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            itemType: reusableItem.item_type,
+            quantity: 2,
+            notes: "Kembali dari IGD",
+            targetUnitName: hospitalUnit.name,
+            destinationLabel: "Tidak Steril",
+          },
+        ]}
+        stockSummary={[
+          {
+            itemId: reusableItem.id,
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            itemType: reusableItem.item_type,
+            stockPosition: "NON_STERILE",
+            stockPositionLabel: "Tidak Steril",
+            quantity: 2,
+            hospitalUnitName: null,
+          },
+        ]}
+        reusableProcessingSummary={[
+          {
+            itemId: reusableItem.id,
+            itemName: reusableItem.name,
+            itemCode: reusableItem.code,
+            availableNonSterile: 2,
+            availableSterilizationArea: 1,
+            availableDamaged: 0,
+          },
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /kelola pengembalian reusable/i })
+    ).toBeVisible();
+    expect(screen.getByLabelText(/tujuan pengembalian/i)).toBeVisible();
+
+    const itemSelect = screen.getByLabelText(/item reusable/i);
+    expect(itemSelect).toHaveTextContent(/set minor/i);
+    expect(itemSelect).not.toHaveTextContent(/wrap cssd/i);
+    expect(itemSelect).not.toHaveTextContent(/chemical sterilizer/i);
+
+    const destinationSelect = screen.getByLabelText(/tujuan pengembalian/i);
+    expect(destinationSelect).toHaveTextContent(/tidak steril/i);
+    expect(destinationSelect).toHaveTextContent(/rusak/i);
+
+    expect(screen.getByText(/lanjutkan reusable internal/i)).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: /kirim ke area sterilisasi/i })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: /tandai siap pakai/i })
+    ).toBeVisible();
+    expect(
+      screen.getAllByRole("button", { name: /tandai rusak/i }).length
+    ).toBeGreaterThan(0);
+  });
+});

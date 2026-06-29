@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 
 export type CssdRpcClient = {
@@ -66,5 +67,20 @@ export async function executeStockRpc(
   return {
     success: true,
     data,
+  };
+}
+
+export function createSupabaseRpcClient(
+  supabase: SupabaseClient
+): CssdRpcClient {
+  return {
+    async rpc<T>(functionName: string, args: Record<string, unknown>) {
+      const { data, error } = await supabase.rpc(functionName, args);
+
+      return {
+        data: (data as T | null) ?? null,
+        error: error ? { message: error.message } : null,
+      };
+    },
   };
 }
