@@ -3,6 +3,11 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+import type {
+  ReportQueryClient,
+  ReportView,
+} from "@/lib/cssd/services/reports";
+
 const DB_CONTAINER = `ncis_cssd_test_db_${process.pid}_${Math.random()
   .toString(36)
   .slice(2, 8)}`;
@@ -510,6 +515,40 @@ function buildWhereClause(filters: Record<string, unknown>) {
   return `where ${clauses.join(" and ")}`;
 }
 
+function buildReportFilterClause(
+  filters:
+    | Array<{
+        column: string;
+        operator: "eq" | "gte" | "lte";
+        value: unknown;
+      }>
+    | undefined
+) {
+  const clauses = (filters ?? [])
+    .filter((filter) => filter.value !== undefined)
+    .map((filter) => {
+      if (filter.operator === "eq") {
+        if (filter.value === null) {
+          return `${filter.column} is null`;
+        }
+
+        return `${filter.column} = ${toSqlLiteral(filter.value)}`;
+      }
+
+      if (filter.operator === "gte") {
+        return `${filter.column} >= ${toSqlLiteral(filter.value)}`;
+      }
+
+      return `${filter.column} <= ${toSqlLiteral(filter.value)}`;
+    });
+
+  if (!clauses.length) {
+    return "";
+  }
+
+  return `where ${clauses.join(" and ")}`;
+}
+
 export type MasterDataQueryClient = {
   findMany<T>(
     table: MasterDataTable,
@@ -528,6 +567,8 @@ export type MasterDataQueryClient = {
     payload: Record<string, unknown>
   ): Promise<{ data: T | null; error: { message: string } | null }>;
 };
+
+type ReportRole = "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER";
 
 export function createMasterDataClient(
   role: "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER"
@@ -633,6 +674,60 @@ export function createMasterDataClient(
 
         return {
           data: JSON.parse(output) as T,
+          error: null,
+        };
+      } catch (error) {
+        return {
+          data: null,
+          error: {
+            message: error instanceof Error ? error.message : String(error),
+          },
+        };
+      }
+    },
+  };
+}
+
+export function createSqlReportClient(role: ReportRole): ReportQueryClient {
+  return {
+    async findMany<T>(
+      view: ReportView,
+      options?: {
+        filters?: Array<{
+          column: string;
+          operator: "eq" | "gte" | "lte";
+          value: unknown;
+        }>;
+        orderBy?: { column: string; ascending?: boolean };
+        limit?: number;
+      }
+    ) {
+      try {
+        const whereClause = buildReportFilterClause(options?.filters);
+        const orderClause = options?.orderBy
+          ? `order by ${options.orderBy.column} ${
+              options.orderBy.ascending === false ? "desc" : "asc"
+            }`
+          : "";
+        const limitClause =
+          typeof options?.limit === "number" ? `limit ${options.limit}` : "";
+
+        const output = runAuthenticatedSql(
+          role,
+          `
+            select coalesce(jsonb_agg(row_to_json(t)), '[]'::jsonb)::text
+            from (
+              select *
+              from public.${view}
+              ${whereClause}
+              ${orderClause}
+              ${limitClause}
+            ) t;
+          `
+        );
+
+        return {
+          data: JSON.parse(output) as T[],
           error: null,
         };
       } catch (error) {
