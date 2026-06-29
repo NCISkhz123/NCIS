@@ -64,6 +64,12 @@ Top-level menu:
 - Stok Opname
 - Laporan
 
+Report page sections:
+
+- Stok Saat Ini
+- Riwayat Transaksi
+- Kartu Stok
+
 Master Data submenu:
 
 - Item
@@ -165,6 +171,17 @@ Purpose:
 
 - Record stock entering CSSD
 
+Transaction structure:
+
+- single-item transaction per submit in MVP
+
+Minimum input:
+
+- item
+- quantity
+- date
+- notes
+
 Expected effect:
 
 - Increase stock balance
@@ -192,6 +209,18 @@ Constraint:
 - Distribution is entered directly by CSSD staff
 - There is no unit request workflow in MVP
 
+Transaction structure:
+
+- single-item transaction per submit in MVP
+
+Minimum input:
+
+- item
+- quantity
+- target unit
+- date
+- notes
+
 ### 10.3 Pengembalian
 
 Purpose:
@@ -207,6 +236,19 @@ Expected effect:
 Scope rule:
 
 - Pengembalian is primarily for Reusable items
+
+Transaction structure:
+
+- single-item transaction per submit in MVP
+
+Minimum input:
+
+- item
+- quantity
+- origin unit
+- return condition
+- date
+- notes
 
 ### 10.4 Pemakaian Internal
 
@@ -237,6 +279,18 @@ Expected effect:
 - draft entry does not directly change stock
 - finalization creates stock adjustment movements and updates balances
 
+Scope rule:
+
+- one draft session can exist at a time for CSSD in MVP
+- sessions may cover selected items rather than forcing all items at once
+- reusable items are counted per stock position
+- consumables are counted against CSSD ready stock
+
+Correction rule:
+
+- finalized opname is not edited in place
+- any correction after finalization is recorded as a new adjustment entry
+
 ### 10.6 Riwayat transaksi
 
 Purpose:
@@ -247,6 +301,10 @@ Filter behavior:
 
 - support filter by one date
 - support filter by date range
+
+Placement:
+
+- `Riwayat Transaksi` lives inside `Laporan`, not as a separate top-level menu
 
 ## 11. Reusable Operational Flows
 
@@ -276,7 +334,10 @@ Although the menu structure focuses on core business transactions, the data mode
 - Area Sterilisasi -> Siap Pakai
 - Any valid origin -> Rusak
 
-Implementation detail can be expressed later either as dedicated internal actions inside the reusable flow or as specialized transaction actions within the CSSD module.
+Implementation direction for MVP:
+
+- these transitions are implemented as specialized actions inside the reusable return and circulation flow
+- they do not become a separate top-level menu
 
 ## 12. Reporting Scope
 
@@ -328,6 +389,12 @@ This section describes the intended core tables and responsibilities, not final 
 - `stock_opname_sessions`
 - `stock_opname_lines`
 
+MVP transaction shape:
+
+- `receipts`, `distributions`, `returns`, and `internal_usages` are single-item transaction records per submit
+- `stock_opname_sessions` stores the header
+- `stock_opname_lines` stores the counted line items within a session
+
 ### 13.4 Item fields
 
 Suggested minimum fields for `items`:
@@ -354,6 +421,20 @@ Suggested responsibility for `stock_balances`:
 - Support quantity by logical stock position where applicable
 - Serve fast operational reads
 
+Suggested minimum balance key:
+
+- `item_id`
+- `stock_position`
+- optional `hospital_unit_id`
+
+Position usage:
+
+- Reusable items use `READY`, `IN_UNIT`, `NON_STERILE`, `STERILIZATION_AREA`, and `DAMAGED`
+- Reusable `IN_UNIT` balances are stored per `hospital_unit_id` so distribution and return flows can be traced per unit
+- Consumable Distribution uses CSSD `READY` stock only
+- Consumable Internal uses CSSD `READY` stock only
+- Consumable distribution to units is recorded in transaction and movement history, not as unit stock balance rows
+
 ### 13.6 Stock movement fields
 
 Suggested minimum stock movement concepts:
@@ -376,6 +457,7 @@ The stock movement table is the authoritative audit trail.
 - All stock-changing transactions must write to stock movements.
 - Stock balances are updated through approved transaction flows, not direct manual edits.
 - Stock movement records must be treated as audit data and should not be freely edited after creation.
+- Mistaken posted transactions are corrected using reversal or adjustment entries, not by editing historical movement rows.
 - Transactions must reject quantity larger than available stock in the origin position.
 - Pengembalian should only allow Reusable items.
 - Pemakaian Internal should only allow Consumable Internal items.
@@ -461,7 +543,10 @@ Initial access model is intentionally small:
 - Admin CSSD
 - Petugas CSSD
 
-Detailed permission mapping can be refined during implementation planning, but the data and route structure should be prepared for role-aware access.
+Minimal MVP permission split:
+
+- Admin CSSD: full master data access, all transaction access, stock opname finalization, and correction or reversal actions
+- Petugas CSSD: operational transaction entry, draft opname work, and report viewing without master data governance actions
 
 ## 18. Testing Direction
 
@@ -492,7 +577,6 @@ These items can be finalized during planning and implementation without changing
 
 - Exact route naming and folder structure in Next.js
 - Exact Supabase auth strategy and role mapping
-- Whether internal reusable transfers become their own menu or embedded actions
 - Exact code generation format for item codes
 - Filtering, pagination, and export behavior for reports
 
