@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 type ModuleHeaderProps = {
   roleLabel: string;
   email: string | null;
+  logoutAction: () => Promise<void>;
 };
 
 function getRouteMeta(pathname: string) {
@@ -25,7 +26,11 @@ function getRouteMeta(pathname: string) {
   return CSSD_ROUTE_META["/cssd"];
 }
 
-export function ModuleHeader({ roleLabel, email }: ModuleHeaderProps) {
+export function ModuleHeader({
+  roleLabel,
+  email,
+  logoutAction,
+}: ModuleHeaderProps) {
   const pathname = usePathname();
   const routeMeta = getRouteMeta(pathname);
 
@@ -68,13 +73,22 @@ export function ModuleHeader({ roleLabel, email }: ModuleHeaderProps) {
             </div>
           </section>
 
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-3">
             <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-right shadow-sm">
               <p className="text-sm font-semibold text-slate-900">{roleLabel}</p>
               <p className="text-xs text-slate-500">
                 {email ?? "Profil belum memiliki email"}
               </p>
             </div>
+
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-950"
+              >
+                Logout
+              </button>
+            </form>
           </div>
         </div>
       </div>

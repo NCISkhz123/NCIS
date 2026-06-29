@@ -1,5 +1,3 @@
-"use server";
-
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -64,6 +62,8 @@ export async function loginAction(
   _: LoginActionState | null,
   formData: FormData
 ): Promise<LoginActionState> {
+  "use server";
+
   try {
     const payload = normalizeLoginPayload(formData);
     const supabase = await createServerSupabaseClient();

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { logoutAction } from "@/app/(protected)/actions";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { ModuleHeader } from "@/components/layout/module-header";
 import { requireCssdAccess } from "@/lib/auth/guards";
@@ -34,6 +35,7 @@ export default async function CssdLayout({ children }: CssdLayoutProps) {
           <ModuleHeader
             roleLabel={formatRoleLabel(profile?.role ?? null)}
             email={profile?.email ?? null}
+            logoutAction={logoutAction}
           />
           <main className="flex-1 px-4 py-5 md:px-6 lg:px-8 lg:py-8">
             {children}
