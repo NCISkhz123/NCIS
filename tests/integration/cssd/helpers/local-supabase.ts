@@ -14,29 +14,6 @@ function runCommand(command: string, args: string[], input?: string) {
   });
 }
 
-function execPsql(sql: string) {
-  return runCommand(
-    "docker",
-    [
-      "exec",
-      "-i",
-      DB_CONTAINER,
-      "psql",
-      "-U",
-      "postgres",
-      "-d",
-      "postgres",
-      "-v",
-      "ON_ERROR_STOP=1",
-      "-t",
-      "-A",
-      "-c",
-      sql,
-    ],
-    undefined
-  );
-}
-
 function execPsqlFile(sql: string) {
   return runCommand(
     "docker",
