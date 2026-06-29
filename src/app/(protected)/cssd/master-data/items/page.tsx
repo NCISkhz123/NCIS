@@ -1,11 +1,40 @@
-import { CssdPlaceholderPage } from "@/components/layout/cssd-placeholder-page";
+import { ItemMasterDataView } from "@/components/cssd/master-data/item-master-data-view";
+import {
+  createSupabaseMasterDataClient,
+  listItems,
+  listUnitOfMeasures,
+} from "@/lib/cssd/services/master-data";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default function MasterDataItemsPage() {
+type MasterDataItemsPageProps = {
+  searchParams?: Promise<{
+    edit?: string;
+  }>;
+};
+
+export default async function MasterDataItemsPage({
+  searchParams,
+}: MasterDataItemsPageProps) {
+  const params = (await searchParams) ?? {};
+  const supabase = await createServerSupabaseClient();
+  const client = createSupabaseMasterDataClient(supabase);
+
+  const [itemsResult, uomsResult] = await Promise.all([
+    listItems(client),
+    listUnitOfMeasures(client),
+  ]);
+
+  const items = itemsResult.success ? itemsResult.data : [];
+  const unitsOfMeasure = uomsResult.success ? uomsResult.data : [];
+  const editingRecord = params.edit
+    ? items.find((item) => item.id === params.edit) ?? null
+    : null;
+
   return (
-    <CssdPlaceholderPage
-      eyebrow="Master Data"
-      title="Halaman Item sedang disiapkan"
-      description="Task berikutnya akan menghubungkan tabel item, form create or update, dan server action untuk master data item."
+    <ItemMasterDataView
+      items={items}
+      unitsOfMeasure={unitsOfMeasure}
+      editingRecord={editingRecord}
     />
   );
 }

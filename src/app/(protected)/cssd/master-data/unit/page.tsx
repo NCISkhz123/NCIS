@@ -1,11 +1,27 @@
-import { CssdPlaceholderPage } from "@/components/layout/cssd-placeholder-page";
+import { UnitMasterDataView } from "@/components/cssd/master-data/unit-master-data-view";
+import {
+  createSupabaseMasterDataClient,
+  listHospitalUnits,
+} from "@/lib/cssd/services/master-data";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default function MasterDataUnitPage() {
-  return (
-    <CssdPlaceholderPage
-      eyebrow="Master Data"
-      title="Halaman Unit sedang disiapkan"
-      description="Daftar unit tujuan distribusi akan dihubungkan pada task master data UI agar bisa dikelola langsung dari shell ini."
-    />
-  );
+type MasterDataUnitPageProps = {
+  searchParams?: Promise<{
+    edit?: string;
+  }>;
+};
+
+export default async function MasterDataUnitPage({
+  searchParams,
+}: MasterDataUnitPageProps) {
+  const params = (await searchParams) ?? {};
+  const supabase = await createServerSupabaseClient();
+  const client = createSupabaseMasterDataClient(supabase);
+  const recordsResult = await listHospitalUnits(client);
+  const records = recordsResult.success ? recordsResult.data : [];
+  const editingRecord = params.edit
+    ? records.find((record) => record.id === params.edit) ?? null
+    : null;
+
+  return <UnitMasterDataView records={records} editingRecord={editingRecord} />;
 }

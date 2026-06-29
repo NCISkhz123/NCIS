@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { generateItemCode } from "@/lib/cssd/codegen/item-code";
 import type { ItemType } from "@/lib/cssd/types";
 import { itemFormSchema } from "@/lib/cssd/validators/item";
@@ -8,14 +10,14 @@ import {
   validationFailure,
 } from "@/lib/cssd/services/stock";
 
-type MasterDataTable = "units_of_measure" | "hospital_units" | "items";
+export type MasterDataTable = "units_of_measure" | "hospital_units" | "items";
 
 type OrderBy = {
   column: string;
   ascending?: boolean;
 };
 
-type MasterDataClient = {
+export type MasterDataClient = {
   findMany<T>(
     table: MasterDataTable,
     options?: {
@@ -34,21 +36,21 @@ type MasterDataClient = {
   ): Promise<{ data: T | null; error: { message: string } | null }>;
 };
 
-type UnitOfMeasureRow = {
+export type UnitOfMeasureRow = {
   id: string;
   code: string;
   name: string;
   is_active: boolean;
 };
 
-type HospitalUnitRow = {
+export type HospitalUnitRow = {
   id: string;
   code: string;
   name: string;
   is_active: boolean;
 };
 
-type ItemRow = {
+export type ItemRow = {
   id: string;
   code: string;
   name: string;
@@ -57,6 +59,81 @@ type ItemRow = {
   notes: string | null;
   is_active: boolean;
 };
+
+type SupabaseLikeClient = SupabaseClient;
+
+export function createSupabaseMasterDataClient(
+  supabase: SupabaseLikeClient
+): MasterDataClient {
+  return {
+    async findMany<T>(
+      table: MasterDataTable,
+      options?: {
+        filters?: Record<string, unknown>;
+        orderBy?: OrderBy;
+      }
+    ) {
+      let query = supabase.from(table).select("*");
+
+      const filters = options?.filters ?? {};
+
+      for (const [key, value] of Object.entries(filters)) {
+        if (value === undefined) {
+          continue;
+        }
+
+        if (value === null) {
+          query = query.is(key, null);
+          continue;
+        }
+
+        query = query.eq(key, value);
+      }
+
+      if (options?.orderBy) {
+        query = query.order(options.orderBy.column, {
+          ascending: options.orderBy.ascending ?? true,
+        });
+      }
+
+      const { data, error } = await query;
+
+      return {
+        data: (data as T[] | null) ?? null,
+        error: error ? { message: error.message } : null,
+      };
+    },
+    async insertOne<T>(table: MasterDataTable, payload: Record<string, unknown>) {
+      const { data, error } = await supabase
+        .from(table)
+        .insert(payload)
+        .select("*")
+        .single();
+
+      return {
+        data: (data as T | null) ?? null,
+        error: error ? { message: error.message } : null,
+      };
+    },
+    async updateById<T>(
+      table: MasterDataTable,
+      id: string,
+      payload: Record<string, unknown>
+    ) {
+      const { data, error } = await supabase
+        .from(table)
+        .update(payload)
+        .eq("id", id)
+        .select("*")
+        .single();
+
+      return {
+        data: (data as T | null) ?? null,
+        error: error ? { message: error.message } : null,
+      };
+    },
+  };
+}
 
 function persistenceFailure(message: string): ServiceResult<never> {
   return {
@@ -164,6 +241,29 @@ export async function createUnitOfMeasure(
   };
 }
 
+export async function listUnitOfMeasures(
+  client: MasterDataClient
+): Promise<ServiceResult<UnitOfMeasureRow[]>> {
+  const { data, error } = await client.findMany<UnitOfMeasureRow>(
+    "units_of_measure",
+    {
+      orderBy: {
+        column: "name",
+        ascending: true,
+      },
+    }
+  );
+
+  if (error || !data) {
+    return persistenceFailure(error?.message ?? "Gagal mengambil daftar satuan");
+  }
+
+  return {
+    success: true,
+    data,
+  };
+}
+
 export async function updateUnitOfMeasure(
   client: MasterDataClient,
   id: string,
@@ -238,6 +338,26 @@ export async function createHospitalUnit(
 
   if (error || !data) {
     return persistenceFailure(error?.message ?? "Gagal membuat unit");
+  }
+
+  return {
+    success: true,
+    data,
+  };
+}
+
+export async function listHospitalUnits(
+  client: MasterDataClient
+): Promise<ServiceResult<HospitalUnitRow[]>> {
+  const { data, error } = await client.findMany<HospitalUnitRow>("hospital_units", {
+    orderBy: {
+      column: "name",
+      ascending: true,
+    },
+  });
+
+  if (error || !data) {
+    return persistenceFailure(error?.message ?? "Gagal mengambil daftar unit");
   }
 
   return {
@@ -338,6 +458,26 @@ export async function createItem(
 
   if (error || !data) {
     return persistenceFailure(error?.message ?? "Gagal membuat item");
+  }
+
+  return {
+    success: true,
+    data,
+  };
+}
+
+export async function listItems(
+  client: MasterDataClient
+): Promise<ServiceResult<ItemRow[]>> {
+  const { data, error } = await client.findMany<ItemRow>("items", {
+    orderBy: {
+      column: "name",
+      ascending: true,
+    },
+  });
+
+  if (error || !data) {
+    return persistenceFailure(error?.message ?? "Gagal mengambil daftar item");
   }
 
   return {
