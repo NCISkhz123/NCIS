@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "auth:bootstrap-demo": "pnpm exec tsx scripts/bootstrap-demo-auth.ts",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
@@ -48,6 +49,7 @@
     "jsdom": "^29.1.1",
     "supabase": "^2.108.0",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }
