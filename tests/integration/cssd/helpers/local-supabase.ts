@@ -234,6 +234,19 @@ rollback;
 `);
 }
 
+export function runAuthenticatedSqlWithClaims(
+  claims: Record<string, unknown>,
+  sql: string
+) {
+  return runSql(`
+begin;
+set local role authenticated;
+set local "request.jwt.claims" = ${sqlString(JSON.stringify(claims))};
+${sql}
+rollback;
+`);
+}
+
 export function runCommittedAuthenticatedSql(
   role: "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER",
   sql: string
