@@ -45,3 +45,122 @@ export const DISTRIBUTABLE_ITEM_TYPES = [
 export const RETURNABLE_ITEM_TYPES = ["REUSABLE"] as const;
 
 export const INTERNAL_USAGE_ITEM_TYPES = ["CONSUMABLE_INTERNAL"] as const;
+
+export const NCIS_MODULES = [
+  {
+    key: "CSSD",
+    label: "CSSD",
+    description: "Central Sterile Supply Department",
+    href: "/cssd",
+    active: true,
+  },
+  {
+    key: "LAUNDRY",
+    label: "Laundry",
+    description: "Segera hadir",
+    href: "#",
+    active: false,
+  },
+  {
+    key: "AMBULANCE",
+    label: "Ambulance",
+    description: "Segera hadir",
+    href: "#",
+    active: false,
+  },
+] as const;
+
+export const CSSD_NAV_ITEMS = [
+  {
+    type: "group",
+    label: "Master Data",
+    segment: "/cssd/master-data",
+    children: [
+      {
+        label: "Item",
+        href: "/cssd/master-data/items",
+      },
+      {
+        label: "Satuan",
+        href: "/cssd/master-data/satuan",
+      },
+      {
+        label: "Unit",
+        href: "/cssd/master-data/unit",
+      },
+    ],
+  },
+  {
+    type: "link",
+    label: "Pemasukan",
+    href: "/cssd/pemasukan",
+  },
+  {
+    type: "link",
+    label: "Distribusi",
+    href: "/cssd/distribusi",
+  },
+  {
+    type: "link",
+    label: "Pengembalian",
+    href: "/cssd/pengembalian",
+  },
+  {
+    type: "link",
+    label: "Pemakaian Internal",
+    href: "/cssd/pemakaian-internal",
+  },
+  {
+    type: "link",
+    label: "Stok Opname",
+    href: "/cssd/stok-opname",
+  },
+  {
+    type: "link",
+    label: "Laporan",
+    href: "/cssd/laporan",
+  },
+] as const;
+
+export const CSSD_ROUTE_META = {
+  "/cssd": {
+    title: "CSSD Workspace",
+    description: "Ruang kerja utama modul CSSD untuk operasional harian NCIS.",
+  },
+  "/cssd/master-data/items": {
+    title: "Master Data / Item",
+    description: "Kelola daftar item reusable dan konsumabel CSSD.",
+  },
+  "/cssd/master-data/satuan": {
+    title: "Master Data / Satuan",
+    description: "Kelola referensi satuan yang dipakai item dan transaksi.",
+  },
+  "/cssd/master-data/unit": {
+    title: "Master Data / Unit",
+    description: "Kelola daftar unit tujuan distribusi CSSD.",
+  },
+  "/cssd/pemasukan": {
+    title: "Pemasukan",
+    description: "Catat barang masuk ke stok CSSD.",
+  },
+  "/cssd/distribusi": {
+    title: "Distribusi",
+    description: "Catat distribusi barang dari CSSD ke unit rumah sakit.",
+  },
+  "/cssd/pengembalian": {
+    title: "Pengembalian",
+    description: "Catat pengembalian barang reusable dari unit.",
+  },
+  "/cssd/pemakaian-internal": {
+    title: "Pemakaian Internal",
+    description: "Catat pemakaian konsumabel internal untuk proses CSSD.",
+  },
+  "/cssd/stok-opname": {
+    title: "Stok Opname",
+    description: "Kelola sesi pencatatan fisik dan finalisasi penyesuaian stok.",
+  },
+  "/cssd/laporan": {
+    title: "Laporan",
+    description: "Pantau stok saat ini, riwayat transaksi, dan kartu stok item.",
+  },
+} as const;
