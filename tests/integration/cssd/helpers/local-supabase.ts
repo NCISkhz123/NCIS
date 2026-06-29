@@ -473,3 +473,176 @@ export function getLatestMovement(params: { itemId: string }) {
     quantity: number;
   };
 }
+
+type MasterDataTable = "units_of_measure" | "hospital_units" | "items";
+
+const TABLE_COLUMN_MAP: Record<MasterDataTable, string[]> = {
+  units_of_measure: ["id", "code", "name", "is_active", "created_at", "updated_at"],
+  hospital_units: ["id", "code", "name", "is_active", "created_at", "updated_at"],
+  items: [
+    "id",
+    "code",
+    "name",
+    "item_type",
+    "uom_id",
+    "notes",
+    "is_active",
+    "created_at",
+    "updated_at",
+  ],
+};
+
+function buildWhereClause(filters: Record<string, unknown>) {
+  const entries = Object.entries(filters).filter(([, value]) => value !== undefined);
+
+  if (entries.length === 0) {
+    return "";
+  }
+
+  const clauses = entries.map(([key, value]) => {
+    if (value === null) {
+      return `${key} is null`;
+    }
+
+    return `${key} = ${toSqlLiteral(value)}`;
+  });
+
+  return `where ${clauses.join(" and ")}`;
+}
+
+export type MasterDataQueryClient = {
+  findMany<T>(
+    table: MasterDataTable,
+    options?: {
+      filters?: Record<string, unknown>;
+      orderBy?: { column: string; ascending?: boolean };
+    }
+  ): Promise<{ data: T[] | null; error: { message: string } | null }>;
+  insertOne<T>(
+    table: MasterDataTable,
+    payload: Record<string, unknown>
+  ): Promise<{ data: T | null; error: { message: string } | null }>;
+  updateById<T>(
+    table: MasterDataTable,
+    id: string,
+    payload: Record<string, unknown>
+  ): Promise<{ data: T | null; error: { message: string } | null }>;
+};
+
+export function createMasterDataClient(
+  role: "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER"
+): MasterDataQueryClient {
+  return {
+    async findMany<T>(
+      table: MasterDataTable,
+      options?: {
+        filters?: Record<string, unknown>;
+        orderBy?: { column: string; ascending?: boolean };
+      }
+    ) {
+      try {
+        const whereClause = buildWhereClause(options?.filters ?? {});
+        const orderClause = options?.orderBy
+          ? `order by ${options.orderBy.column} ${
+              options.orderBy.ascending === false ? "desc" : "asc"
+            }`
+          : "";
+
+        const output = runAuthenticatedSql(
+          role,
+          `
+            select coalesce(
+              jsonb_agg(row_to_json(t) ${orderClause ? `order by t.${options?.orderBy?.column} ${options?.orderBy?.ascending === false ? "desc" : "asc"}` : ""}),
+              '[]'::jsonb
+            )::text
+            from (
+              select ${TABLE_COLUMN_MAP[table].join(", ")}
+              from public.${table}
+              ${whereClause}
+              ${orderClause}
+            ) t;
+          `
+        );
+
+        return {
+          data: JSON.parse(output) as T[],
+          error: null,
+        };
+      } catch (error) {
+        return {
+          data: null,
+          error: {
+            message: error instanceof Error ? error.message : String(error),
+          },
+        };
+      }
+    },
+    async insertOne<T>(table: MasterDataTable, payload: Record<string, unknown>) {
+      try {
+        const columns = Object.keys(payload);
+        const values = Object.values(payload);
+        const output = runCommittedAuthenticatedSql(
+          role,
+          `
+            with inserted as (
+              insert into public.${table} (${columns.join(", ")})
+              values (${values.map((value) => toSqlLiteral(value)).join(", ")})
+              returning ${TABLE_COLUMN_MAP[table].join(", ")}
+            )
+            select row_to_json(inserted)::text
+            from inserted;
+          `
+        );
+
+        return {
+          data: JSON.parse(output) as T,
+          error: null,
+        };
+      } catch (error) {
+        return {
+          data: null,
+          error: {
+            message: error instanceof Error ? error.message : String(error),
+          },
+        };
+      }
+    },
+    async updateById<T>(
+      table: MasterDataTable,
+      id: string,
+      payload: Record<string, unknown>
+    ) {
+      try {
+        const updates = Object.entries(payload)
+          .map(([key, value]) => `${key} = ${toSqlLiteral(value)}`)
+          .join(", ");
+
+        const output = runCommittedAuthenticatedSql(
+          role,
+          `
+            with updated as (
+              update public.${table}
+              set ${updates}
+              where id = ${sqlString(id)}
+              returning ${TABLE_COLUMN_MAP[table].join(", ")}
+            )
+            select row_to_json(updated)::text
+            from updated;
+          `
+        );
+
+        return {
+          data: JSON.parse(output) as T,
+          error: null,
+        };
+      } catch (error) {
+        return {
+          data: null,
+          error: {
+            message: error instanceof Error ? error.message : String(error),
+          },
+        };
+      }
+    },
+  };
+}

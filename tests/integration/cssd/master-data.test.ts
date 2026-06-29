@@ -2,6 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
   cleanupTestDatabase,
+  createMasterDataClient,
+  createUnitOfMeasure,
   ensureTestDatabase,
   expectAnonFailure,
   expectAuthenticatedFailure,
@@ -10,6 +12,16 @@ import {
   runSql,
   sqlString,
 } from "./helpers/local-supabase";
+import {
+  archiveHospitalUnit,
+  archiveUnitOfMeasure,
+  createHospitalUnit,
+  createItem,
+  createUnitOfMeasure as createUnitOfMeasureRecord,
+  updateHospitalUnit,
+  updateItem,
+  updateUnitOfMeasure,
+} from "@/lib/cssd/services/master-data";
 
 describe("CSSD master data schema", () => {
   beforeAll(() => {
@@ -106,4 +118,156 @@ describe("CSSD master data schema", () => {
 
     expect(error).toContain("row-level security policy");
   });
+
+  it("creates, updates, and archives satuan through the service", async () => {
+    const client = createMasterDataClient("ADMIN_CSSD");
+    const created = await createUnitOfMeasureRecord(client, {
+      code: `PCS-${Date.now()}`,
+      name: "Pieces Service",
+    });
+
+    expect(created.success).toBe(true);
+    if (!created.success) {
+      return;
+    }
+
+    const updated = await updateUnitOfMeasure(client, created.data.id, {
+      code: created.data.code,
+      name: "Pieces Updated",
+      isActive: true,
+    });
+
+    expect(updated.success).toBe(true);
+    if (!updated.success) {
+      return;
+    }
+
+    expect(updated.data.name).toBe("Pieces Updated");
+
+    const archived = await archiveUnitOfMeasure(client, created.data.id);
+
+    expect(archived.success).toBe(true);
+    if (!archived.success) {
+      return;
+    }
+
+    expect(archived.data.is_active).toBe(false);
+  }, 20_000);
+
+  it("creates, updates, and archives unit through the service", async () => {
+    const client = createMasterDataClient("ADMIN_CSSD");
+    const created = await createHospitalUnit(client, {
+      code: `ICU-${Date.now()}`,
+      name: "ICU Service",
+    });
+
+    expect(created.success).toBe(true);
+    if (!created.success) {
+      return;
+    }
+
+    const updated = await updateHospitalUnit(client, created.data.id, {
+      code: created.data.code,
+      name: "ICU Updated",
+      isActive: true,
+    });
+
+    expect(updated.success).toBe(true);
+    if (!updated.success) {
+      return;
+    }
+
+    expect(updated.data.name).toBe("ICU Updated");
+
+    const archived = await archiveHospitalUnit(client, created.data.id);
+
+    expect(archived.success).toBe(true);
+    if (!archived.success) {
+      return;
+    }
+
+    expect(archived.data.is_active).toBe(false);
+  }, 20_000);
+
+  it("auto-generates item code when blank", async () => {
+    const client = createMasterDataClient("ADMIN_CSSD");
+    const uomId = createUnitOfMeasure();
+
+    const created = await createItem(client, {
+      code: "",
+      itemType: "REUSABLE",
+      name: "Set Instrumen Auto",
+      uomId,
+    });
+
+    expect(created.success).toBe(true);
+    if (!created.success) {
+      return;
+    }
+
+    expect(created.data.code).toMatch(/^CSSD-R-\d{4}$/);
+  }, 20_000);
+
+  it("preserves manual item code and supports update", async () => {
+    const client = createMasterDataClient("ADMIN_CSSD");
+    const uomId = createUnitOfMeasure();
+    const manualCode = `MANUAL-${Date.now()}`;
+
+    const created = await createItem(client, {
+      code: manualCode,
+      itemType: "CONSUMABLE_DISTRIBUTION",
+      name: "Consumable Manual",
+      uomId,
+    });
+
+    expect(created.success).toBe(true);
+    if (!created.success) {
+      return;
+    }
+
+    expect(created.data.code).toBe(manualCode);
+
+    const updated = await updateItem(client, created.data.id, {
+      code: manualCode,
+      itemType: "CONSUMABLE_DISTRIBUTION",
+      name: "Consumable Manual Updated",
+      uomId,
+      isActive: true,
+    });
+
+    expect(updated.success).toBe(true);
+    if (!updated.success) {
+      return;
+    }
+
+    expect(updated.data.code).toBe(manualCode);
+    expect(updated.data.name).toBe("Consumable Manual Updated");
+  }, 20_000);
+
+  it("rejects duplicate active item codes", async () => {
+    const client = createMasterDataClient("ADMIN_CSSD");
+    const uomId = createUnitOfMeasure();
+    const duplicateCode = `DUP-${Date.now()}`;
+
+    const first = await createItem(client, {
+      code: duplicateCode,
+      itemType: "REUSABLE",
+      name: "Item Pertama",
+      uomId,
+    });
+
+    expect(first.success).toBe(true);
+
+    const second = await createItem(client, {
+      code: duplicateCode,
+      itemType: "REUSABLE",
+      name: "Item Kedua",
+      uomId,
+    });
+
+    expect(second.success).toBe(false);
+    if (!second.success) {
+      expect(second.error).toContain("Kode item");
+    }
+  }, 20_000);
 });
