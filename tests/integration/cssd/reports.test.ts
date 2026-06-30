@@ -82,6 +82,15 @@ describe("CSSD reports service", () => {
       transactionDate: "2026-06-03",
       notes: "Kembali untuk disterilkan ulang",
     });
+    await transferReusableStock(stockClient, {
+      itemId: reusableItemId,
+      itemType: "REUSABLE",
+      quantity: 1,
+      fromPosition: "NON_STERILE",
+      toPosition: "STERILIZATION_AREA",
+      transactionDate: "2026-06-04",
+      notes: "Masuk area sterilisasi",
+    });
 
     const report = await listCurrentStockReport(reportClient, {
       itemId: reusableItemId,
@@ -94,6 +103,7 @@ describe("CSSD reports service", () => {
           stockPosition: "READY",
           quantity: 6,
           hospitalUnitId: null,
+          hospitalUnitName: "CSSD",
         }),
         expect.objectContaining({
           itemId: reusableItemId,
@@ -104,14 +114,22 @@ describe("CSSD reports service", () => {
         expect.objectContaining({
           itemId: reusableItemId,
           stockPosition: "NON_STERILE",
-          quantity: 2,
+          quantity: 1,
           hospitalUnitId: null,
+          hospitalUnitName: "CSSD",
+        }),
+        expect.objectContaining({
+          itemId: reusableItemId,
+          stockPosition: "STERILIZATION_AREA",
+          quantity: 1,
+          hospitalUnitId: null,
+          hospitalUnitName: "CSSD",
         }),
       ])
     );
   }, 60_000);
 
-  it("returns transaction history in reverse chronological order with date and unit filters", async () => {
+  it("returns transaction history in reverse chronological order and labels internal cssd movements", async () => {
     const unitId = createHospitalUnit("OK-01");
     const reusableItemId = createItem({
       itemType: "REUSABLE",
@@ -157,20 +175,37 @@ describe("CSSD reports service", () => {
 
     const history = await listTransactionHistoryReport(reportClient, {
       itemId: reusableItemId,
-      unitId,
       dateFrom: "2026-06-02",
-      dateTo: "2026-06-03",
+      dateTo: "2026-06-04",
     });
 
     expect(history.map((entry) => entry.movementType)).toEqual([
+      "REUSABLE_TRANSFER",
       "RETURN",
       "DISTRIBUTION",
     ]);
-    expect(history.every((entry) => entry.hospitalUnitId === unitId)).toBe(true);
     expect(history.map((entry) => entry.transactionDate.slice(0, 10))).toEqual([
+      "2026-06-04",
       "2026-06-03",
       "2026-06-02",
     ]);
+    expect(history[0]).toMatchObject({
+      movementType: "REUSABLE_TRANSFER",
+      hospitalUnitId: null,
+      hospitalUnitName: "CSSD",
+      fromPosition: "NON_STERILE",
+      toPosition: "STERILIZATION_AREA",
+    });
+    expect(history[1]).toMatchObject({
+      movementType: "RETURN",
+      hospitalUnitId: unitId,
+      hospitalUnitName: expect.any(String),
+    });
+    expect(history[2]).toMatchObject({
+      movementType: "DISTRIBUTION",
+      hospitalUnitId: unitId,
+      hospitalUnitName: expect.any(String),
+    });
   }, 60_000);
 
   it("shows movement traceability for one item in the stock card report", async () => {
@@ -250,6 +285,7 @@ describe("CSSD reports service", () => {
       itemId: reusableItemId,
       fromPosition: "NON_STERILE",
       toPosition: "STERILIZATION_AREA",
+      hospitalUnitName: "CSSD",
       quantity: 2,
     });
     expect(stockCard[1]).toMatchObject({
@@ -257,6 +293,19 @@ describe("CSSD reports service", () => {
       fromPosition: "IN_UNIT",
       toPosition: "NON_STERILE",
       hospitalUnitId: unitId,
+      hospitalUnitName: expect.any(String),
+    });
+    expect(stockCard[2]).toMatchObject({
+      itemId: reusableItemId,
+      toPosition: "IN_UNIT",
+      hospitalUnitId: unitId,
+      hospitalUnitName: expect.any(String),
+    });
+    expect(stockCard[3]).toMatchObject({
+      itemId: reusableItemId,
+      toPosition: "READY",
+      hospitalUnitId: null,
+      hospitalUnitName: "CSSD",
     });
     expect(stockCard.every((entry) => entry.itemId === reusableItemId)).toBe(true);
   }, 60_000);

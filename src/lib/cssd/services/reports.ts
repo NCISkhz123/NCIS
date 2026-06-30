@@ -125,8 +125,35 @@ const MOVEMENT_TYPE_LABELS: Record<MovementType, string> = {
   ADJUSTMENT: "Penyesuaian",
 };
 
+const CSSD_INTERNAL_POSITIONS = new Set<StockPosition>([
+  "READY",
+  "NON_STERILE",
+  "STERILIZATION_AREA",
+]);
+
 function toPositionLabel(position: StockPosition | null) {
   return position ? STOCK_POSITION_LABELS[position] : null;
+}
+
+function resolveDisplayUnitName(row: {
+  hospital_unit_name: string | null;
+  stock_position?: StockPosition | null;
+  from_position?: StockPosition | null;
+  to_position?: StockPosition | null;
+}) {
+  if (row.hospital_unit_name) {
+    return row.hospital_unit_name;
+  }
+
+  if (
+    (row.stock_position && CSSD_INTERNAL_POSITIONS.has(row.stock_position)) ||
+    (row.from_position && CSSD_INTERNAL_POSITIONS.has(row.from_position)) ||
+    (row.to_position && CSSD_INTERNAL_POSITIONS.has(row.to_position))
+  ) {
+    return "CSSD";
+  }
+
+  return null;
 }
 
 function buildFlowLabel(row: {
@@ -257,7 +284,7 @@ function mapCurrentStockRow(row: CurrentStockReportRow): CurrentStockReportEntry
     stockPositionLabel: STOCK_POSITION_LABELS[row.stock_position],
     hospitalUnitId: row.hospital_unit_id,
     hospitalUnitCode: row.hospital_unit_code,
-    hospitalUnitName: row.hospital_unit_name,
+    hospitalUnitName: resolveDisplayUnitName(row),
     quantity: row.quantity,
     updatedAt: row.updated_at,
   };
@@ -279,7 +306,7 @@ function mapHistoryRow(
     notes: row.notes,
     hospitalUnitId: row.hospital_unit_id,
     hospitalUnitCode: row.hospital_unit_code,
-    hospitalUnitName: row.hospital_unit_name,
+    hospitalUnitName: resolveDisplayUnitName(row),
     fromPosition: row.from_position,
     fromPositionLabel: toPositionLabel(row.from_position),
     toPosition: row.to_position,
