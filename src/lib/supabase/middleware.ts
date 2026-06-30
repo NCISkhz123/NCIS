@@ -1,7 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { decideCssdRouteAccess } from "@/lib/auth/guards";
+import { getProfileRoleForUser } from "@/lib/auth/profile";
 import { getPublicEnv } from "@/lib/env";
+import { normalizeRole } from "@/lib/auth/roles";
+
+function copyResponseState(source: NextResponse, target: NextResponse) {
+  source.cookies.getAll().forEach((cookie) => {
+    target.cookies.set(cookie);
+  });
+
+  source.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "location") {
+      return;
+    }
+
+    target.headers.set(key, value);
+  });
+}
 
 export async function updateSession(request: NextRequest) {
   const env = getPublicEnv();
@@ -47,7 +64,26 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  void user;
+  const userId = user?.id ?? null;
+  const role = userId
+    ? await getProfileRoleForUser(supabase, userId)
+    : normalizeRole(null);
+
+  const decision = decideCssdRouteAccess({
+    pathname: request.nextUrl.pathname,
+    role,
+    userId,
+  });
+
+  if (!decision.allowed) {
+    const redirectResponse = NextResponse.redirect(
+      new URL(decision.redirectTo, request.url)
+    );
+
+    copyResponseState(supabaseResponse, redirectResponse);
+
+    return redirectResponse;
+  }
 
   return supabaseResponse;
 }

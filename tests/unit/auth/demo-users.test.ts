@@ -13,12 +13,14 @@ describe("ensureDemoUsers", () => {
       .mockResolvedValueOnce({
         id: "22222222-2222-2222-2222-222222222222",
       });
+    const updateUser = vi.fn().mockResolvedValue(undefined);
     const upsertProfile = vi.fn().mockResolvedValue(undefined);
 
     await ensureDemoUsers({
       adminAuth: {
         findUserByEmail,
         createUser,
+        updateUser,
       },
       profiles: {
         upsertProfile,
@@ -43,6 +45,7 @@ describe("ensureDemoUsers", () => {
         password: "secret-petugas",
       })
     );
+    expect(updateUser).not.toHaveBeenCalled();
     expect(upsertProfile).toHaveBeenCalledTimes(2);
   });
 
@@ -56,12 +59,14 @@ describe("ensureDemoUsers", () => {
         id: "22222222-2222-2222-2222-222222222222",
       });
     const createUser = vi.fn();
+    const updateUser = vi.fn().mockResolvedValue(undefined);
     const upsertProfile = vi.fn().mockResolvedValue(undefined);
 
     await ensureDemoUsers({
       adminAuth: {
         findUserByEmail,
         createUser,
+        updateUser,
       },
       profiles: {
         upsertProfile,
@@ -73,6 +78,58 @@ describe("ensureDemoUsers", () => {
     });
 
     expect(createUser).not.toHaveBeenCalled();
+    expect(updateUser).toHaveBeenCalledTimes(2);
     expect(upsertProfile).toHaveBeenCalledTimes(2);
+  });
+
+  it("repairs existing demo auth users so bootstrap stays idempotent", async () => {
+    const findUserByEmail = vi
+      .fn()
+      .mockResolvedValueOnce({
+        id: "11111111-1111-1111-1111-111111111111",
+      })
+      .mockResolvedValueOnce({
+        id: "22222222-2222-2222-2222-222222222222",
+      });
+    const createUser = vi.fn();
+    const updateUser = vi.fn().mockResolvedValue(undefined);
+    const upsertProfile = vi.fn().mockResolvedValue(undefined);
+
+    await ensureDemoUsers({
+      adminAuth: {
+        findUserByEmail,
+        createUser,
+        updateUser,
+      },
+      profiles: {
+        upsertProfile,
+      },
+      passwords: {
+        admin: "secret-admin",
+        petugas: "secret-petugas",
+      },
+    } as never);
+
+    expect(createUser).not.toHaveBeenCalled();
+    expect(updateUser).toHaveBeenCalledWith(
+      "11111111-1111-1111-1111-111111111111",
+      expect.objectContaining({
+        email_confirm: true,
+        password: "secret-admin",
+        user_metadata: {
+          full_name: "Admin CSSD",
+        },
+      })
+    );
+    expect(updateUser).toHaveBeenCalledWith(
+      "22222222-2222-2222-2222-222222222222",
+      expect.objectContaining({
+        email_confirm: true,
+        password: "secret-petugas",
+        user_metadata: {
+          full_name: "Petugas CSSD",
+        },
+      })
+    );
   });
 });

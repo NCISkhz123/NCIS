@@ -26,6 +26,16 @@ type EnsureDemoUsersDeps = {
         full_name: string;
       };
     }): Promise<DemoAuthUser>;
+    updateUser(
+      userId: string,
+      input: {
+        password: string;
+        email_confirm: boolean;
+        user_metadata: {
+          full_name: string;
+        };
+      }
+    ): Promise<void>;
   };
   profiles: {
     upsertProfile(input: {
@@ -60,15 +70,23 @@ export async function ensureDemoUsers({
 }: EnsureDemoUsersDeps) {
   for (const demoUser of DEMO_USERS) {
     const existingUser = await adminAuth.findUserByEmail(demoUser.email);
+    const authInput = {
+      password: passwords[demoUser.passwordKey],
+      email_confirm: true,
+      user_metadata: {
+        full_name: demoUser.fullName,
+      },
+    };
+
+    if (existingUser) {
+      await adminAuth.updateUser(existingUser.id, authInput);
+    }
+
     const authUser =
       existingUser ??
       (await adminAuth.createUser({
         email: demoUser.email,
-        password: passwords[demoUser.passwordKey],
-        email_confirm: true,
-        user_metadata: {
-          full_name: demoUser.fullName,
-        },
+        ...authInput,
       }));
 
     await profiles.upsertProfile({
@@ -124,6 +142,22 @@ export function createSupabaseAdminAuthAdapter(supabase: SupabaseClient) {
       return {
         id: data.user.id,
       };
+    },
+    async updateUser(
+      userId: string,
+      input: {
+        password: string;
+        email_confirm: boolean;
+        user_metadata: {
+          full_name: string;
+        };
+      }
+    ) {
+      const { error } = await supabase.auth.admin.updateUserById(userId, input);
+
+      if (error) {
+        throw new Error(error.message);
+      }
     },
   };
 }

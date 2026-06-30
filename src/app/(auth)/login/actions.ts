@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { isCssdRole } from "@/lib/auth/guards";
+import { getProfileRoleForUser } from "@/lib/auth/profile";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const loginSchema = z.object({
@@ -58,6 +60,8 @@ export async function loginWithPassword(
   };
 }
 
+const CSSD_ACCESS_MESSAGE = "Akun ini belum memiliki akses modul CSSD.";
+
 export async function loginAction(
   _: LoginActionState | null,
   formData: FormData
@@ -66,11 +70,35 @@ export async function loginAction(
 
   try {
     const payload = normalizeLoginPayload(formData);
-    const supabase = await createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient({
+      writeCookies: true,
+    });
     const result = await loginWithPassword(supabase, payload);
 
     if (!result.ok) {
       return result;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        ok: false,
+        message: "Sesi login tidak dapat diverifikasi.",
+      };
+    }
+
+    const role = await getProfileRoleForUser(supabase, user.id);
+
+    if (!isCssdRole(role)) {
+      await supabase.auth.signOut();
+
+      return {
+        ok: false,
+        message: CSSD_ACCESS_MESSAGE,
+      };
     }
   } catch (error) {
     return {

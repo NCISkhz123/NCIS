@@ -89,7 +89,9 @@ export async function saveReturnAction(
   const quantity = String(formData.get("quantity") ?? "");
   const notes = String(formData.get("notes") ?? "");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
   const client = createSupabaseRpcClient(supabase);
 
   const result = await returnStock(client, {
@@ -151,7 +153,9 @@ export async function processReusableAction(
         ? "READY"
         : "DAMAGED";
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
   const client = createSupabaseRpcClient(supabase);
 
   const result = await transferReusableStock(client, {

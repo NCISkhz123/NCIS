@@ -54,7 +54,9 @@ export async function createStockOpnameDraftAction(
   const opnameDate = String(formData.get("opnameDate") ?? "");
   const notes = String(formData.get("notes") ?? "");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
   const client = createSupabaseRpcClient(supabase);
   const result = await createDraftStockOpnameSession(client, {
     opnameDate,
@@ -93,7 +95,9 @@ export async function saveStockOpnameLineAction(
   const countedQuantity = String(formData.get("countedQuantity") ?? "");
   const notes = String(formData.get("notes") ?? "");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
   const client = createSupabaseRpcClient(supabase);
   const result = await saveStockOpnameLine(client, sessionId, {
     itemId,
@@ -134,7 +138,9 @@ export async function finalizeStockOpnameSessionAction(
 
   const sessionId = String(formData.get("sessionId") ?? "");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
   const client = createSupabaseRpcClient(supabase);
   const result = await finalizeStockOpnameSession(client, sessionId);
 

@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cache } from "react";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -11,6 +12,30 @@ export type CurrentProfile = {
   userId: string;
 };
 
+type ProfileReader = Pick<SupabaseClient, "from">;
+
+export async function getProfileRecordForUser(
+  supabase: ProfileReader,
+  userId: string
+) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, full_name, app_role")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return profile ?? null;
+}
+
+export async function getProfileRoleForUser(
+  supabase: ProfileReader,
+  userId: string
+) {
+  const profile = await getProfileRecordForUser(supabase, userId);
+
+  return normalizeRole(profile?.app_role ?? "USER");
+}
+
 export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> => {
   const supabase = await createServerSupabaseClient();
   const {
@@ -21,11 +46,7 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
     return null;
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("email, full_name, app_role")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const profile = await getProfileRecordForUser(supabase, user.id);
 
   return {
     email: profile?.email ?? user.email ?? null,

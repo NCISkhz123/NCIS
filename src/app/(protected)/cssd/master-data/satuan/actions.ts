@@ -36,7 +36,9 @@ export async function saveUnitOfMeasureAction(
   const isActive = formData.get("isActive") === "on";
   const id = String(formData.get("id") ?? "");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
   const client = createSupabaseMasterDataClient(supabase);
   const payload = {
     code,

@@ -119,6 +119,24 @@ describe("CSSD master data schema", () => {
     expect(error).toContain("row-level security policy");
   });
 
+  it("blocks cssd writes when the auth user has no matching profile row", async () => {
+    const claims = JSON.stringify({
+      sub: "66666666-6666-6666-6666-666666666666",
+      role: "authenticated",
+    });
+
+    const error = expectSqlFailure(`
+      begin;
+      set local role authenticated;
+      set local "request.jwt.claims" = ${sqlString(claims)};
+      insert into public.units_of_measure (code, name)
+      values (${sqlString(`NOPROFILE-${Date.now()}`)}, 'No Profile Should Fail');
+      rollback;
+    `);
+
+    expect(error).toContain("row-level security policy");
+  });
+
   it("creates, updates, and archives satuan through the service", async () => {
     const client = createMasterDataClient("ADMIN_CSSD");
     const created = await createUnitOfMeasureRecord(client, {

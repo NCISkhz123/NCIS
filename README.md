@@ -50,22 +50,31 @@ pnpm supabase:start
 
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+
+5. Isi sendiri password demo lokal di `.env.local`:
+
 - `NCIS_DEMO_ADMIN_PASSWORD`
 - `NCIS_DEMO_PETUGAS_PASSWORD`
 
-5. Pastikan `NEXT_PUBLIC_SUPABASE_URL` cocok dengan API URL lokal Supabase. Default repo ini memakai:
+6. Pastikan `NEXT_PUBLIC_SUPABASE_URL` cocok dengan API URL lokal Supabase. Default repo ini memakai:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 ```
 
-6. Jalankan aplikasi:
+7. Reset database lokal agar migration dan seed terbaru terpasang:
+
+```bash
+pnpm supabase:reset
+```
+
+8. Jalankan aplikasi:
 
 ```bash
 pnpm dev
 ```
 
-7. Bootstrap akun demo lokal:
+9. Bootstrap akun demo lokal:
 
 ```bash
 pnpm auth:bootstrap-demo
@@ -109,7 +118,7 @@ Keterangan:
 - `pnpm supabase:status`: melihat URL, key, dan service status lokal
 - `pnpm supabase:reset`: reset database lalu apply migration + `supabase/seed.sql`
 - `pnpm supabase:stop`: mematikan stack Supabase lokal
-- `pnpm auth:bootstrap-demo`: memastikan akun demo CSSD tersedia di Supabase Auth dan row `profiles` sinkron
+- `pnpm auth:bootstrap-demo`: memastikan akun demo CSSD tersedia di Supabase Auth dan row `profiles` sinkron berdasarkan `user_id`
 
 ## Asumsi Seed Role
 
@@ -123,7 +132,7 @@ File [supabase/seed.sql](E:/PROJEK%20TTEH/.worktrees/ncis-cssd-mvp/supabase/seed
 Seed ini hanya mengisi tabel internal aplikasi. User login Supabase Auth dibuat terpisah:
 
 - lokal/dev: lewat `pnpm auth:bootstrap-demo`
-- produksi: manual lewat Supabase Dashboard Auth, lalu profile dicocokkan lewat email/role
+- produksi: buat user di Supabase Dashboard Auth, lalu isi `public.profiles.user_id` dengan UUID user Auth tersebut dan set `app_role` yang sesuai
 
 Role CSSD aplikasi sekarang dibaca dari `public.profiles`, bukan dijadikan sumber utama dari metadata user.
 
@@ -132,8 +141,8 @@ Role CSSD aplikasi sekarang dibaca dari `public.profiles`, bukan dijadikan sumbe
 Alur yang direkomendasikan untuk development:
 
 1. `pnpm supabase:start`
-2. `pnpm supabase:reset`
-3. isi `.env.local`
+2. isi `.env.local`
+3. `pnpm supabase:reset`
 4. `pnpm auth:bootstrap-demo`
 5. login memakai:
    - `admin.cssd@ncis.local`
