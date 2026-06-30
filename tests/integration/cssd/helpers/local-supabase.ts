@@ -217,16 +217,29 @@ export function runAuthenticatedSql(
   role: "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER",
   sql: string
 ) {
+  const userId = randomUUID();
   const claims = JSON.stringify({
     app_metadata: {
       role,
     },
     role: "authenticated",
-    sub: randomUUID(),
+    sub: userId,
   });
 
   return runSql(`
 begin;
+insert into public.profiles (user_id, email, full_name, app_role)
+values (
+  ${sqlString(userId)},
+  ${sqlString(`${role.toLowerCase()}-${userId}@ncis.test`)},
+  ${sqlString(`${role} Test User`)},
+  ${sqlString(role)}
+)
+on conflict (user_id) do update
+set email = excluded.email,
+    full_name = excluded.full_name,
+    app_role = excluded.app_role,
+    is_active = true;
 set local role authenticated;
 set local "request.jwt.claims" = ${sqlString(claims)};
 ${sql}
@@ -251,16 +264,29 @@ export function runCommittedAuthenticatedSql(
   role: "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER",
   sql: string
 ) {
+  const userId = randomUUID();
   const claims = JSON.stringify({
     app_metadata: {
       role,
     },
     role: "authenticated",
-    sub: randomUUID(),
+    sub: userId,
   });
 
   return runSql(`
 begin;
+insert into public.profiles (user_id, email, full_name, app_role)
+values (
+  ${sqlString(userId)},
+  ${sqlString(`${role.toLowerCase()}-${userId}@ncis.test`)},
+  ${sqlString(`${role} Test User`)},
+  ${sqlString(role)}
+)
+on conflict (user_id) do update
+set email = excluded.email,
+    full_name = excluded.full_name,
+    app_role = excluded.app_role,
+    is_active = true;
 set local role authenticated;
 set local "request.jwt.claims" = ${sqlString(claims)};
 ${sql}
@@ -281,16 +307,29 @@ export function expectAuthenticatedFailure(
   role: "ADMIN_CSSD" | "PETUGAS_CSSD" | "USER",
   sql: string
 ) {
+  const userId = randomUUID();
   const claims = JSON.stringify({
     app_metadata: {
       role,
     },
     role: "authenticated",
-    sub: randomUUID(),
+    sub: userId,
   });
 
   return expectSqlFailure(`
 begin;
+insert into public.profiles (user_id, email, full_name, app_role)
+values (
+  ${sqlString(userId)},
+  ${sqlString(`${role.toLowerCase()}-${userId}@ncis.test`)},
+  ${sqlString(`${role} Test User`)},
+  ${sqlString(role)}
+)
+on conflict (user_id) do update
+set email = excluded.email,
+    full_name = excluded.full_name,
+    app_role = excluded.app_role,
+    is_active = true;
 set local role authenticated;
 set local "request.jwt.claims" = ${sqlString(claims)};
 ${sql}
