@@ -116,9 +116,23 @@ export const CSSD_NAV_ITEMS = [
     href: "/cssd/stok-opname",
   },
   {
-    type: "link",
+    type: "group",
     label: "Laporan",
-    href: "/cssd/laporan",
+    segment: "/cssd/laporan",
+    children: [
+      {
+        label: "Riwayat Transaksi",
+        href: "/cssd/laporan/riwayat-transaksi",
+      },
+      {
+        label: "Stok Status",
+        href: "/cssd/laporan/stok-status",
+      },
+      {
+        label: "Kartu Stok",
+        href: "/cssd/laporan/kartu-stok",
+      },
+    ],
   },
 ] as const;
 
@@ -162,5 +176,20 @@ export const CSSD_ROUTE_META = {
   "/cssd/laporan": {
     title: "Laporan",
     description: "Pantau stok saat ini, riwayat transaksi, dan kartu stok item.",
+  },
+  "/cssd/laporan/riwayat-transaksi": {
+    title: "Laporan / Riwayat Transaksi",
+    description:
+      "Tinjau riwayat transaksi CSSD dengan filter item, unit, dan tanggal.",
+  },
+  "/cssd/laporan/stok-status": {
+    title: "Laporan / Stok Status",
+    description:
+      "Pantau saldo aktif CSSD per posisi stok dan unit terkait.",
+  },
+  "/cssd/laporan/kartu-stok": {
+    title: "Laporan / Kartu Stok",
+    description:
+      "Lihat jejak perpindahan item CSSD dari pemasukan sampai proses sterilisasi.",
   },
 } as const;

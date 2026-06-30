@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CSSD_NAV_ITEMS } from "@/lib/cssd/constants";
 import { cn } from "@/lib/utils";
@@ -10,21 +10,44 @@ type SidebarNavProps = {
   pathname: string;
 };
 
-function isMasterDataPath(pathname: string) {
-  return pathname.startsWith("/cssd/master-data");
+function createInitialOpenGroups(pathname: string) {
+  return Object.fromEntries(
+    CSSD_NAV_ITEMS.filter((item) => item.type === "group").map((item) => [
+      item.segment,
+      pathname.startsWith(item.segment),
+    ])
+  );
 }
 
 export function SidebarNav({ pathname }: SidebarNavProps) {
-  const [isMasterDataOpen, setIsMasterDataOpen] = useState(
-    isMasterDataPath(pathname)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
+    createInitialOpenGroups(pathname)
   );
-  const shouldShowMasterData = isMasterDataPath(pathname) || isMasterDataOpen;
+
+  useEffect(() => {
+    setOpenGroups((current) => {
+      const nextState = { ...current };
+      let hasChanged = false;
+
+      for (const item of CSSD_NAV_ITEMS) {
+        if (item.type !== "group" || !pathname.startsWith(item.segment) || current[item.segment]) {
+          continue;
+        }
+
+        nextState[item.segment] = true;
+        hasChanged = true;
+      }
+
+      return hasChanged ? nextState : current;
+    });
+  }, [pathname]);
 
   return (
     <nav aria-label="Navigasi CSSD" className="flex flex-col gap-3">
       {CSSD_NAV_ITEMS.map((item) => {
         if (item.type === "group") {
           const isGroupActive = pathname.startsWith(item.segment);
+          const isGroupOpen = isGroupActive || openGroups[item.segment];
 
           return (
             <div
@@ -39,18 +62,23 @@ export function SidebarNav({ pathname }: SidebarNavProps) {
               <button
                 type="button"
                 className="flex w-full items-center justify-between gap-3 rounded-xl px-2 py-1 text-left"
-                onClick={() => setIsMasterDataOpen((current) => !current)}
-                aria-expanded={isMasterDataOpen}
+                onClick={() =>
+                  setOpenGroups((current) => ({
+                    ...current,
+                    [item.segment]: !current[item.segment],
+                  }))
+                }
+                aria-expanded={isGroupOpen}
               >
                 <span className="text-sm font-semibold tracking-[0.02em] text-slate-50">
                   {item.label}
                 </span>
                 <span className="text-xs uppercase tracking-[0.24em] text-slate-300">
-                  {shouldShowMasterData ? "Hide" : "Show"}
+                  {isGroupOpen ? "Hide" : "Show"}
                 </span>
               </button>
 
-              {shouldShowMasterData ? (
+              {isGroupOpen ? (
                 <div className="mt-3 border-t border-white/10 pt-3">
                   <div className="grid gap-2">
                     {item.children.map((child) => {

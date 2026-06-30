@@ -23,6 +23,10 @@ function getRouteMeta(pathname: string) {
     return CSSD_ROUTE_META["/cssd/master-data/items"];
   }
 
+  if (pathname.startsWith("/cssd/laporan")) {
+    return CSSD_ROUTE_META["/cssd/laporan"];
+  }
+
   return CSSD_ROUTE_META["/cssd"];
 }
 
