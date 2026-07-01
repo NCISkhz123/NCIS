@@ -12,6 +12,12 @@ describe("ensureDemoUsers", () => {
       })
       .mockResolvedValueOnce({
         id: "22222222-2222-2222-2222-222222222222",
+      })
+      .mockResolvedValueOnce({
+        id: "33333333-3333-3333-3333-333333333333",
+      })
+      .mockResolvedValueOnce({
+        id: "44444444-4444-4444-4444-444444444444",
       });
     const updateUser = vi.fn().mockResolvedValue(undefined);
     const upsertProfile = vi.fn().mockResolvedValue(undefined);
@@ -45,8 +51,22 @@ describe("ensureDemoUsers", () => {
         password: "secret-petugas",
       })
     );
+    expect(createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "admin.laundry@ncis.local",
+        email_confirm: true,
+        password: "secret-admin",
+      })
+    );
+    expect(createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "petugas.laundry@ncis.local",
+        email_confirm: true,
+        password: "secret-petugas",
+      })
+    );
     expect(updateUser).not.toHaveBeenCalled();
-    expect(upsertProfile).toHaveBeenCalledTimes(2);
+    expect(upsertProfile).toHaveBeenCalledTimes(4);
   });
 
   it("reuses existing auth users when they are already present", async () => {
@@ -57,6 +77,12 @@ describe("ensureDemoUsers", () => {
       })
       .mockResolvedValueOnce({
         id: "22222222-2222-2222-2222-222222222222",
+      })
+      .mockResolvedValueOnce({
+        id: "33333333-3333-3333-3333-333333333333",
+      })
+      .mockResolvedValueOnce({
+        id: "44444444-4444-4444-4444-444444444444",
       });
     const createUser = vi.fn();
     const updateUser = vi.fn().mockResolvedValue(undefined);
@@ -78,8 +104,8 @@ describe("ensureDemoUsers", () => {
     });
 
     expect(createUser).not.toHaveBeenCalled();
-    expect(updateUser).toHaveBeenCalledTimes(2);
-    expect(upsertProfile).toHaveBeenCalledTimes(2);
+    expect(updateUser).toHaveBeenCalledTimes(4);
+    expect(upsertProfile).toHaveBeenCalledTimes(4);
   });
 
   it("repairs existing demo auth users so bootstrap stays idempotent", async () => {
@@ -90,6 +116,12 @@ describe("ensureDemoUsers", () => {
       })
       .mockResolvedValueOnce({
         id: "22222222-2222-2222-2222-222222222222",
+      })
+      .mockResolvedValueOnce({
+        id: "33333333-3333-3333-3333-333333333333",
+      })
+      .mockResolvedValueOnce({
+        id: "44444444-4444-4444-4444-444444444444",
       });
     const createUser = vi.fn();
     const updateUser = vi.fn().mockResolvedValue(undefined);
@@ -128,6 +160,26 @@ describe("ensureDemoUsers", () => {
         password: "secret-petugas",
         user_metadata: {
           full_name: "Petugas CSSD",
+        },
+      })
+    );
+    expect(updateUser).toHaveBeenCalledWith(
+      "33333333-3333-3333-3333-333333333333",
+      expect.objectContaining({
+        email_confirm: true,
+        password: "secret-admin",
+        user_metadata: {
+          full_name: "Admin Laundry",
+        },
+      })
+    );
+    expect(updateUser).toHaveBeenCalledWith(
+      "44444444-4444-4444-4444-444444444444",
+      expect.objectContaining({
+        email_confirm: true,
+        password: "secret-petugas",
+        user_metadata: {
+          full_name: "Petugas Laundry",
         },
       })
     );

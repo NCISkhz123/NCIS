@@ -20,7 +20,53 @@ describe("loginAction", () => {
     vi.clearAllMocks();
   });
 
-  it("returns a friendly error and signs out when the authenticated user has no CSSD access", async () => {
+  it("redirects Laundry users to the Laundry module after login", async () => {
+    const signOut = vi.fn().mockResolvedValue({ error: null });
+
+    createServerSupabaseClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "44444444-4444-4444-4444-444444444444",
+            },
+          },
+        }),
+        signInWithPassword: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "44444444-4444-4444-4444-444444444444",
+            },
+          },
+          error: null,
+        }),
+        signOut,
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                app_role: "ADMIN_LAUNDRY",
+              },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    } as never);
+
+    const formData = new FormData();
+    formData.set("email", "admin.laundry@ncis.local");
+    formData.set("password", "secret-password");
+
+    await loginAction(null, formData);
+
+    expect(redirectMock).toHaveBeenCalledWith("/laundry");
+    expect(signOut).not.toHaveBeenCalled();
+  });
+
+  it("returns a friendly error and signs out when the authenticated user has no module access", async () => {
     const signOut = vi.fn().mockResolvedValue({ error: null });
 
     createServerSupabaseClientMock.mockResolvedValue({
@@ -64,7 +110,7 @@ describe("loginAction", () => {
 
     expect(result).toEqual({
       ok: false,
-      message: "Akun ini belum memiliki akses modul CSSD.",
+      message: "Akun ini belum memiliki akses modul NCIS.",
     });
     expect(signOut).toHaveBeenCalledTimes(1);
     expect(redirectMock).not.toHaveBeenCalled();

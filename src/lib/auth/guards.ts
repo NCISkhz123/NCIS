@@ -60,6 +60,22 @@ export function isLaundryRole(role: AppRole): role is LaundryRole {
   return role === "ADMIN_LAUNDRY" || role === "PETUGAS_LAUNDRY";
 }
 
+export function isModuleRole(role: AppRole): role is CssdRole | LaundryRole {
+  return isCssdRole(role) || isLaundryRole(role);
+}
+
+export function getDefaultModulePath(role: AppRole) {
+  if (isCssdRole(role)) {
+    return "/cssd";
+  }
+
+  if (isLaundryRole(role)) {
+    return "/laundry";
+  }
+
+  return null;
+}
+
 export function decideCssdRouteAccess({
   pathname,
   role,

@@ -1,7 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { decideCssdRouteAccess } from "@/lib/auth/guards";
+import {
+  decideCssdRouteAccess,
+  decideLaundryRouteAccess,
+} from "@/lib/auth/guards";
 import { getProfileRoleForUser } from "@/lib/auth/profile";
 import { getPublicEnv } from "@/lib/env";
 import { normalizeRole } from "@/lib/auth/roles";
@@ -69,11 +72,18 @@ export async function updateSession(request: NextRequest) {
     ? await getProfileRoleForUser(supabase, userId)
     : normalizeRole(null);
 
-  const decision = decideCssdRouteAccess({
+  const cssdDecision = decideCssdRouteAccess({
     pathname: request.nextUrl.pathname,
     role,
     userId,
   });
+  const decision = cssdDecision.allowed
+    ? decideLaundryRouteAccess({
+        pathname: request.nextUrl.pathname,
+        role,
+        userId,
+      })
+    : cssdDecision;
 
   if (!decision.allowed) {
     const redirectResponse = NextResponse.redirect(
