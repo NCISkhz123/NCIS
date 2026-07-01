@@ -185,12 +185,12 @@ export async function processReusableAction(
       intent === "to-sterilization"
         ? "Reusable berhasil dipindah ke Area Sterilisasi."
         : intent === "to-ready"
-          ? "Reusable berhasil ditandai Siap Pakai."
+          ? "Reusable berhasil ditandai Steril."
           : "Reusable berhasil ditandai Rusak.",
     impact: buildReturnImpact(
       result.data,
       "Perpindahan reusable internal berhasil diproses.",
-      `Saldo ${getStockPositionLabel(result.data.to_position) ?? "Siap Pakai"}`
+      `Saldo ${getStockPositionLabel(result.data.to_position) ?? "Steril"}`
     ),
   };
 }

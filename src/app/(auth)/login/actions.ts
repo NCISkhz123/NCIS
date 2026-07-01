@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { isCssdRole } from "@/lib/auth/guards";
+import { getDefaultModulePath, isModuleRole } from "@/lib/auth/guards";
 import { getProfileRoleForUser } from "@/lib/auth/profile";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -60,13 +60,15 @@ export async function loginWithPassword(
   };
 }
 
-const CSSD_ACCESS_MESSAGE = "Akun ini belum memiliki akses modul CSSD.";
+const MODULE_ACCESS_MESSAGE = "Akun ini belum memiliki akses modul NCIS.";
 
 export async function loginAction(
   _: LoginActionState | null,
   formData: FormData
 ): Promise<LoginActionState> {
   "use server";
+
+  let redirectTo: string | null = null;
 
   try {
     const payload = normalizeLoginPayload(formData);
@@ -92,14 +94,16 @@ export async function loginAction(
 
     const role = await getProfileRoleForUser(supabase, user.id);
 
-    if (!isCssdRole(role)) {
+    if (!isModuleRole(role)) {
       await supabase.auth.signOut();
 
       return {
         ok: false,
-        message: CSSD_ACCESS_MESSAGE,
+        message: MODULE_ACCESS_MESSAGE,
       };
     }
+
+    redirectTo = getDefaultModulePath(role);
   } catch (error) {
     return {
       ok: false,
@@ -108,5 +112,5 @@ export async function loginAction(
     };
   }
 
-  redirect("/cssd");
+  redirect(redirectTo ?? "/login");
 }

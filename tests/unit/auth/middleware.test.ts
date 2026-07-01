@@ -56,4 +56,36 @@ describe("updateSession", () => {
 
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
   });
+
+  it("redirects CSSD users away from Laundry routes", async () => {
+    createServerClientMock.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "11111111-1111-1111-1111-111111111111",
+            },
+          },
+        }),
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                app_role: "ADMIN_CSSD",
+              },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    } as never);
+
+    const response = await updateSession(
+      new NextRequest("http://localhost:3000/laundry/pemasukan")
+    );
+
+    expect(response.headers.get("location")).toBe("http://localhost:3000/login");
+  });
 });

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   decideCssdRouteAccess,
+  decideLaundryRouteAccess,
   isCssdRole,
+  isLaundryRole,
 } from "../../../src/lib/auth/guards";
 
 describe("isCssdRole", () => {
@@ -74,6 +76,61 @@ describe("decideCssdRouteAccess", () => {
         pathname: "/login",
         userId: null,
         role: null,
+      })
+    ).toEqual({
+      allowed: true,
+    });
+  });
+});
+
+describe("isLaundryRole", () => {
+  it("accepts admin and petugas Laundry roles", () => {
+    expect(isLaundryRole("ADMIN_LAUNDRY")).toBe(true);
+    expect(isLaundryRole("PETUGAS_LAUNDRY")).toBe(true);
+  });
+
+  it("rejects non-Laundry roles", () => {
+    expect(isLaundryRole("ADMIN_CSSD")).toBe(false);
+    expect(isLaundryRole("USER")).toBe(false);
+    expect(isLaundryRole(null)).toBe(false);
+  });
+});
+
+describe("decideLaundryRouteAccess", () => {
+  it("redirects unauthenticated users to login for laundry routes", () => {
+    expect(
+      decideLaundryRouteAccess({
+        pathname: "/laundry/master-data/items",
+        userId: null,
+        role: null,
+      })
+    ).toEqual({
+      allowed: false,
+      redirectTo: "/login",
+      reason: "unauthenticated",
+    });
+  });
+
+  it("denies authenticated CSSD users from Laundry routes", () => {
+    expect(
+      decideLaundryRouteAccess({
+        pathname: "/laundry/pemasukan",
+        userId: "user-1",
+        role: "ADMIN_CSSD",
+      })
+    ).toEqual({
+      allowed: false,
+      redirectTo: "/login",
+      reason: "forbidden",
+    });
+  });
+
+  it("allows Laundry users to access Laundry routes", () => {
+    expect(
+      decideLaundryRouteAccess({
+        pathname: "/laundry/distribusi",
+        userId: "user-2",
+        role: "PETUGAS_LAUNDRY",
       })
     ).toEqual({
       allowed: true,

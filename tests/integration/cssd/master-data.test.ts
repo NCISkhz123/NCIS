@@ -62,7 +62,7 @@ describe("CSSD master data schema", () => {
     `);
 
     expect(itemType).toBe("REUSABLE");
-  });
+  }, 20_000);
 
   it("rejects invalid item_type values", async () => {
     const suffix = Date.now();

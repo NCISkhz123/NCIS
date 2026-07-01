@@ -258,7 +258,7 @@ export function ReturnTransactionView({
           </h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
             Gunakan bagian ini untuk memindahkan reusable dari Tidak Steril ke
-            Area Sterilisasi, meloloskannya menjadi Siap Pakai, atau menandainya
+            Area Sterilisasi, meloloskannya menjadi Steril, atau menandainya
             sebagai Rusak.
           </p>
 
@@ -400,7 +400,7 @@ export function ReturnTransactionView({
                           }
                           className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          Tandai Siap Pakai
+                          Tandai Steril
                         </button>
                         <button
                           type="submit"

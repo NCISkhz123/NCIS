@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
-import { isCssdRole } from "@/lib/auth/guards";
+import { getDefaultModulePath } from "@/lib/auth/guards";
 import { getCurrentProfile } from "@/lib/auth/profile";
 
 import { loginAction } from "./actions";
@@ -10,9 +10,10 @@ export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const profile = await getCurrentProfile();
+  const defaultModulePath = profile ? getDefaultModulePath(profile.role) : null;
 
-  if (profile && isCssdRole(profile.role)) {
-    redirect("/cssd");
+  if (defaultModulePath) {
+    redirect(defaultModulePath);
   }
 
   return (

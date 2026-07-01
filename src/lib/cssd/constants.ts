@@ -1,3 +1,27 @@
+export type RouteMetaMap = Record<
+  string,
+  {
+    title: string;
+    description: string;
+  }
+>;
+
+export type SidebarNavItem =
+  | {
+      type: "group";
+      label: string;
+      segment: string;
+      children: {
+        label: string;
+        href: string;
+      }[];
+    }
+  | {
+      type: "link";
+      label: string;
+      href: string;
+    };
+
 export const ITEM_TYPES = [
   "REUSABLE",
   "CONSUMABLE_DISTRIBUTION",
@@ -25,7 +49,7 @@ export const REUSABLE_STOCK_POSITIONS = [
 ] as const;
 
 export const STOCK_POSITION_LABELS = {
-  READY: "Siap Pakai",
+  READY: "Steril",
   IN_UNIT: "Di Unit",
   NON_STERILE: "Tidak Steril",
   STERILIZATION_AREA: "Area Sterilisasi",
@@ -52,25 +76,22 @@ export const NCIS_MODULES = [
     label: "CSSD",
     description: "Central Sterile Supply Department",
     href: "/cssd",
-    active: true,
   },
   {
     key: "LAUNDRY",
     label: "Laundry",
-    description: "Segera hadir",
-    href: "#",
-    active: false,
+    description: "Laundry dan linen operasional",
+    href: "/laundry",
   },
   {
     key: "AMBULANCE",
     label: "Ambulance",
     description: "Segera hadir",
     href: "#",
-    active: false,
   },
 ] as const;
 
-export const CSSD_NAV_ITEMS = [
+export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
   {
     type: "group",
     label: "Master Data",
@@ -136,7 +157,7 @@ export const CSSD_NAV_ITEMS = [
   },
 ] as const;
 
-export const CSSD_ROUTE_META = {
+export const CSSD_ROUTE_META: RouteMetaMap = {
   "/cssd": {
     title: "CSSD Workspace",
     description: "Ruang kerja utama modul CSSD untuk operasional harian NCIS.",

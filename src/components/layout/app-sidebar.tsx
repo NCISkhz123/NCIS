@@ -6,6 +6,7 @@ import { SidebarNav } from "@/components/layout/sidebar-nav";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const isLaundry = pathname.startsWith("/laundry");
 
   return (
     <aside className="flex min-h-full w-full max-w-[18rem] flex-col gap-6 border-r border-white/10 bg-[linear-gradient(180deg,#12314a_0%,#0b2234_100%)] px-5 py-6 text-slate-50 lg:max-w-[19rem]">
@@ -17,7 +18,7 @@ export function AppSidebar() {
           Non Clinical Integrated System
         </p>
         <span className="mt-4 inline-flex rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-sky-100">
-          CSSD Module
+          {isLaundry ? "Laundry Module" : "CSSD Module"}
         </span>
       </div>
 

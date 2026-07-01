@@ -21,7 +21,7 @@ describe("cssd report csv export", () => {
         itemName: "Set Minor",
         itemType: "REUSABLE",
         stockPosition: "READY",
-        stockPositionLabel: "Siap Pakai",
+        stockPositionLabel: "Steril",
         hospitalUnitId: null,
         hospitalUnitCode: null,
         hospitalUnitName: "CSSD",
@@ -38,7 +38,7 @@ describe("cssd report csv export", () => {
       "Unit",
       "Qty",
     ]);
-    expect(table.rows).toEqual([["R-0001", "Set Minor", "Reusable", "Siap Pakai", "CSSD", 6]]);
+    expect(table.rows).toEqual([["R-0001", "Set Minor", "Reusable", "Steril", "CSSD", 6]]);
   });
 
   it("builds transaction history csv headers and rows", () => {

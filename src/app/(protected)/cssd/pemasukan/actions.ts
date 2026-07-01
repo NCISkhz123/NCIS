@@ -54,7 +54,7 @@ function buildReceiptImpact(data: StockMutationResultData): ReceiptImpact {
     fromLabel: getStockPositionLabel(data.from_position),
     toLabel: getStockPositionLabel(data.to_position),
     resultingBalance: data.resulting_balance,
-    resultingBalanceLabel: "Saldo Siap Pakai",
+    resultingBalanceLabel: "Saldo Steril",
   };
 }
 

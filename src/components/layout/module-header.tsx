@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { NCIS_MODULES, CSSD_ROUTE_META } from "@/lib/cssd/constants";
+import { LAUNDRY_ROUTE_META } from "@/lib/laundry/constants";
 import { cn } from "@/lib/utils";
 
 type ModuleHeaderProps = {
@@ -12,11 +14,21 @@ type ModuleHeaderProps = {
 };
 
 function getRouteMeta(pathname: string) {
-  const exactMatch =
-    CSSD_ROUTE_META[pathname as keyof typeof CSSD_ROUTE_META];
+  const routeMetaMap = pathname.startsWith("/laundry")
+    ? LAUNDRY_ROUTE_META
+    : CSSD_ROUTE_META;
+  const exactMatch = routeMetaMap[pathname];
 
   if (exactMatch) {
     return exactMatch;
+  }
+
+  if (pathname.startsWith("/laundry/master-data")) {
+    return LAUNDRY_ROUTE_META["/laundry/master-data/items"];
+  }
+
+  if (pathname.startsWith("/laundry/laporan")) {
+    return LAUNDRY_ROUTE_META["/laundry/laporan"];
   }
 
   if (pathname.startsWith("/cssd/master-data")) {
@@ -27,7 +39,9 @@ function getRouteMeta(pathname: string) {
     return CSSD_ROUTE_META["/cssd/laporan"];
   }
 
-  return CSSD_ROUTE_META["/cssd"];
+  return pathname.startsWith("/laundry")
+    ? LAUNDRY_ROUTE_META["/laundry"]
+    : CSSD_ROUTE_META["/cssd"];
 }
 
 export function ModuleHeader({
@@ -61,19 +75,37 @@ export function ModuleHeader({
               Pilih Modul
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {NCIS_MODULES.map((module) => (
-                <span
-                  key={module.key}
-                  className={cn(
-                    "rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
-                    module.active
-                      ? "border-slate-900 bg-slate-950 text-white"
-                      : "border-slate-200 bg-white text-slate-500"
-                  )}
-                >
-                  {module.label}
-                </span>
-              ))}
+              {NCIS_MODULES.map((module) => {
+                const isActive =
+                  module.href !== "#" && pathname.startsWith(module.href);
+
+                if (module.href === "#") {
+                  return (
+                    <span
+                      key={module.key}
+                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-500"
+                    >
+                      {module.label}
+                    </span>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={module.key}
+                    href={module.href}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+                      isActive
+                        ? "border-slate-900 bg-slate-950 text-white"
+                        : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-950"
+                    )}
+                  >
+                    {module.label}
+                  </Link>
+                );
+              })}
             </div>
           </section>
 
