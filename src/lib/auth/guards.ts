@@ -123,3 +123,23 @@ export async function requireCssdAccess() {
 
   forbidden();
 }
+
+export async function requireLaundryAccess() {
+  const profile = await getCurrentProfile();
+
+  const decision = decideLaundryRouteAccess({
+    pathname: "/laundry",
+    role: profile?.role ?? null,
+    userId: profile?.userId ?? null,
+  });
+
+  if (decision.allowed) {
+    return profile;
+  }
+
+  if (decision.reason === "unauthenticated") {
+    redirect(decision.redirectTo);
+  }
+
+  forbidden();
+}
