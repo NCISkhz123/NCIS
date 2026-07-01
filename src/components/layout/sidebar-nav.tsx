@@ -4,15 +4,22 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CSSD_NAV_ITEMS } from "@/lib/cssd/constants";
+import { LAUNDRY_NAV_ITEMS } from "@/lib/laundry/constants";
 import { cn } from "@/lib/utils";
 
 type SidebarNavProps = {
   pathname: string;
 };
 
+function getNavItems(pathname: string) {
+  return pathname.startsWith("/laundry") ? LAUNDRY_NAV_ITEMS : CSSD_NAV_ITEMS;
+}
+
 function createInitialOpenGroups(pathname: string) {
+  const navItems = getNavItems(pathname);
+
   return Object.fromEntries(
-    CSSD_NAV_ITEMS.filter((item) => item.type === "group").map((item) => [
+    navItems.filter((item) => item.type === "group").map((item) => [
       item.segment,
       pathname.startsWith(item.segment),
     ])
@@ -20,22 +27,26 @@ function createInitialOpenGroups(pathname: string) {
 }
 
 export function SidebarNav({ pathname }: SidebarNavProps) {
+  const navItems = getNavItems(pathname);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     createInitialOpenGroups(pathname)
   );
 
   useEffect(() => {
     setOpenGroups((current) => {
-      const nextState = { ...current };
+      const nextState = createInitialOpenGroups(pathname);
       let hasChanged = false;
 
-      for (const item of CSSD_NAV_ITEMS) {
-        if (item.type !== "group" || !pathname.startsWith(item.segment) || current[item.segment]) {
+      for (const [segment, isOpen] of Object.entries(current)) {
+        if (nextState[segment] !== undefined && nextState[segment] !== isOpen) {
+          nextState[segment] = nextState[segment] || isOpen;
+          hasChanged = true;
           continue;
         }
 
-        nextState[item.segment] = true;
-        hasChanged = true;
+        if (nextState[segment] === undefined) {
+          hasChanged = true;
+        }
       }
 
       return hasChanged ? nextState : current;
@@ -43,8 +54,11 @@ export function SidebarNav({ pathname }: SidebarNavProps) {
   }, [pathname]);
 
   return (
-    <nav aria-label="Navigasi CSSD" className="flex flex-col gap-3">
-      {CSSD_NAV_ITEMS.map((item) => {
+    <nav
+      aria-label={pathname.startsWith("/laundry") ? "Navigasi Laundry" : "Navigasi CSSD"}
+      className="flex flex-col gap-3"
+    >
+      {navItems.map((item) => {
         if (item.type === "group") {
           const isGroupActive = pathname.startsWith(item.segment);
           const isGroupOpen = isGroupActive || openGroups[item.segment];
