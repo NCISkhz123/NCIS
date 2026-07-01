@@ -26,3 +26,4 @@ export async function recordInternalUsage(
     p_notes: parsed.data.notes ?? null,
   });
 }
+

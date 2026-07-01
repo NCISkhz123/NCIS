@@ -49,7 +49,7 @@ export const REUSABLE_STOCK_POSITIONS = [
 ] as const;
 
 export const STOCK_POSITION_LABELS = {
-  READY: "Siap Pakai",
+  READY: "Steril",
   IN_UNIT: "Di Unit",
   NON_STERILE: "Tidak Steril",
   STERILIZATION_AREA: "Area Sterilisasi",

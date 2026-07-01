@@ -24,3 +24,4 @@ export async function distributeStock(client: LaundryRpcClient, input: unknown) 
     p_notes: parsed.data.notes ?? null,
   });
 }
+

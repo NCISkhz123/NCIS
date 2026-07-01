@@ -63,7 +63,7 @@ function buildDistributionImpact(
     resultingBalance: data.resulting_balance,
     resultingBalanceLabel: isReusableFlow
       ? "Saldo di Unit Tujuan"
-      : "Sisa stok Siap Pakai",
+      : "Sisa stok Steril",
   };
 }
 

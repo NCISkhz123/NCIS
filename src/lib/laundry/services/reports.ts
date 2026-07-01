@@ -173,8 +173,8 @@ function buildFlowLabel(row: {
 
   if (row.movement_type === "RETURN") {
     return row.hospital_unit_name
-      ? `${row.hospital_unit_name} -> ${toLabel ?? "CSSD"}`
-      : `Di Unit -> ${toLabel ?? "CSSD"}`;
+      ? `${row.hospital_unit_name} -> ${toLabel ?? "Laundry"}`
+      : `Di Unit -> ${toLabel ?? "Laundry"}`;
   }
 
   if (fromLabel && toLabel) {
@@ -456,4 +456,5 @@ export async function listItemStockCardReport(
 
   return data.map(mapHistoryRow).sort(compareHistory);
 }
+
 

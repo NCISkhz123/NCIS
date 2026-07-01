@@ -23,3 +23,4 @@ export async function receiveStock(client: LaundryRpcClient, input: unknown) {
     p_notes: parsed.data.notes ?? null,
   });
 }
+

@@ -47,8 +47,8 @@ type StockOpnameLineJoinedRow = {
   hospital_unit_id: string | null;
   counted_quantity: number;
   notes: string | null;
-  items: JoinedItemRow[] | null;
-  hospital_units: JoinedHospitalUnitRow[] | null;
+  laundry_items: JoinedItemRow[] | null;
+  laundry_hospital_units: JoinedHospitalUnitRow[] | null;
 };
 
 type StockOpnameBalanceResponse = number | null;
@@ -289,8 +289,8 @@ export async function listStockOpnameLines(
 
   return Promise.all(
     rows.map(async (row) => {
-      const item = row.items?.[0] ?? null;
-      const hospitalUnit = row.hospital_units?.[0] ?? null;
+      const item = row.laundry_items?.[0] ?? null;
+      const hospitalUnit = row.laundry_hospital_units?.[0] ?? null;
       const currentQuantity = await getCurrentBalance(
         supabase,
         row.item_id,
@@ -346,4 +346,5 @@ export async function listAvailableStockOpnameUnits(
 
   return data as HospitalUnitRow[];
 }
+
 

@@ -86,7 +86,7 @@ describe("CSSD remaining transaction pages", () => {
             itemCode: internalItem.code,
             itemType: internalItem.item_type,
             stockPosition: "READY",
-            stockPositionLabel: "Siap Pakai",
+            stockPositionLabel: "Steril",
             quantity: 6,
             hospitalUnitName: null,
           },

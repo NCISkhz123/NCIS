@@ -45,3 +45,4 @@ export default async function LaundryLayout({ children }: LaundryLayoutProps) {
     </div>
   );
 }
+

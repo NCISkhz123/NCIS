@@ -93,7 +93,7 @@ describe("CSSD transaction pages", () => {
             quantity: 5,
             notes: "Pemasukan awal",
             targetUnitName: null,
-            destinationLabel: "Siap Pakai",
+            destinationLabel: "Steril",
           },
         ]}
         stockSummary={[
@@ -103,7 +103,7 @@ describe("CSSD transaction pages", () => {
             itemCode: reusableItem.code,
             itemType: reusableItem.item_type,
             stockPosition: "READY",
-            stockPositionLabel: "Siap Pakai",
+            stockPositionLabel: "Steril",
             quantity: 5,
             hospitalUnitName: null,
           },
@@ -150,7 +150,7 @@ describe("CSSD transaction pages", () => {
             itemCode: reusableItem.code,
             itemType: reusableItem.item_type,
             stockPosition: "READY",
-            stockPositionLabel: "Siap Pakai",
+            stockPositionLabel: "Steril",
             quantity: 8,
             hospitalUnitName: null,
           },
@@ -232,7 +232,7 @@ describe("CSSD transaction pages", () => {
       screen.getByRole("button", { name: /kirim ke area sterilisasi/i })
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: /tandai siap pakai/i })
+      screen.getByRole("button", { name: /tandai steril/i })
     ).toBeVisible();
     expect(
       screen.getAllByRole("button", { name: /tandai rusak/i }).length

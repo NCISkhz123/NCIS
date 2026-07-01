@@ -57,7 +57,7 @@ function buildInternalUsageImpact(
     fromLabel: getStockPositionLabel(data.from_position),
     toLabel: getStockPositionLabel(data.to_position),
     resultingBalance: data.resulting_balance,
-    resultingBalanceLabel: "Sisa stok Siap Pakai",
+    resultingBalanceLabel: "Sisa stok Steril",
   };
 }
 

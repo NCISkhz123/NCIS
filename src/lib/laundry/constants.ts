@@ -1,10 +1,44 @@
-import type { RouteMetaMap, SidebarNavItem } from "@/lib/cssd/constants";
+export type RouteMetaMap = Record<
+  string,
+  {
+    title: string;
+    description: string;
+  }
+>;
+
+export type SidebarNavItem =
+  | {
+      type: "group";
+      label: string;
+      segment: string;
+      children: {
+        label: string;
+        href: string;
+      }[];
+    }
+  | {
+      type: "link";
+      label: string;
+      href: string;
+    };
 
 export const ITEM_TYPES = [
   "REUSABLE",
   "CONSUMABLE_DISTRIBUTION",
   "CONSUMABLE_INTERNAL",
 ] as const;
+
+export const ITEM_TYPE_LABELS = {
+  REUSABLE: "Reusable",
+  CONSUMABLE_DISTRIBUTION: "Konsumabel Distribusi",
+  CONSUMABLE_INTERNAL: "Konsumabel Internal",
+} as const;
+
+export const ITEM_CODE_PREFIXES = {
+  REUSABLE: "R",
+  CONSUMABLE_DISTRIBUTION: "CD",
+  CONSUMABLE_INTERNAL: "CI",
+} as const;
 
 export const REUSABLE_STOCK_POSITIONS = [
   "READY",
@@ -35,6 +69,8 @@ export const LAUNDRY_STOCK_POSITION_LABELS = {
   STERILIZATION_AREA: "Area Pencucian",
   DAMAGED: "Rusak",
 } as const;
+
+export const STOCK_POSITION_LABELS = LAUNDRY_STOCK_POSITION_LABELS;
 
 export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
   {
@@ -158,3 +194,4 @@ export const LAUNDRY_ROUTE_META: RouteMetaMap = {
       "Lihat jejak perpindahan item Laundry dari pemasukan sampai area pencucian.",
   },
 };
+

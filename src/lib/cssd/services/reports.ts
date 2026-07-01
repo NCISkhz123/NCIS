@@ -167,8 +167,8 @@ function buildFlowLabel(row: {
 
   if (row.movement_type === "DISTRIBUTION") {
     return row.hospital_unit_name
-      ? `Siap Pakai -> ${row.hospital_unit_name}`
-      : "Siap Pakai -> Unit";
+      ? `Steril -> ${row.hospital_unit_name}`
+      : "Steril -> Unit";
   }
 
   if (row.movement_type === "RETURN") {
