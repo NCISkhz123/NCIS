@@ -24,6 +24,24 @@ function normalizeQueryValue(value: QueryValue) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function buildExportHref(input: { stockItem?: string; stockUnit?: string }) {
+  const params = new URLSearchParams();
+
+  if (input.stockItem) {
+    params.set("stockItem", input.stockItem);
+  }
+
+  if (input.stockUnit) {
+    params.set("stockUnit", input.stockUnit);
+  }
+
+  const query = params.toString();
+
+  return query
+    ? `/cssd/laporan/stok-status/export?${query}`
+    : "/cssd/laporan/stok-status/export";
+}
+
 export default async function StokStatusPage({
   searchParams,
 }: StokStatusPageProps) {
@@ -43,6 +61,10 @@ export default async function StokStatusPage({
       limit: 100,
     }),
   ]);
+  const exportHref = buildExportHref({
+    stockItem,
+    stockUnit,
+  });
 
   return (
     <section className="shell-surface rounded-[1.9rem] p-6 md:p-8">
@@ -92,6 +114,12 @@ export default async function StokStatusPage({
           >
             Terapkan
           </button>
+          <a
+            href={exportHref}
+            className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:text-emerald-900"
+          >
+            Export CSV
+          </a>
           <a
             href="/cssd/laporan/stok-status"
             className="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"

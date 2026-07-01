@@ -26,6 +26,37 @@ function normalizeQueryValue(value: QueryValue) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function buildExportHref(input: {
+  cardItem?: string;
+  cardUnit?: string;
+  cardFrom?: string;
+  cardTo?: string;
+}) {
+  const params = new URLSearchParams();
+
+  if (input.cardItem) {
+    params.set("cardItem", input.cardItem);
+  }
+
+  if (input.cardUnit) {
+    params.set("cardUnit", input.cardUnit);
+  }
+
+  if (input.cardFrom) {
+    params.set("cardFrom", input.cardFrom);
+  }
+
+  if (input.cardTo) {
+    params.set("cardTo", input.cardTo);
+  }
+
+  const query = params.toString();
+
+  return query
+    ? `/cssd/laporan/kartu-stok/export?${query}`
+    : "/cssd/laporan/kartu-stok/export";
+}
+
 function formatDateLabel(value: string) {
   const date = new Date(value);
 
@@ -67,6 +98,12 @@ export default async function KartuStokPage({
   const selectedCardItem = cardItem
     ? items.find((item) => item.id === cardItem) ?? null
     : null;
+  const exportHref = buildExportHref({
+    cardItem,
+    cardUnit,
+    cardFrom,
+    cardTo,
+  });
 
   return (
     <section className="shell-surface rounded-[1.9rem] p-6 md:p-8">
@@ -136,6 +173,22 @@ export default async function KartuStokPage({
           >
             Tampilkan
           </button>
+          {selectedCardItem ? (
+            <a
+              href={exportHref}
+              className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:text-emerald-900"
+            >
+              Export CSV
+            </a>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-400"
+            >
+              Export CSV
+            </button>
+          )}
           <a
             href="/cssd/laporan/kartu-stok"
             className="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"

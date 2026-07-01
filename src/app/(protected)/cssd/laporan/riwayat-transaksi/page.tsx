@@ -26,6 +26,37 @@ function normalizeQueryValue(value: QueryValue) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function buildExportHref(input: {
+  historyItem?: string;
+  historyUnit?: string;
+  historyFrom?: string;
+  historyTo?: string;
+}) {
+  const params = new URLSearchParams();
+
+  if (input.historyItem) {
+    params.set("historyItem", input.historyItem);
+  }
+
+  if (input.historyUnit) {
+    params.set("historyUnit", input.historyUnit);
+  }
+
+  if (input.historyFrom) {
+    params.set("historyFrom", input.historyFrom);
+  }
+
+  if (input.historyTo) {
+    params.set("historyTo", input.historyTo);
+  }
+
+  const query = params.toString();
+
+  return query
+    ? `/cssd/laporan/riwayat-transaksi/export?${query}`
+    : "/cssd/laporan/riwayat-transaksi/export";
+}
+
 export default async function RiwayatTransaksiPage({
   searchParams,
 }: RiwayatTransaksiPageProps) {
@@ -49,6 +80,12 @@ export default async function RiwayatTransaksiPage({
       limit: 100,
     }),
   ]);
+  const exportHref = buildExportHref({
+    historyItem,
+    historyUnit,
+    historyFrom,
+    historyTo,
+  });
 
   return (
     <section className="shell-surface rounded-[1.9rem] p-6 md:p-8">
@@ -118,6 +155,12 @@ export default async function RiwayatTransaksiPage({
           >
             Terapkan
           </button>
+          <a
+            href={exportHref}
+            className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:text-emerald-900"
+          >
+            Export CSV
+          </a>
           <a
             href="/cssd/laporan/riwayat-transaksi"
             className="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
