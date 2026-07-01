@@ -1,15 +1,15 @@
 import { forbidden, redirect } from "next/navigation";
 
 import { getCurrentProfile } from "./profile";
-import type { AppRole, CssdRole } from "./roles";
+import type { AppRole, CssdRole, LaundryRole } from "./roles";
 
-type CssdAccessInput = {
+type ModuleAccessInput = {
   pathname: string;
   role: AppRole;
   userId: string | null;
 };
 
-type CssdAccessDecision =
+type ModuleAccessDecision =
   | {
       allowed: true;
     }
@@ -19,16 +19,17 @@ type CssdAccessDecision =
       redirectTo: string;
     };
 
-export function isCssdRole(role: AppRole): role is CssdRole {
-  return role === "ADMIN_CSSD" || role === "PETUGAS_CSSD";
-}
-
-export function decideCssdRouteAccess({
+function decideModuleRouteAccess({
   pathname,
   role,
   userId,
-}: CssdAccessInput): CssdAccessDecision {
-  if (!pathname.startsWith("/cssd")) {
+  basePath,
+  hasModuleRole,
+}: ModuleAccessInput & {
+  basePath: string;
+  hasModuleRole(role: AppRole): boolean;
+}): ModuleAccessDecision {
+  if (!pathname.startsWith(basePath)) {
     return { allowed: true };
   }
 
@@ -40,7 +41,7 @@ export function decideCssdRouteAccess({
     };
   }
 
-  if (!isCssdRole(role)) {
+  if (!hasModuleRole(role)) {
     return {
       allowed: false,
       redirectTo: "/login",
@@ -49,6 +50,42 @@ export function decideCssdRouteAccess({
   }
 
   return { allowed: true };
+}
+
+export function isCssdRole(role: AppRole): role is CssdRole {
+  return role === "ADMIN_CSSD" || role === "PETUGAS_CSSD";
+}
+
+export function isLaundryRole(role: AppRole): role is LaundryRole {
+  return role === "ADMIN_LAUNDRY" || role === "PETUGAS_LAUNDRY";
+}
+
+export function decideCssdRouteAccess({
+  pathname,
+  role,
+  userId,
+}: ModuleAccessInput): ModuleAccessDecision {
+  return decideModuleRouteAccess({
+    pathname,
+    role,
+    userId,
+    basePath: "/cssd",
+    hasModuleRole: isCssdRole,
+  });
+}
+
+export function decideLaundryRouteAccess({
+  pathname,
+  role,
+  userId,
+}: ModuleAccessInput): ModuleAccessDecision {
+  return decideModuleRouteAccess({
+    pathname,
+    role,
+    userId,
+    basePath: "/laundry",
+    hasModuleRole: isLaundryRole,
+  });
 }
 
 export async function requireCssdAccess() {
