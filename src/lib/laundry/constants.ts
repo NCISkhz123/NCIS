@@ -10,6 +10,7 @@ export type SidebarNavItem =
   | {
       type: "group";
       label: string;
+      description: string;
       segment: string;
       children: {
         label: string;
@@ -76,6 +77,7 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
   {
     type: "group",
     label: "Master Data",
+    description: "Item, satuan, dan unit Laundry.",
     segment: "/laundry/master-data",
     children: [
       {
@@ -120,6 +122,7 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
   {
     type: "group",
     label: "Laporan",
+    description: "Riwayat, posisi stok, dan kartu stok.",
     segment: "/laundry/laporan",
     children: [
       {
@@ -127,7 +130,7 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
         href: "/laundry/laporan/riwayat-transaksi",
       },
       {
-        label: "Stok Status",
+        label: "Posisi stok",
         href: "/laundry/laporan/stok-status",
       },
       {
@@ -140,58 +143,56 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
 
 export const LAUNDRY_ROUTE_META: RouteMetaMap = {
   "/laundry": {
-    title: "Laundry Workspace",
-    description: "Ruang kerja utama modul Laundry untuk operasional linen NCIS.",
+    title: "Modul Laundry",
+    description: "Pilih menu kerja Laundry.",
   },
   "/laundry/master-data/items": {
-    title: "Master Data / Item",
-    description: "Kelola daftar item reusable dan linen Laundry.",
+    title: "Data item",
+    description: "Item untuk transaksi Laundry.",
   },
   "/laundry/master-data/satuan": {
-    title: "Master Data / Satuan",
-    description: "Kelola referensi satuan yang dipakai item dan transaksi Laundry.",
+    title: "Data satuan",
+    description: "Satuan untuk item dan transaksi Laundry.",
   },
   "/laundry/master-data/unit": {
-    title: "Master Data / Unit",
-    description: "Kelola daftar unit tujuan distribusi Laundry.",
+    title: "Data unit",
+    description: "Unit tujuan Laundry.",
   },
   "/laundry/pemasukan": {
     title: "Pemasukan",
-    description: "Catat barang masuk ke stok Laundry.",
+    description: "Catat barang masuk.",
   },
   "/laundry/distribusi": {
     title: "Distribusi",
-    description: "Catat distribusi linen dari Laundry ke unit rumah sakit.",
+    description: "Catat barang keluar ke unit.",
   },
   "/laundry/pengembalian": {
     title: "Pengembalian",
-    description: "Catat pengembalian linen reusable dari unit.",
+    description: "Catat reusable yang kembali.",
   },
   "/laundry/pemakaian-internal": {
     title: "Pemakaian Internal",
-    description: "Catat pemakaian konsumabel internal untuk proses Laundry.",
+    description: "Catat konsumabel yang dipakai di Laundry.",
   },
   "/laundry/stok-opname": {
     title: "Stok Opname",
-    description: "Kelola sesi pencatatan fisik dan finalisasi penyesuaian stok Laundry.",
+    description: "Hitung stok lalu finalisasi.",
   },
   "/laundry/laporan": {
     title: "Laporan",
-    description: "Pantau stok saat ini, riwayat transaksi, dan kartu stok item Laundry.",
+    description: "Lihat laporan Laundry.",
   },
   "/laundry/laporan/riwayat-transaksi": {
-    title: "Laporan / Riwayat Transaksi",
-    description:
-      "Tinjau riwayat transaksi Laundry dengan filter item, unit, dan tanggal.",
+    title: "Riwayat transaksi",
+    description: "Cari transaksi lalu ekspor bila diperlukan.",
   },
   "/laundry/laporan/stok-status": {
-    title: "Laporan / Stok Status",
-    description: "Pantau saldo aktif Laundry per posisi stok dan unit terkait.",
+    title: "Posisi stok",
+    description: "Lihat stok per posisi dan unit.",
   },
   "/laundry/laporan/kartu-stok": {
-    title: "Laporan / Kartu Stok",
-    description:
-      "Lihat jejak perpindahan item Laundry dari pemasukan sampai area pencucian.",
+    title: "Kartu stok",
+    description: "Telusuri pergerakan satu item.",
   },
 };
 

@@ -52,7 +52,7 @@ describe("ModuleSwitcher", () => {
     ).toBeVisible();
     expect(
       screen.getByRole("group", { name: /pilihan modul ncis/i }).textContent
-    ).toMatch(/CSSD.*Laundry.*Ambulance/s);
+    ).toMatch(/CSSD[\s\S]*Laundry[\s\S]*Ambulance/);
   });
 
   it("keeps the popover open when the active option is clicked", async () => {

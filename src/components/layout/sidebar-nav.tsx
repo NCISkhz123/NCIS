@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 import { CSSD_NAV_ITEMS } from "@/lib/cssd/constants";
 import { LAUNDRY_NAV_ITEMS } from "@/lib/laundry/constants";
@@ -28,30 +29,8 @@ function createInitialOpenGroups(pathname: string) {
 
 export function SidebarNav({ pathname }: SidebarNavProps) {
   const navItems = getNavItems(pathname);
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    createInitialOpenGroups(pathname)
-  );
-
-  useEffect(() => {
-    setOpenGroups((current) => {
-      const nextState = createInitialOpenGroups(pathname);
-      let hasChanged = false;
-
-      for (const [segment, isOpen] of Object.entries(current)) {
-        if (nextState[segment] !== undefined && nextState[segment] !== isOpen) {
-          nextState[segment] = nextState[segment] || isOpen;
-          hasChanged = true;
-          continue;
-        }
-
-        if (nextState[segment] === undefined) {
-          hasChanged = true;
-        }
-      }
-
-      return hasChanged ? nextState : current;
-    });
-  }, [pathname]);
+  const activeOpenGroups = createInitialOpenGroups(pathname);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   return (
     <nav
@@ -61,7 +40,8 @@ export function SidebarNav({ pathname }: SidebarNavProps) {
       {navItems.map((item) => {
         if (item.type === "group") {
           const isGroupActive = pathname.startsWith(item.segment);
-          const isGroupOpen = isGroupActive || openGroups[item.segment];
+          const isGroupOpen =
+            openGroups[item.segment] ?? activeOpenGroups[item.segment] ?? false;
 
           return (
             <div
@@ -69,7 +49,7 @@ export function SidebarNav({ pathname }: SidebarNavProps) {
               className={cn(
                 "rounded-[1.15rem] border px-3 py-3 transition-colors",
                 isGroupActive
-                  ? "border-white/18 bg-white/10"
+                  ? "border-white/18 bg-white/10 shadow-sm"
                   : "border-white/8 bg-white/5"
               )}
             >
@@ -77,19 +57,32 @@ export function SidebarNav({ pathname }: SidebarNavProps) {
                 type="button"
                 className="flex w-full items-center justify-between gap-3 rounded-xl px-2 py-1 text-left"
                 onClick={() =>
-                  setOpenGroups((current) => ({
-                    ...current,
-                    [item.segment]: !current[item.segment],
-                  }))
+                  setOpenGroups((current) => {
+                    const currentOpen =
+                      current[item.segment] ??
+                      activeOpenGroups[item.segment] ??
+                      false;
+
+                    return {
+                      ...current,
+                      [item.segment]: !currentOpen,
+                    };
+                  })
                 }
                 aria-expanded={isGroupOpen}
               >
                 <span className="text-sm font-semibold tracking-[0.02em] text-slate-50">
                   {item.label}
                 </span>
-                <span className="text-xs uppercase tracking-[0.24em] text-slate-300">
-                  {isGroupOpen ? "Hide" : "Show"}
-                </span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className={cn(
+                    "size-4 shrink-0 transition-transform",
+                    isGroupOpen
+                      ? "rotate-180 text-white"
+                      : "text-slate-300"
+                  )}
+                />
               </button>
 
               {isGroupOpen ? (
@@ -103,7 +96,7 @@ export function SidebarNav({ pathname }: SidebarNavProps) {
                           key={child.href}
                           href={child.href}
                           className={cn(
-                            "rounded-xl px-3 py-2 text-sm transition-colors",
+                            "rounded-xl px-3 py-2.5 text-sm transition-colors",
                             isActive
                               ? "bg-white text-slate-950 shadow-sm"
                               : "bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
