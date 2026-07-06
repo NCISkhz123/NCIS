@@ -16,50 +16,69 @@ describe("ModuleHeader", () => {
     usePathnameMock.mockReset();
   });
 
-  it("shows report child metadata for the transaction history page", () => {
+  it("uses deterministic fallback metadata for CSSD report child routes", () => {
     usePathnameMock.mockReturnValue("/cssd/laporan/riwayat-transaksi");
 
     render(
-      <ModuleHeader roleLabel="Admin CSSD" email="admin@example.com" logoutAction={async () => {}} />
+      <ModuleHeader
+        activeModuleKey="CSSD"
+        availableModuleKeys={["CSSD", "LAUNDRY"]}
+        logoutAction={async () => {}}
+      />
     );
 
     expect(
       screen.getByRole("heading", {
-        name: "Laporan / Riwayat Transaksi",
+        name: "Laporan",
       })
     ).toBeVisible();
+    expect(screen.getByText(/lihat laporan cssd/i)).toBeVisible();
+    expect(screen.queryByText("Pindah Modul")).not.toBeInTheDocument();
+    expect(screen.queryByText("Akun")).not.toBeInTheDocument();
+    expect(screen.queryByText("NCIS")).not.toBeInTheDocument();
     expect(
-      screen.getByText(/filter item, unit, dan tanggal/i)
+      screen.getByRole("button", {
+        name: /cssd module/i,
+      })
     ).toBeVisible();
+    expect(screen.getByRole("button", { name: /logout/i })).toBeVisible();
   });
 
-  it("shows report child metadata for the stock status page", () => {
-    usePathnameMock.mockReturnValue("/cssd/laporan/stok-status");
+  it("uses deterministic fallback metadata for CSSD master data child routes", () => {
+    usePathnameMock.mockReturnValue("/cssd/master-data/satuan");
 
     render(
-      <ModuleHeader roleLabel="Admin CSSD" email="admin@example.com" logoutAction={async () => {}} />
+      <ModuleHeader
+        activeModuleKey="CSSD"
+        availableModuleKeys={["CSSD"]}
+        logoutAction={async () => {}}
+      />
     );
 
     expect(
       screen.getByRole("heading", {
-        name: "Laporan / Stok Status",
+        name: "Data item",
       })
     ).toBeVisible();
-    expect(screen.getByText(/saldo aktif cssd/i)).toBeVisible();
+    expect(screen.getByText(/item untuk transaksi cssd/i)).toBeVisible();
   });
 
-  it("shows report child metadata for the stock card page", () => {
+  it("uses deterministic fallback metadata for the CSSD stock card child route", () => {
     usePathnameMock.mockReturnValue("/cssd/laporan/kartu-stok");
 
     render(
-      <ModuleHeader roleLabel="Admin CSSD" email="admin@example.com" logoutAction={async () => {}} />
+      <ModuleHeader
+        activeModuleKey="CSSD"
+        availableModuleKeys={["CSSD"]}
+        logoutAction={async () => {}}
+      />
     );
 
     expect(
       screen.getByRole("heading", {
-        name: "Laporan / Kartu Stok",
+        name: "Laporan",
       })
     ).toBeVisible();
-    expect(screen.getByText(/jejak perpindahan item cssd/i)).toBeVisible();
+    expect(screen.getByText(/lihat laporan cssd/i)).toBeVisible();
   });
 });
