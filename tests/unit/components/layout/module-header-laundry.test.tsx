@@ -21,38 +21,58 @@ describe("ModuleHeader for Laundry", () => {
 
     render(
       <ModuleHeader
-        roleLabel="Admin Laundry"
-        email="admin.laundry@ncis.local"
+        activeModuleKey="LAUNDRY"
+        availableModuleKeys={["LAUNDRY", "CSSD"]}
         logoutAction={async () => {}}
       />
     );
 
     expect(
       screen.getByRole("heading", {
-        name: "Master Data / Item",
+        name: "Data item",
       })
     ).toBeVisible();
-    expect(screen.getByText(/kelola daftar item reusable dan linen laundry/i)).toBeVisible();
+    expect(screen.getByText(/item untuk transaksi laundry/i)).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: /laundry module/i })
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: /logout/i })).toBeVisible();
   });
 
-  it("marks Laundry as the active module in the header selector", () => {
-    usePathnameMock.mockReturnValue("/laundry");
+  it("uses deterministic fallback metadata for Laundry report child routes", () => {
+    usePathnameMock.mockReturnValue("/laundry/laporan/stok-status");
 
     render(
       <ModuleHeader
-        roleLabel="Petugas Laundry"
-        email="petugas.laundry@ncis.local"
+        activeModuleKey="LAUNDRY"
+        availableModuleKeys={["LAUNDRY"]}
         logoutAction={async () => {}}
       />
     );
 
-    expect(screen.getByRole("link", { name: "Laundry" })).toHaveAttribute(
-      "aria-current",
-      "page"
+    expect(
+      screen.getByRole("heading", {
+        name: "Laporan",
+      })
+    ).toBeVisible();
+    expect(screen.getByText(/lihat laporan laundry/i)).toBeVisible();
+  });
+
+  it("marks Laundry as the active module in the utility switcher", () => {
+    usePathnameMock.mockReturnValue("/laundry");
+
+    render(
+      <ModuleHeader
+        activeModuleKey="LAUNDRY"
+        availableModuleKeys={["LAUNDRY", "CSSD"]}
+        logoutAction={async () => {}}
+      />
     );
-    expect(screen.getByRole("link", { name: "CSSD" })).not.toHaveAttribute(
-      "aria-current",
-      "page"
-    );
+
+    expect(
+      screen.getByRole("button", { name: /laundry module/i })
+    ).toBeVisible();
+    expect(screen.queryByText("Pindah Modul")).not.toBeInTheDocument();
+    expect(screen.queryByText("Akun")).not.toBeInTheDocument();
   });
 });

@@ -9,6 +9,10 @@ describe("SidebarNav for Laundry", () => {
   it("auto-expands Master Data for Laundry routes", () => {
     render(<SidebarNav pathname="/laundry/master-data/items" />);
 
+    expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/item, satuan, dan unit laundry/i)
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Item")).toBeVisible();
     expect(screen.getByText("Satuan")).toBeVisible();
     expect(screen.getByText("Unit")).toBeVisible();
@@ -17,8 +21,12 @@ describe("SidebarNav for Laundry", () => {
   it("auto-expands Laporan for Laundry routes", () => {
     render(<SidebarNav pathname="/laundry/laporan/kartu-stok" />);
 
+    expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/riwayat, posisi stok, dan kartu stok/i)
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Riwayat Transaksi")).toBeVisible();
-    expect(screen.getByText("Stok Status")).toBeVisible();
+    expect(screen.getByText("Posisi stok")).toBeVisible();
     expect(screen.getByText("Kartu Stok")).toBeVisible();
   });
 });

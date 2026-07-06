@@ -10,6 +10,12 @@ describe("SidebarNav", () => {
   it("auto-expands Master Data when the active route is inside the section", () => {
     render(<SidebarNav pathname="/cssd/master-data/items" />);
 
+    expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/item, satuan, dan unit cssd/i)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/^buka$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^tutup$/i)).not.toBeInTheDocument();
     expect(screen.getByText("Item")).toBeVisible();
     expect(screen.getByText("Satuan")).toBeVisible();
     expect(screen.getByText("Unit")).toBeVisible();
@@ -43,8 +49,12 @@ describe("SidebarNav", () => {
   it("auto-expands Laporan when the active route is inside the section", () => {
     render(<SidebarNav pathname="/cssd/laporan/stok-status" />);
 
+    expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/riwayat, posisi stok, dan kartu stok/i)
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Riwayat Transaksi")).toBeVisible();
-    expect(screen.getByText("Stok Status")).toBeVisible();
+    expect(screen.getByText("Posisi stok")).toBeVisible();
     expect(screen.getByText("Kartu Stok")).toBeVisible();
   });
 
@@ -61,7 +71,7 @@ describe("SidebarNav", () => {
     );
 
     expect(screen.getByText("Riwayat Transaksi")).toBeVisible();
-    expect(screen.getByText("Stok Status")).toBeVisible();
+    expect(screen.getByText("Posisi stok")).toBeVisible();
     expect(screen.getByText("Kartu Stok")).toBeVisible();
 
     await user.click(

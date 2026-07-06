@@ -10,6 +10,7 @@ export type SidebarNavItem =
   | {
       type: "group";
       label: string;
+      description: string;
       segment: string;
       children: {
         label: string;
@@ -86,7 +87,7 @@ export const NCIS_MODULES = [
   {
     key: "AMBULANCE",
     label: "Ambulance",
-    description: "Segera hadir",
+    description: "Belum aktif",
     href: "#",
   },
 ] as const;
@@ -95,6 +96,7 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
   {
     type: "group",
     label: "Master Data",
+    description: "Item, satuan, dan unit CSSD.",
     segment: "/cssd/master-data",
     children: [
       {
@@ -139,6 +141,7 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
   {
     type: "group",
     label: "Laporan",
+    description: "Riwayat, posisi stok, dan kartu stok.",
     segment: "/cssd/laporan",
     children: [
       {
@@ -146,7 +149,7 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
         href: "/cssd/laporan/riwayat-transaksi",
       },
       {
-        label: "Stok Status",
+        label: "Posisi stok",
         href: "/cssd/laporan/stok-status",
       },
       {
@@ -159,58 +162,55 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
 
 export const CSSD_ROUTE_META: RouteMetaMap = {
   "/cssd": {
-    title: "CSSD Workspace",
-    description: "Ruang kerja utama modul CSSD untuk operasional harian NCIS.",
+    title: "Modul CSSD",
+    description: "Pilih menu kerja CSSD.",
   },
   "/cssd/master-data/items": {
-    title: "Master Data / Item",
-    description: "Kelola daftar item reusable dan konsumabel CSSD.",
+    title: "Data item",
+    description: "Item untuk transaksi CSSD.",
   },
   "/cssd/master-data/satuan": {
-    title: "Master Data / Satuan",
-    description: "Kelola referensi satuan yang dipakai item dan transaksi.",
+    title: "Data satuan",
+    description: "Satuan untuk item dan transaksi CSSD.",
   },
   "/cssd/master-data/unit": {
-    title: "Master Data / Unit",
-    description: "Kelola daftar unit tujuan distribusi CSSD.",
+    title: "Data unit",
+    description: "Unit tujuan CSSD.",
   },
   "/cssd/pemasukan": {
     title: "Pemasukan",
-    description: "Catat barang masuk ke stok CSSD.",
+    description: "Catat barang masuk.",
   },
   "/cssd/distribusi": {
     title: "Distribusi",
-    description: "Catat distribusi barang dari CSSD ke unit rumah sakit.",
+    description: "Catat barang keluar ke unit.",
   },
   "/cssd/pengembalian": {
     title: "Pengembalian",
-    description: "Catat pengembalian barang reusable dari unit.",
+    description: "Catat reusable yang kembali.",
   },
   "/cssd/pemakaian-internal": {
     title: "Pemakaian Internal",
-    description: "Catat pemakaian konsumabel internal untuk proses CSSD.",
+    description: "Catat konsumabel yang dipakai di CSSD.",
   },
   "/cssd/stok-opname": {
     title: "Stok Opname",
-    description: "Kelola sesi pencatatan fisik dan finalisasi penyesuaian stok.",
+    description: "Hitung stok lalu finalisasi.",
   },
   "/cssd/laporan": {
     title: "Laporan",
-    description: "Pantau stok saat ini, riwayat transaksi, dan kartu stok item.",
+    description: "Lihat laporan CSSD.",
   },
   "/cssd/laporan/riwayat-transaksi": {
-    title: "Laporan / Riwayat Transaksi",
-    description:
-      "Tinjau riwayat transaksi CSSD dengan filter item, unit, dan tanggal.",
+    title: "Riwayat transaksi",
+    description: "Cari transaksi lalu ekspor bila diperlukan.",
   },
   "/cssd/laporan/stok-status": {
-    title: "Laporan / Stok Status",
-    description:
-      "Pantau saldo aktif CSSD per posisi stok dan unit terkait.",
+    title: "Posisi stok",
+    description: "Lihat stok per posisi dan unit.",
   },
   "/cssd/laporan/kartu-stok": {
-    title: "Laporan / Kartu Stok",
-    description:
-      "Lihat jejak perpindahan item CSSD dari pemasukan sampai proses sterilisasi.",
+    title: "Kartu stok",
+    description: "Telusuri pergerakan satu item.",
   },
 } as const;
