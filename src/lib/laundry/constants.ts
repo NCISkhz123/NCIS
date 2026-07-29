@@ -139,6 +139,16 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
       },
     ],
   },
+  {
+    type: "link",
+    label: "Setting",
+    href: "/laundry/setting",
+  },
+  {
+    type: "link",
+    label: "Review Tryout",
+    href: "/tryout/review",
+  },
 ];
 
 export const LAUNDRY_ROUTE_META: RouteMetaMap = {
@@ -193,6 +203,10 @@ export const LAUNDRY_ROUTE_META: RouteMetaMap = {
   "/laundry/laporan/kartu-stok": {
     title: "Kartu stok",
     description: "Telusuri pergerakan satu item.",
+  },
+  "/laundry/setting": {
+    title: "Setting",
+    description: "Kelola akun dan akses pengguna Laundry.",
   },
 };
 

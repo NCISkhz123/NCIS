@@ -158,6 +158,16 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
       },
     ],
   },
+  {
+    type: "link",
+    label: "Setting",
+    href: "/cssd/setting",
+  },
+  {
+    type: "link",
+    label: "Review Tryout",
+    href: "/tryout/review",
+  },
 ] as const;
 
 export const CSSD_ROUTE_META: RouteMetaMap = {
@@ -212,5 +222,9 @@ export const CSSD_ROUTE_META: RouteMetaMap = {
   "/cssd/laporan/kartu-stok": {
     title: "Kartu stok",
     description: "Telusuri pergerakan satu item.",
+  },
+  "/cssd/setting": {
+    title: "Setting",
+    description: "Kelola akun dan akses pengguna CSSD.",
   },
 } as const;
