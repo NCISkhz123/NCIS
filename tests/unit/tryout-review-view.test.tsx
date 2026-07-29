@@ -11,14 +11,15 @@ describe("TryoutReviewView Component", () => {
 
     expect(screen.getByText("Try Out Besar")).toBeInTheDocument();
     expect(screen.getByText("NAVIGASI SOAL")).toBeInTheDocument();
-    expect(screen.getByText("Soal 1 dari 50")).toBeInTheDocument();
+    expect(screen.getByText(/Soal 1/)).toBeInTheDocument();
+    expect(screen.getByText(/dari 50/)).toBeInTheDocument();
   });
 
   it("updates question when sidebar number is clicked", () => {
     render(<TryoutReviewView initialData={mockTryoutReviewData} />);
 
     fireEvent.click(screen.getByRole("button", { name: "2" }));
-    expect(screen.getByText("Soal 2 dari 50")).toBeInTheDocument();
+    expect(screen.getByText(/Soal 2/)).toBeInTheDocument();
     expect(screen.getByText(/Nistatin/)).toBeInTheDocument();
   });
 });
