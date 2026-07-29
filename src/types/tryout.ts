@@ -24,3 +24,36 @@ export interface TryoutReviewSummary {
   submitDate: string;
   questions: ReviewQuestion[];
 }
+
+export type SessionStatus = "IN_PROGRESS" | "PAUSED" | "COMPLETED" | "EXPIRED";
+
+export interface TryoutSession {
+  id: string;
+  userId: string;
+  tryoutId: string;
+  title: string;
+  startedAt: string;
+  expiresAt: string;
+  durationSeconds: number;
+  status: SessionStatus;
+  userAnswers: Record<number, string>;
+  autoSubmitted?: boolean;
+}
+
+export type ResumeSessionResult =
+  | {
+      status: "ACTIVE";
+      session: TryoutSession;
+      remainingSeconds: number;
+    }
+  | {
+      status: "EXPIRED";
+      sessionId: string;
+      redirectTo: string;
+      message: string;
+    }
+  | {
+      status: "ERROR";
+      error: string;
+    };
+
