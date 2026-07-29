@@ -35,6 +35,24 @@ export async function resumeTryoutSession(
 
   const expiresAt = new Date(session.expiresAt);
 
+  if (session.status === "EXPIRED") {
+    return {
+      status: "EXPIRED",
+      sessionId: session.id,
+      redirectTo: "/tryout/review?session_id=" + session.id + "&notice=session_expired",
+      message: "Sesi tryout ini telah berakhir.",
+    };
+  }
+
+  if (session.status === "COMPLETED") {
+    return {
+      status: "EXPIRED",
+      sessionId: session.id,
+      redirectTo: "/tryout/review?session_id=" + session.id,
+      message: "Sesi tryout ini telah selesai.",
+    };
+  }
+
   // Check if session wall-clock time has expired
   if (session.status === "IN_PROGRESS" && currentTime >= expiresAt) {
     session.status = "EXPIRED";

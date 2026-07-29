@@ -46,4 +46,20 @@ describe("Tryout Session Service", () => {
       expect(result.error).toContain("tidak ditemukan");
     }
   });
+
+  it("handles pre-existing EXPIRED or COMPLETED session gracefully", async () => {
+    const expiredSession = createMockSession({
+      id: "sess-already-expired",
+      status: "EXPIRED",
+    });
+    const resultExpired = await resumeTryoutSession(expiredSession.id, new Date(), expiredSession);
+    expect(resultExpired.status).toBe("EXPIRED");
+
+    const completedSession = createMockSession({
+      id: "sess-already-completed",
+      status: "COMPLETED",
+    });
+    const resultCompleted = await resumeTryoutSession(completedSession.id, new Date(), completedSession);
+    expect(resultCompleted.status).toBe("EXPIRED");
+  });
 });
