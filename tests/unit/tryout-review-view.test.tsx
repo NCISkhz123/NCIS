@@ -20,6 +20,6 @@ describe("TryoutReviewView Component", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "2" }));
     expect(screen.getByText(/Soal 2/)).toBeInTheDocument();
-    expect(screen.getByText(/Nistatin/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Nistatin/)[0]).toBeInTheDocument();
   });
 });
