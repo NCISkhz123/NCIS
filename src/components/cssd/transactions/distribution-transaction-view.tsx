@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Truck } from "lucide-react";
 
 import {
   initialDistributionFormState,
@@ -12,14 +13,16 @@ import { TransactionFeedback } from "@/components/cssd/transactions/transaction-
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
 import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
 import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import type { HospitalUnitRow, ItemRow } from "@/lib/cssd/services/master-data";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
 } from "@/lib/cssd/services/transaction-read-models";
-import type {
-  HospitalUnitRow,
-  ItemRow,
-} from "@/lib/cssd/services/master-data";
 
 type DistributionTransactionViewProps = {
   initialState?: DistributionFormState;
@@ -43,7 +46,7 @@ export function DistributionTransactionView({
 
   const values = formState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
-  const firstUnitLabel = hospitalUnits.length
+  const activeUnitLabel = hospitalUnits.length
     ? `${hospitalUnits[0]?.name} (${hospitalUnits[0]?.code})`
     : "Belum ada unit";
 
@@ -51,196 +54,170 @@ export function DistributionTransactionView({
     <TransactionPageShell
       eyebrow="CSSD"
       title="Distribusi"
-      description="Catat barang keluar dari CSSD ke unit."
+      description="Kirim barang steril atau konsumabel ke unit rumah sakit."
       summary={
         <TransactionSummaryStrip
           items={[
             {
               label: "Unit tujuan aktif",
               value: hospitalUnits.length,
-              helper: firstUnitLabel,
+              helper: activeUnitLabel,
             },
             {
               label: "Riwayat terbaru",
               value: recentTransactions.length,
-              helper: "Distribusi yang sudah tercatat.",
+              helper: "Distribusi tercatat di database.",
             },
             {
               label: "Stok siap kirim",
               value: stockSummary.length,
-              helper: "Cek stok sebelum barang keluar.",
+              helper: "Stok posisi steril di area CSSD.",
               accent: "emphasis",
             },
           ]}
         />
       }
       formTitle="Catat distribusi"
-      formDescription="Pilih item, unit tujuan, tanggal, dan jumlah distribusi."
+      formDescription="Pilih item, unit tujuan, tanggal, dan jumlah pengiriman."
       form={
         <form action={formAction} className="grid gap-4">
-            <div className="grid gap-2">
-              <label
-                htmlFor="distribution-item"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Item CSSD
-              </label>
-              <select
-                id="distribution-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item</option>
-                {items.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="distribution-item-type"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Jenis Item
-              </label>
-              <select
-                id="distribution-item-type"
-                name="itemType"
-                defaultValue={values.itemType ?? "REUSABLE"}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="REUSABLE">Reusable</option>
-                <option value="CONSUMABLE_DISTRIBUTION">
-                  Konsumabel Distribusi
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="distribution-item"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+            >
+              Item CSSD
+            </label>
+            <Select
+              id="distribution-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={pending}
+            >
+              <option value="">Pilih item</option>
+              {items.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.code} - {item.name}
                 </option>
-              </select>
-            </div>
+              ))}
+            </Select>
+          </div>
 
-            <div className="grid gap-2">
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="distribution-target-unit"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+            >
+              Unit Tujuan
+            </label>
+            <Select
+              id="distribution-target-unit"
+              name="targetUnitId"
+              defaultValue={values.targetUnitId ?? ""}
+              disabled={pending}
+            >
+              <option value="">Pilih unit tujuan</option>
+              {hospitalUnits.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.name} ({unit.code})
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
               <label
-                htmlFor="distribution-unit"
-                className="text-sm font-semibold text-slate-700"
+                htmlFor="distribution-date"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Unit Tujuan
+                Tanggal Transaksi
               </label>
-              <select
-                id="distribution-unit"
-                name="targetUnitId"
-                defaultValue={values.targetUnitId ?? ""}
+              <Input
+                id="distribution-date"
+                type="date"
+                name="transactionDate"
+                defaultValue={values.transactionDate ?? defaultDate}
                 disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih unit tujuan</option>
-                {hospitalUnits.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.name} ({unit.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="distribution-date"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Tanggal Transaksi
-                </label>
-                <input
-                  id="distribution-date"
-                  type="date"
-                  name="transactionDate"
-                  defaultValue={values.transactionDate ?? defaultDate}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label
-                  htmlFor="distribution-quantity"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Jumlah Distribusi
-                </label>
-                <input
-                  id="distribution-quantity"
-                  type="number"
-                  min="1"
-                  name="quantity"
-                  defaultValue={values.quantity ?? ""}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="distribution-notes"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Catatan
-              </label>
-              <textarea
-                id="distribution-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
-                disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               />
             </div>
 
-            <TransactionFeedback
-              error={formState.error}
-              message={formState.message}
-              impact={formState.impact}
-            />
+            <div className="grid gap-1.5">
+              <label
+                htmlFor="distribution-quantity"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+              >
+                Jumlah Distribusi
+              </label>
+              <Input
+                id="distribution-quantity"
+                type="number"
+                min="1"
+                name="quantity"
+                placeholder="Jumlah unit"
+                defaultValue={values.quantity ?? ""}
+                disabled={pending}
+              />
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="distribution-notes"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
             >
-              {pending ? "Menyimpan..." : "Simpan Distribusi"}
-            </button>
-          </form>
+              Catatan
+            </label>
+            <Textarea
+              id="distribution-notes"
+              name="notes"
+              rows={3}
+              placeholder="Catatan pengiriman atau penanggung jawab unit..."
+              defaultValue={values.notes ?? ""}
+              disabled={pending}
+            />
+          </div>
+
+          <TransactionFeedback
+            error={formState.error}
+            message={formState.message}
+            impact={formState.impact}
+          />
+
+          <Button
+            type="submit"
+            disabled={pending}
+            variant="primary"
+            size="lg"
+            className="w-full mt-2"
+          >
+            <Truck className="h-4 w-4" />
+            <span>{pending ? "Menyimpan..." : "Simpan distribusi"}</span>
+          </Button>
+        </form>
       }
       supportingContent={
         <>
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Tinjau distribusi yang baru dikirim ke unit.
-          </p>
-          <div className="mt-5">
-            <TransactionHistoryTable
-              caption="Riwayat terbaru"
-              rows={recentTransactions}
-            />
-          </div>
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TransactionHistoryTable
+                caption="Riwayat terbaru"
+                rows={recentTransactions}
+              />
+            </CardContent>
+          </Card>
 
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Stok siap kirim</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Gunakan sebagai acuan sebelum barang dikirim.
-          </p>
-          <div className="mt-5">
-            <StockSummaryTable
-              caption="Stok siap kirim"
-              rows={stockSummary}
-            />
-          </div>
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Stok siap kirim</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StockSummaryTable caption="Stok siap kirim" rows={stockSummary} />
+            </CardContent>
+          </Card>
         </>
       }
     />

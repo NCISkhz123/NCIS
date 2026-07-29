@@ -22,4 +22,19 @@ describe("TryoutReviewView Component", () => {
     expect(screen.getByText(/Soal 2/)).toBeInTheDocument();
     expect(screen.getAllByText(/Nistatin/)[0]).toBeInTheDocument();
   });
+
+  it("syncs active question and skips correct questions when filter only wrong is enabled", () => {
+    render(<TryoutReviewView initialData={mockTryoutReviewData} />);
+
+    // Select question 2 (which is correct)
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+    expect(screen.getByText(/Soal 2/)).toBeInTheDocument();
+
+    // Enable filter "Hanya jawaban salah"
+    const checkbox = screen.getByRole("checkbox");
+    fireEvent.click(checkbox);
+
+    // Active question should auto-sync to a wrong question (e.g. question 1)
+    expect(screen.getByText(/Soal 1/)).toBeInTheDocument();
+  });
 });

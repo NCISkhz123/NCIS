@@ -1,4 +1,5 @@
 import { ItemMasterDataView } from "@/components/cssd/master-data/item-master-data-view";
+import { requireCssdAdminAccess } from "@/lib/auth/guards";
 import {
   createSupabaseMasterDataClient,
   listItems,
@@ -15,6 +16,8 @@ type MasterDataItemsPageProps = {
 export default async function MasterDataItemsPage({
   searchParams,
 }: MasterDataItemsPageProps) {
+  await requireCssdAdminAccess();
+
   const params = (await searchParams) ?? {};
   const supabase = await createServerSupabaseClient();
   const client = createSupabaseMasterDataClient(supabase);

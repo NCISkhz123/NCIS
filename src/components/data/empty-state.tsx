@@ -1,3 +1,5 @@
+import { Inbox } from "lucide-react";
+
 type EmptyStateProps = {
   eyebrow?: string;
   title: string;
@@ -10,14 +12,17 @@ export function EmptyState({
   description,
 }: EmptyStateProps) {
   return (
-    <section className="rounded-[1.9rem] border border-dashed border-slate-300/90 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,251,254,0.94)_100%)] px-7 py-11 shadow-sm">
-      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
+    <section className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300/80 bg-white/60 px-8 py-14 text-center shadow-xs backdrop-blur-xs">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 border border-sky-200/60 shadow-2xs">
+        <Inbox className="h-6 w-6" />
+      </div>
+      <p className="mt-4 font-mono text-[0.7rem] font-semibold uppercase tracking-widest text-slate-400">
         {eyebrow}
       </p>
-      <h2 className="mt-4 text-2xl font-semibold tracking-[-0.035em] text-slate-950 md:text-[2rem]">
+      <h2 className="mt-2 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
         {title}
       </h2>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
+      <p className="mt-2 max-w-md text-xs text-slate-500 leading-relaxed md:text-sm">
         {description}
       </p>
     </section>

@@ -70,6 +70,42 @@ describe("decideCssdRouteAccess", () => {
     });
   });
 
+  it("denies cssd petugas from master data routes while keeping reports available", () => {
+    expect(
+      decideCssdRouteAccess({
+        pathname: "/cssd/master-data/items",
+        userId: "user-2",
+        role: "PETUGAS_CSSD",
+      })
+    ).toEqual({
+      allowed: false,
+      redirectTo: "/login",
+      reason: "forbidden",
+    });
+
+    expect(
+      decideCssdRouteAccess({
+        pathname: "/cssd/laporan/stok-status",
+        userId: "user-2",
+        role: "PETUGAS_CSSD",
+      })
+    ).toEqual({
+      allowed: true,
+    });
+  });
+
+  it("allows cssd admins to access master data routes", () => {
+    expect(
+      decideCssdRouteAccess({
+        pathname: "/cssd/master-data/items",
+        userId: "user-1",
+        role: "ADMIN_CSSD",
+      })
+    ).toEqual({
+      allowed: true,
+    });
+  });
+
   it("ignores non-cssd routes", () => {
     expect(
       decideCssdRouteAccess({
@@ -131,6 +167,42 @@ describe("decideLaundryRouteAccess", () => {
         pathname: "/laundry/distribusi",
         userId: "user-2",
         role: "PETUGAS_LAUNDRY",
+      })
+    ).toEqual({
+      allowed: true,
+    });
+  });
+
+  it("denies Laundry petugas from master data routes while keeping reports available", () => {
+    expect(
+      decideLaundryRouteAccess({
+        pathname: "/laundry/master-data/items",
+        userId: "user-2",
+        role: "PETUGAS_LAUNDRY",
+      })
+    ).toEqual({
+      allowed: false,
+      redirectTo: "/login",
+      reason: "forbidden",
+    });
+
+    expect(
+      decideLaundryRouteAccess({
+        pathname: "/laundry/laporan/stok-status",
+        userId: "user-2",
+        role: "PETUGAS_LAUNDRY",
+      })
+    ).toEqual({
+      allowed: true,
+    });
+  });
+
+  it("allows Laundry admins to access master data routes", () => {
+    expect(
+      decideLaundryRouteAccess({
+        pathname: "/laundry/master-data/items",
+        userId: "user-1",
+        role: "ADMIN_LAUNDRY",
       })
     ).toEqual({
       allowed: true,

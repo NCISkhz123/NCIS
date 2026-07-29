@@ -94,6 +94,70 @@ describe("updateSession", () => {
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
   });
 
+  it("redirects CSSD petugas away from CSSD master data routes", async () => {
+    createServerClientMock.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "22222222-2222-2222-2222-222222222222",
+            },
+          },
+        }),
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                app_role: "PETUGAS_CSSD",
+              },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    } as never);
+
+    const response = await updateSession(
+      new NextRequest("http://localhost:3000/cssd/master-data/items")
+    );
+
+    expect(response.headers.get("location")).toBe("http://localhost:3000/login");
+  });
+
+  it("keeps CSSD laporan available for CSSD petugas", async () => {
+    createServerClientMock.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "22222222-2222-2222-2222-222222222222",
+            },
+          },
+        }),
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                app_role: "PETUGAS_CSSD",
+              },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    } as never);
+
+    const response = await updateSession(
+      new NextRequest("http://localhost:3000/cssd/laporan/stok-status")
+    );
+
+    expect(response.headers.get("location")).toBeNull();
+  });
+
   it("clears stale Supabase auth cookies when auth rejects the session", async () => {
     createServerClientMock.mockReturnValue({
       auth: {

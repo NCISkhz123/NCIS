@@ -82,4 +82,34 @@ describe("SidebarNav", () => {
 
     expect(screen.queryByText("Riwayat Transaksi")).not.toBeInTheDocument();
   });
+
+  it("hides Master Data for CSSD petugas while keeping reports visible", async () => {
+    const user = userEvent.setup();
+    render(<SidebarNav pathname="/cssd/pemasukan" role="PETUGAS_CSSD" />);
+
+    expect(
+      screen.queryByRole("button", {
+        name: /master data/i,
+      })
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /laporan/i,
+      })
+    );
+
+    expect(screen.getByText("Riwayat Transaksi")).toBeVisible();
+    expect(screen.getByText("Posisi stok")).toBeVisible();
+    expect(screen.getByText("Kartu Stok")).toBeVisible();
+  });
+
+  it("shows Setting for CSSD petugas", () => {
+    render(<SidebarNav pathname="/cssd/pemasukan" role="PETUGAS_CSSD" />);
+
+    expect(screen.getByRole("link", { name: /setting/i })).toHaveAttribute(
+      "href",
+      "/cssd/setting"
+    );
+  });
 });

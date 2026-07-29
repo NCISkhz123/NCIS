@@ -16,7 +16,7 @@ describe("ModuleHeader", () => {
     usePathnameMock.mockReset();
   });
 
-  it("uses deterministic fallback metadata for CSSD report child routes", () => {
+  it("prefers exact metadata for CSSD report child routes when available", () => {
     usePathnameMock.mockReturnValue("/cssd/laporan/riwayat-transaksi");
 
     render(
@@ -29,10 +29,10 @@ describe("ModuleHeader", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Laporan",
+        name: "Riwayat transaksi",
       })
     ).toBeVisible();
-    expect(screen.getByText(/lihat laporan cssd/i)).toBeVisible();
+    expect(screen.getByText(/cari transaksi lalu ekspor bila diperlukan/i)).toBeVisible();
     expect(screen.queryByText("Pindah Modul")).not.toBeInTheDocument();
     expect(screen.queryByText("Akun")).not.toBeInTheDocument();
     expect(screen.queryByText("NCIS")).not.toBeInTheDocument();
@@ -42,9 +42,13 @@ describe("ModuleHeader", () => {
       })
     ).toBeVisible();
     expect(screen.getByRole("button", { name: /logout/i })).toBeVisible();
+    expect(screen.getByRole("link", { name: /setting/i })).toHaveAttribute(
+      "href",
+      "/cssd/setting"
+    );
   });
 
-  it("uses deterministic fallback metadata for CSSD master data child routes", () => {
+  it("prefers exact metadata for CSSD master data child routes when available", () => {
     usePathnameMock.mockReturnValue("/cssd/master-data/satuan");
 
     render(
@@ -57,13 +61,13 @@ describe("ModuleHeader", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Data item",
+        name: "Data satuan",
       })
     ).toBeVisible();
-    expect(screen.getByText(/item untuk transaksi cssd/i)).toBeVisible();
+    expect(screen.getByText(/satuan untuk item dan transaksi cssd/i)).toBeVisible();
   });
 
-  it("uses deterministic fallback metadata for the CSSD stock card child route", () => {
+  it("prefers exact metadata for the CSSD stock card child route when available", () => {
     usePathnameMock.mockReturnValue("/cssd/laporan/kartu-stok");
 
     render(
@@ -76,9 +80,9 @@ describe("ModuleHeader", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Laporan",
+        name: "Kartu stok",
       })
     ).toBeVisible();
-    expect(screen.getByText(/lihat laporan cssd/i)).toBeVisible();
+    expect(screen.getByText(/telusuri pergerakan satu item/i)).toBeVisible();
   });
 });

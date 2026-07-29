@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { PackagePlus } from "lucide-react";
 
 import {
   initialReceiptFormState,
@@ -12,6 +13,11 @@ import { TransactionFeedback } from "@/components/cssd/transactions/transaction-
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
 import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
 import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -46,7 +52,7 @@ export function ReceiptTransactionView({
     <TransactionPageShell
       eyebrow="CSSD"
       title="Pemasukan"
-      description="Catat barang masuk ke stok CSSD."
+      description="Catat barang atau item sterilisasi baru yang masuk ke stok CSSD."
       summary={
         <TransactionSummaryStrip
           items={[
@@ -58,159 +64,157 @@ export function ReceiptTransactionView({
             {
               label: "Riwayat terbaru",
               value: recentTransactions.length,
-              helper: "Transaksi masuk yang sudah tercatat.",
+              helper: "Pemasukan tercatat di database.",
             },
             {
               label: "Stok saat ini",
               value: stockSummary.length,
-              helper: "Posisi stok yang bisa dicek sebelum simpan.",
+              helper: "Acuan stok sebelum barang ditambah.",
               accent: "emphasis",
             },
           ]}
         />
       }
       formTitle="Catat pemasukan"
-      formDescription="Isi item, jenis, tanggal, dan jumlah masuk."
+      formDescription="Pilih item, jenis, tanggal, dan jumlah yang diterima."
       form={
         <form action={formAction} className="grid gap-4">
-            <div className="grid gap-2">
-              <label
-                htmlFor="receipt-item"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Item CSSD
-              </label>
-              <select
-                id="receipt-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item</option>
-                {items.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="receipt-item-type"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Jenis Item
-              </label>
-              <select
-                id="receipt-item-type"
-                name="itemType"
-                defaultValue={values.itemType ?? "REUSABLE"}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="REUSABLE">Reusable</option>
-                <option value="CONSUMABLE_DISTRIBUTION">
-                  Konsumabel Distribusi
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="receipt-item"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+            >
+              Item CSSD
+            </label>
+            <Select
+              id="receipt-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={pending}
+            >
+              <option value="">Pilih item</option>
+              {items.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.code} - {item.name}
                 </option>
-                <option value="CONSUMABLE_INTERNAL">Konsumabel Internal</option>
-              </select>
-            </div>
+              ))}
+            </Select>
+          </div>
 
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="receipt-date"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Tanggal Transaksi
-                </label>
-                <input
-                  id="receipt-date"
-                  type="date"
-                  name="transactionDate"
-                  defaultValue={values.transactionDate ?? defaultDate}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="receipt-item-type"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+            >
+              Jenis Item
+            </label>
+            <Select
+              id="receipt-item-type"
+              name="itemType"
+              defaultValue={values.itemType ?? "REUSABLE"}
+              disabled={pending}
+            >
+              <option value="REUSABLE">Reusable</option>
+              <option value="CONSUMABLE_DISTRIBUTION">
+                Konsumabel Distribusi
+              </option>
+              <option value="CONSUMABLE_INTERNAL">Konsumabel Internal</option>
+            </Select>
+          </div>
 
-              <div className="grid gap-2">
-                <label
-                  htmlFor="receipt-quantity"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Jumlah Masuk
-                </label>
-                <input
-                  id="receipt-quantity"
-                  type="number"
-                  min="1"
-                  name="quantity"
-                  defaultValue={values.quantity ?? ""}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
               <label
-                htmlFor="receipt-notes"
-                className="text-sm font-semibold text-slate-700"
+                htmlFor="receipt-date"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Catatan
+                Tanggal Transaksi
               </label>
-              <textarea
-                id="receipt-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
+              <Input
+                id="receipt-date"
+                type="date"
+                name="transactionDate"
+                defaultValue={values.transactionDate ?? defaultDate}
                 disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               />
             </div>
 
-            <TransactionFeedback
-              error={formState.error}
-              message={formState.message}
-              impact={formState.impact}
-            />
+            <div className="grid gap-1.5">
+              <label
+                htmlFor="receipt-quantity"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+              >
+                Jumlah Masuk
+              </label>
+              <Input
+                id="receipt-quantity"
+                type="number"
+                min="1"
+                name="quantity"
+                placeholder="Jumlah unit"
+                defaultValue={values.quantity ?? ""}
+                disabled={pending}
+              />
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="receipt-notes"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
             >
-              {pending ? "Menyimpan..." : "Simpan Pemasukan"}
-            </button>
-          </form>
+              Catatan
+            </label>
+            <Textarea
+              id="receipt-notes"
+              name="notes"
+              rows={3}
+              placeholder="Nomor batch, supplier, atau catatan penerimaan..."
+              defaultValue={values.notes ?? ""}
+              disabled={pending}
+            />
+          </div>
+
+          <TransactionFeedback
+            error={formState.error}
+            message={formState.message}
+            impact={formState.impact}
+          />
+
+          <Button
+            type="submit"
+            disabled={pending}
+            variant="primary"
+            size="lg"
+            className="w-full mt-2"
+          >
+            <PackagePlus className="h-4 w-4" />
+            <span>{pending ? "Menyimpan..." : "Simpan pemasukan"}</span>
+          </Button>
+        </form>
       }
       supportingContent={
         <>
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Tinjau transaksi masuk yang paling baru.
-          </p>
-          <div className="mt-5">
-            <TransactionHistoryTable
-              caption="Riwayat terbaru"
-              rows={recentTransactions}
-            />
-          </div>
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TransactionHistoryTable
+                caption="Riwayat terbaru"
+                rows={recentTransactions}
+              />
+            </CardContent>
+          </Card>
 
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Stok saat ini</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Gunakan sebagai acuan sebelum menambah stok.
-          </p>
-          <div className="mt-5">
-            <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
-          </div>
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Stok saat ini</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
+            </CardContent>
+          </Card>
         </>
       }
     />

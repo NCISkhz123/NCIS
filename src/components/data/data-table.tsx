@@ -1,4 +1,13 @@
 import type { ReactNode } from "react";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+} from "@/components/ui/table";
 
 type DataTableProps = {
   caption?: string;
@@ -8,46 +17,26 @@ type DataTableProps = {
 
 export function DataTable({ caption, columns, rows }: DataTableProps) {
   return (
-    <div className="overflow-hidden rounded-[1.6rem] border border-slate-200/90 bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
-          {caption ? (
-            <caption className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 text-left text-sm font-medium text-slate-500">
-              {caption}
-            </caption>
-          ) : null}
-          <thead className="bg-slate-50">
-            <tr>
-              {columns.map((column) => (
-                <th
-                  key={column}
-                  scope="col"
-                  className="px-5 py-3.5 text-left text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-slate-500"
-                >
-                  {column}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, rowIndex) => (
-              <tr
-                key={`row-${rowIndex}`}
-                className="border-t border-slate-200 align-top"
-              >
-                {row.map((cell, cellIndex) => (
-                  <td
-                    key={`cell-${rowIndex}-${cellIndex}`}
-                    className="px-5 py-4.5 text-sm leading-6 text-slate-700"
-                  >
-                    {cell}
-                  </td>
-                ))}
-              </tr>
+    <Table>
+      {caption ? <TableCaption>{caption}</TableCaption> : null}
+      <TableHeader>
+        <TableRow>
+          {columns.map((column) => (
+            <TableHead key={column}>{column}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row, rowIndex) => (
+          <TableRow key={`row-${rowIndex}`}>
+            {row.map((cell, cellIndex) => (
+              <TableCell key={`cell-${rowIndex}-${cellIndex}`}>
+                {cell}
+              </TableCell>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

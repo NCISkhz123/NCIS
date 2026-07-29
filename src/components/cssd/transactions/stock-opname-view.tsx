@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ClipboardCheck, CheckCircle2 } from "lucide-react";
 
 import {
   initialStockOpnameDraftFormState,
@@ -19,6 +20,12 @@ import { DataTable } from "@/components/data/data-table";
 import { StockSummaryTable } from "@/components/cssd/transactions/stock-summary-table";
 import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
 import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import type { HospitalUnitRow, ItemRow } from "@/lib/cssd/services/master-data";
 import type { StockSummaryEntry } from "@/lib/cssd/services/transaction-read-models";
 import type {
@@ -49,7 +56,7 @@ function FeedbackMessage(props: {
 }) {
   if (props.error) {
     return (
-      <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+      <p className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800">
         {props.error}
       </p>
     );
@@ -60,7 +67,7 @@ function FeedbackMessage(props: {
   }
 
   return (
-    <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+    <p className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800">
       {props.message}
     </p>
   );
@@ -148,67 +155,68 @@ export function StockOpnameView({
 
   const formContent = !draftSession ? (
     <form action={draftAction} className="grid gap-4">
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <label
           htmlFor="opname-date"
-          className="text-sm font-semibold text-slate-700"
+          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
         >
           Tanggal Opname
         </label>
-        <input
+        <Input
           id="opname-date"
           type="date"
           name="opnameDate"
           defaultValue={draftValues.opnameDate ?? defaultDate}
           disabled={draftPending}
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
         />
       </div>
 
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <label
           htmlFor="opname-notes"
-          className="text-sm font-semibold text-slate-700"
+          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
         >
           Catatan
         </label>
-        <textarea
+        <Textarea
           id="opname-notes"
           name="notes"
-          rows={4}
+          rows={3}
+          placeholder="Catatan penugasan..."
           defaultValue={draftValues.notes ?? ""}
           disabled={draftPending}
-          className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
         />
       </div>
 
       <FeedbackMessage error={draftState.error} message={draftState.message} />
 
-      <button
+      <Button
         type="submit"
         disabled={draftPending}
-        className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        variant="primary"
+        size="lg"
+        className="w-full mt-2"
       >
-        {draftPending ? "Membuat..." : "Buat sesi"}
-      </button>
+        <ClipboardCheck className="h-4 w-4" />
+        <span>{draftPending ? "Membuat..." : "Buat sesi"}</span>
+      </Button>
     </form>
   ) : (
     <form action={lineAction} className="grid gap-4">
       <input type="hidden" name="sessionId" value={draftSession.id} />
 
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <label
           htmlFor="opname-item"
-          className="text-sm font-semibold text-slate-700"
+          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
         >
           Item Stok
         </label>
-        <select
+        <Select
           id="opname-item"
           name="itemId"
           defaultValue={lineValues.itemId ?? ""}
           disabled={linePending}
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
         >
           <option value="">Pilih item</option>
           {items.map((item) => (
@@ -216,45 +224,43 @@ export function StockOpnameView({
               {item.code} - {item.name} ({ITEM_TYPE_LABELS[item.item_type]})
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
-      <div className="grid gap-2 md:grid-cols-2">
-        <div className="grid gap-2">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-1.5">
           <label
             htmlFor="opname-position"
-            className="text-sm font-semibold text-slate-700"
+            className="text-xs font-semibold uppercase tracking-wider text-slate-800"
           >
             Posisi Stok
           </label>
-          <select
+          <Select
             id="opname-position"
             name="stockPosition"
             defaultValue={lineValues.stockPosition ?? "READY"}
             disabled={linePending}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
           >
             {REUSABLE_STOCK_POSITIONS.map((position) => (
               <option key={position} value={position}>
                 {STOCK_POSITION_LABELS[position]}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
-        <div className="grid gap-2">
+        <div className="grid gap-1.5">
           <label
             htmlFor="opname-unit"
-            className="text-sm font-semibold text-slate-700"
+            className="text-xs font-semibold uppercase tracking-wider text-slate-800"
           >
             Unit Terkait
           </label>
-          <select
+          <Select
             id="opname-unit"
             name="hospitalUnitId"
             defaultValue={lineValues.hospitalUnitId ?? ""}
             disabled={linePending}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
           >
             <option value="">Kosongkan jika tidak di unit</option>
             {hospitalUnits.map((unit) => (
@@ -262,54 +268,56 @@ export function StockOpnameView({
                 {unit.name} ({unit.code})
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <label
           htmlFor="opname-counted-quantity"
-          className="text-sm font-semibold text-slate-700"
+          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
         >
           Qty Hitung
         </label>
-        <input
+        <Input
           id="opname-counted-quantity"
           type="number"
           min="0"
           name="countedQuantity"
+          placeholder="0"
           defaultValue={lineValues.countedQuantity ?? ""}
           disabled={linePending}
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
         />
       </div>
 
-      <div className="grid gap-2">
+      <div className="grid gap-1.5">
         <label
           htmlFor="opname-line-notes"
-          className="text-sm font-semibold text-slate-700"
+          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
         >
           Catatan
         </label>
-        <textarea
+        <Textarea
           id="opname-line-notes"
           name="notes"
           rows={3}
+          placeholder="Catatan hasil hitung..."
           defaultValue={lineValues.notes ?? ""}
           disabled={linePending}
-          className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
         />
       </div>
 
       <FeedbackMessage error={lineState.error} message={lineState.message} />
 
-      <button
+      <Button
         type="submit"
         disabled={linePending}
-        className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        variant="primary"
+        size="lg"
+        className="w-full mt-2"
       >
-        {linePending ? "Menyimpan..." : "Simpan hasil hitung"}
-      </button>
+        <span>{linePending ? "Menyimpan..." : "Simpan hasil hitung"}</span>
+      </Button>
     </form>
   );
 
@@ -328,22 +336,20 @@ export function StockOpnameView({
       form={formContent}
       supportingContent={
         <>
-          <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-            <p className="text-sm font-semibold text-slate-900">Posisi stok</p>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              Gunakan stok sistem sebagai pembanding saat hitung fisik.
-            </p>
-            <div className="mt-5">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Posisi stok</CardTitle>
+            </CardHeader>
+            <CardContent>
               <StockSummaryTable caption="Posisi stok" rows={stockSummary} />
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className="shell-surface rounded-[1.75rem] p-6">
-            <p className="text-sm font-semibold text-slate-900">Riwayat sesi</p>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              Lihat sesi opname yang sudah selesai.
-            </p>
-            <div className="mt-5">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Riwayat sesi</CardTitle>
+            </CardHeader>
+            <CardContent>
               <DataTable
                 caption="Riwayat sesi"
                 columns={["Tanggal", "Status", "Baris", "Catatan"]}
@@ -358,76 +364,72 @@ export function StockOpnameView({
                     : [["-", "Belum ada sesi final", "-", "-"]]
                 }
               />
-            </div>
-          </section>
+            </CardContent>
+          </Card>
 
           {draftSession ? (
-            <>
-              <section className="shell-surface rounded-[1.75rem] p-6">
-                <p className="text-sm font-semibold text-slate-900">Sesi aktif</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tanggal {formatDateLabel(draftSession.opnameDate)} |{" "}
-                  {draftSession.lineCount} baris
-                </p>
-                {draftSession.notes ? (
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {draftSession.notes}
-                  </p>
-                ) : null}
-              </section>
-
-              <section className="shell-surface rounded-[1.75rem] p-6">
-                <p className="text-sm font-semibold text-slate-900">
-                  Hasil hitung
-                </p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Periksa hasil hitung sebelum finalisasi.
-                </p>
-
-                <div className="mt-5">
-                  <DataTable
-                    caption="Baris tersimpan"
-                    columns={[
-                      "Item",
-                      "Jenis",
-                      "Posisi",
-                      "Unit",
-                      "Qty Hitung",
-                      "Qty Sistem",
-                      "Catatan",
-                    ]}
-                    rows={
-                      draftLines.length
-                        ? draftLines.map((line) => [
-                            `${line.itemCode} - ${line.itemName}`,
-                            ITEM_TYPE_LABELS[line.itemType],
-                            line.stockPositionLabel,
-                            line.hospitalUnitName ?? "-",
-                            line.countedQuantity,
-                            line.currentQuantity,
-                            line.notes ?? "-",
-                          ])
-                        : [["-", "Belum ada baris", "-", "-", "-", "-", "-"]]
-                    }
-                  />
+            <Card className="border-sky-300 bg-sky-50/40">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base font-bold text-slate-900">
+                      Sesi aktif: Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
+                    </CardTitle>
+                    <CardDescription className="text-xs text-slate-600 font-medium">
+                      {draftSession.notes ?? "Draft masih bisa dilanjutkan."}
+                    </CardDescription>
+                  </div>
+                  <Badge variant="info" dot>Draft Aktif</Badge>
                 </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <DataTable
+                  caption="Baris tersimpan"
+                  columns={[
+                    "Item",
+                    "Jenis",
+                    "Posisi",
+                    "Unit",
+                    "Qty Hitung",
+                    "Qty Sistem",
+                    "Catatan",
+                  ]}
+                  rows={
+                    draftLines.length
+                      ? draftLines.map((line) => [
+                          `${line.itemCode} - ${line.itemName}`,
+                          ITEM_TYPE_LABELS[line.itemType],
+                          line.stockPositionLabel,
+                          line.hospitalUnitName ?? "-",
+                          line.countedQuantity,
+                          line.currentQuantity,
+                          line.notes ?? "-",
+                        ])
+                      : [["-", "Belum ada baris", "-", "-", "-", "-", "-"]]
+                  }
+                />
 
-                <form action={finalizeAction} className="mt-5 grid gap-4">
+                <form action={finalizeAction} className="grid gap-3 pt-2">
                   <input type="hidden" name="sessionId" value={draftSession.id} />
                   <FeedbackMessage
                     error={finalizeState.error}
                     message={finalizeState.message}
                   />
-                  <button
+                  <Button
                     type="submit"
                     disabled={finalizePending || draftLines.length === 0}
-                    className="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    variant="success"
+                    size="lg"
+                    className="w-full"
                   >
-                    {finalizePending ? "Memfinalisasi..." : "Finalisasi hasil"}
-                  </button>
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>
+                      {finalizePending ? "Memfinalisasi..." : "Finalisasi hasil"}
+                    </span>
+                  </Button>
                 </form>
-              </section>
-            </>
+              </CardContent>
+            </Card>
           ) : null}
         </>
       }

@@ -1,4 +1,5 @@
 import { ItemMasterDataView } from "@/components/laundry/master-data/item-master-data-view";
+import { requireLaundryAdminAccess } from "@/lib/auth/guards";
 import {
   createSupabaseMasterDataClient,
   listItems,
@@ -15,6 +16,8 @@ type MasterDataItemsPageProps = {
 export default async function MasterDataItemsPage({
   searchParams,
 }: MasterDataItemsPageProps) {
+  await requireLaundryAdminAccess();
+
   const params = (await searchParams) ?? {};
   const supabase = await createServerSupabaseClient();
   const client = createSupabaseMasterDataClient(supabase);

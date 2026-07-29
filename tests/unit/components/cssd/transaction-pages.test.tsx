@@ -114,8 +114,6 @@ describe("CSSD transaction pages", () => {
       />
     );
 
-    expect(screen.getByRole("heading", { name: /^pemasukan$/i })).toBeVisible();
-    expect(screen.getByText(/item aktif/i)).toBeVisible();
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/stok saat ini/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/item cssd/i)).toBeVisible();
@@ -163,8 +161,6 @@ describe("CSSD transaction pages", () => {
       />
     );
 
-    expect(screen.getByRole("heading", { name: /^distribusi$/i })).toBeVisible();
-    expect(screen.getByText(/unit tujuan aktif/i)).toBeVisible();
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/stok siap kirim/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/unit tujuan/i)).toBeVisible();
@@ -221,10 +217,6 @@ describe("CSSD transaction pages", () => {
       />
     );
 
-    expect(
-      screen.getByRole("heading", { name: /^pengembalian reusable$/i })
-    ).toBeVisible();
-    expect(screen.getByText(/reusable siap diproses/i)).toBeVisible();
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/lanjutkan reusable/i)).toBeVisible();
     expect(screen.getByLabelText(/tujuan pengembalian/i)).toBeVisible();

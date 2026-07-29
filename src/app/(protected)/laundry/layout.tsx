@@ -13,12 +13,13 @@ export default async function LaundryLayout({ children }: LaundryLayoutProps) {
   const availableModuleKeys = getAvailableModuleKeys(profile?.role ?? null);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f2f6f9_0%,#eef4f8_45%,#fbfdff_100%)] text-slate-950">
-      <div className="mx-auto flex min-h-screen max-w-[112rem]">
-        <div className="hidden lg:flex lg:w-[19rem] lg:shrink-0">
+    <div className="min-h-screen bg-slate-50 text-slate-950">
+      <div className="flex min-h-screen w-full">
+        <div className="hidden lg:flex lg:w-72 lg:shrink-0">
           <AppSidebar
             activeModuleKey="LAUNDRY"
             availableModuleKeys={availableModuleKeys}
+            role={profile?.role ?? null}
             logoutAction={logoutAction}
           />
         </div>
@@ -29,7 +30,7 @@ export default async function LaundryLayout({ children }: LaundryLayoutProps) {
             availableModuleKeys={availableModuleKeys}
             logoutAction={logoutAction}
           />
-          <main className="flex-1 px-5 py-6 md:px-8 md:py-7 xl:px-10 xl:py-9">
+          <main className="flex-1 px-6 py-6 md:px-8 md:py-8 xl:px-10">
             {children}
           </main>
         </div>
@@ -37,4 +38,3 @@ export default async function LaundryLayout({ children }: LaundryLayoutProps) {
     </div>
   );
 }
-

@@ -39,7 +39,7 @@ describe("ModuleHeader for Laundry", () => {
     expect(screen.getByRole("button", { name: /logout/i })).toBeVisible();
   });
 
-  it("uses deterministic fallback metadata for Laundry report child routes", () => {
+  it("prefers exact metadata for Laundry report child routes when available", () => {
     usePathnameMock.mockReturnValue("/laundry/laporan/stok-status");
 
     render(
@@ -52,10 +52,10 @@ describe("ModuleHeader for Laundry", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Laporan",
+        name: "Posisi stok",
       })
     ).toBeVisible();
-    expect(screen.getByText(/lihat laporan laundry/i)).toBeVisible();
+    expect(screen.getByText(/lihat stok per posisi dan unit/i)).toBeVisible();
   });
 
   it("marks Laundry as the active module in the utility switcher", () => {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireCssdAccess } from "@/lib/auth/guards";
+import { requireCssdAdminAccess } from "@/lib/auth/guards";
 import type { HospitalUnitFormState } from "@/lib/cssd/forms/master-data";
 import {
   createHospitalUnit,
@@ -15,7 +15,7 @@ export async function saveHospitalUnitAction(
   _previousState: HospitalUnitFormState,
   formData: FormData
 ): Promise<HospitalUnitFormState> {
-  await requireCssdAccess();
+  await requireCssdAdminAccess();
 
   const code = String(formData.get("code") ?? "");
   const name = String(formData.get("name") ?? "");

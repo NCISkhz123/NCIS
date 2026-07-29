@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown, Layers, Shirt } from "lucide-react";
 
 import type { ModuleKey } from "@/lib/modules";
 import { cn } from "@/lib/utils";
@@ -106,16 +107,26 @@ export function ModuleSwitcher({
         aria-controls={panelId}
         onClick={handleOpenToggle}
         className={cn(
-          "inline-flex w-full items-center justify-between gap-3 rounded-full border font-semibold uppercase transition-colors",
+          "inline-flex w-full items-center justify-between gap-2.5 rounded-xl border text-xs font-semibold tracking-wide transition-all shadow-xs",
           compact
-            ? "border-slate-200 bg-white px-3 py-2 text-[0.72rem] tracking-[0.2em] text-slate-700"
-            : "border-white/12 bg-white/8 px-3 py-1 text-[0.68rem] tracking-[0.28em] text-sky-100 hover:bg-white/12"
+            ? "border-slate-200 bg-white px-3 py-2 text-slate-800 hover:border-slate-300"
+            : "border-white/12 bg-white/[0.07] px-3.5 py-2.5 text-slate-100 hover:bg-white/12"
         )}
       >
-        <span className="truncate">{activeModule.label} Module</span>
-        <span aria-hidden="true" className="text-[0.65rem]">
-          {isOpen ? "▲" : "▼"}
-        </span>
+        <div className="flex items-center gap-2 truncate">
+          {activeModuleKey === "LAUNDRY" ? (
+            <Shirt className="h-4 w-4 text-sky-400 shrink-0" />
+          ) : (
+            <Layers className="h-4 w-4 text-sky-400 shrink-0" />
+          )}
+          <span className="truncate">{activeModule.label} Module</span>
+        </div>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-slate-400 transition-transform duration-150",
+            isOpen && "rotate-180 text-sky-400"
+          )}
+        />
       </button>
 
       {isOpen ? (
@@ -124,26 +135,37 @@ export function ModuleSwitcher({
           role="group"
           aria-label="Pilihan modul NCIS"
           className={cn(
-            "absolute z-20 mt-3 grid min-w-[15rem] gap-2 rounded-[1.25rem] border border-slate-200 bg-white p-2 shadow-xl",
+            "absolute z-30 mt-2 grid min-w-[16rem] gap-1.5 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95",
             compact ? "right-0 w-[min(18rem,calc(100vw-2rem))]" : "left-0 w-full"
           )}
         >
           {modules.map((module) => {
             const isActive = module.key === activeModuleKey;
             const isEnabled = effectiveAvailableKeys.includes(module.key);
+            const ModuleIcon = module.key === "LAUNDRY" ? Shirt : Layers;
 
             if (isActive) {
               return (
                 <button
                   key={module.key}
                   type="button"
-                  onClick={() => undefined}
-                  className="rounded-[1rem] border border-slate-900 bg-slate-950 px-4 py-3 text-left text-sm font-semibold text-white shadow-sm"
+                  onClick={() => setIsOpen(true)}
+                  className="flex items-start gap-3 rounded-xl border border-sky-500/20 bg-sky-50/80 p-3 text-left shadow-2xs w-full"
                 >
-                  <span className="block">{module.label}</span>
-                  <span className="mt-1 block text-xs font-medium leading-5 text-slate-200">
-                    {module.description}
-                  </span>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-600 text-white">
+                    <ModuleIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900">
+                        {module.label}
+                      </span>
+                      <Check className="h-4 w-4 text-sky-600" />
+                    </div>
+                    <span className="mt-0.5 block text-[0.72rem] leading-normal text-slate-600">
+                      {module.description}
+                    </span>
+                  </div>
                 </button>
               );
             }
@@ -153,16 +175,22 @@ export function ModuleSwitcher({
                 <button
                   key={module.key}
                   type="button"
-                  tabIndex={-1}
                   aria-disabled="true"
-                  aria-label={`${module.label} tidak tersedia`}
-                  onClick={() => undefined}
-                  className="rounded-[1rem] border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm font-semibold text-slate-400"
+                  tabIndex={-1}
+                  onClick={() => setIsOpen(true)}
+                  className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3 text-left opacity-60 w-full"
                 >
-                  <span className="block text-slate-600">{module.label}</span>
-                  <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">
-                    {module.description}
-                  </span>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-slate-500">
+                    <ModuleIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs font-bold text-slate-500">
+                      {module.label} (Tidak tersedia)
+                    </span>
+                    <span className="mt-0.5 block text-[0.72rem] leading-normal text-slate-400">
+                      {module.description}
+                    </span>
+                  </div>
                 </button>
               );
             }
@@ -176,12 +204,19 @@ export function ModuleSwitcher({
                     setIsOpen(false);
                     onNavigate(module.href);
                   }}
-                  className="rounded-[1rem] border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                  className="flex items-start gap-3 rounded-xl border border-transparent p-3 text-left transition-all hover:border-slate-200 hover:bg-slate-50 w-full"
                 >
-                  <span className="block">{module.label}</span>
-                  <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">
-                    {module.description}
-                  </span>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                    <ModuleIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs font-bold text-slate-900">
+                      {module.label}
+                    </span>
+                    <span className="mt-0.5 block text-[0.72rem] leading-normal text-slate-500">
+                      {module.description}
+                    </span>
+                  </div>
                 </button>
               );
             }
@@ -191,12 +226,19 @@ export function ModuleSwitcher({
                 key={module.key}
                 href={module.href}
                 onClick={() => setIsOpen(false)}
-                className="rounded-[1rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                className="flex items-start gap-3 rounded-xl border border-transparent p-3 text-left transition-all hover:border-slate-200 hover:bg-slate-50 w-full"
               >
-                <span className="block">{module.label}</span>
-                <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">
-                  {module.description}
-                </span>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                  <ModuleIcon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs font-bold text-slate-900">
+                    {module.label}
+                  </span>
+                  <span className="mt-0.5 block text-[0.72rem] leading-normal text-slate-500">
+                    {module.description}
+                  </span>
+                </div>
               </Link>
             );
           })}

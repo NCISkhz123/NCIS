@@ -1,4 +1,5 @@
 import { UnitMasterDataView } from "@/components/cssd/master-data/unit-master-data-view";
+import { requireCssdAdminAccess } from "@/lib/auth/guards";
 import {
   createSupabaseMasterDataClient,
   listHospitalUnits,
@@ -14,6 +15,8 @@ type MasterDataUnitPageProps = {
 export default async function MasterDataUnitPage({
   searchParams,
 }: MasterDataUnitPageProps) {
+  await requireCssdAdminAccess();
+
   const params = (await searchParams) ?? {};
   const supabase = await createServerSupabaseClient();
   const client = createSupabaseMasterDataClient(supabase);

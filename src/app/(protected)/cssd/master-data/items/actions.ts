@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireCssdAccess } from "@/lib/auth/guards";
+import { requireCssdAdminAccess } from "@/lib/auth/guards";
 import type { ItemFormState } from "@/lib/cssd/forms/master-data";
 import {
   createItem,
@@ -15,7 +15,7 @@ export async function saveItemAction(
   _previousState: ItemFormState,
   formData: FormData
 ): Promise<ItemFormState> {
-  await requireCssdAccess();
+  await requireCssdAdminAccess();
 
   const code = String(formData.get("code") ?? "");
   const name = String(formData.get("name") ?? "");

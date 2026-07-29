@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireLaundryAccess } from "@/lib/auth/guards";
+import { requireLaundryAdminAccess } from "@/lib/auth/guards";
 import {
   createSupabaseMasterDataClient,
   createUnitOfMeasure,
@@ -15,7 +15,7 @@ export async function saveUnitOfMeasureAction(
   _previousState: UnitOfMeasureFormState,
   formData: FormData
 ): Promise<UnitOfMeasureFormState> {
-  await requireLaundryAccess();
+  await requireLaundryAdminAccess();
 
   const code = String(formData.get("code") ?? "");
   const name = String(formData.get("name") ?? "");

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireCssdAccess } from "@/lib/auth/guards";
+import { requireCssdAdminAccess } from "@/lib/auth/guards";
 import type { UnitOfMeasureFormState } from "@/lib/cssd/forms/master-data";
 import {
   createSupabaseMasterDataClient,
@@ -15,7 +15,7 @@ export async function saveUnitOfMeasureAction(
   _previousState: UnitOfMeasureFormState,
   formData: FormData
 ): Promise<UnitOfMeasureFormState> {
-  await requireCssdAccess();
+  await requireCssdAdminAccess();
 
   const code = String(formData.get("code") ?? "");
   const name = String(formData.get("name") ?? "");

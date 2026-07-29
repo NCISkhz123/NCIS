@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Wrench } from "lucide-react";
 
 import {
   initialInternalUsageFormState,
@@ -12,6 +13,11 @@ import { TransactionFeedback } from "@/components/cssd/transactions/transaction-
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
 import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
 import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -76,124 +82,123 @@ export function InternalUsageTransactionView({
       formDescription="Pilih item, isi tanggal, jumlah pakai, lalu simpan."
       form={
         <form action={formAction} className="grid gap-4">
-            <div className="grid gap-2">
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="internal-item"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+            >
+              Item Konsumabel Internal
+            </label>
+            <Select
+              id="internal-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={pending}
+            >
+              <option value="">Pilih item</option>
+              {internalItems.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.code} - {item.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <input type="hidden" name="itemType" value="CONSUMABLE_INTERNAL" />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
               <label
-                htmlFor="internal-item"
-                className="text-sm font-semibold text-slate-700"
+                htmlFor="internal-date"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Item Konsumabel Internal
+                Tanggal Transaksi
               </label>
-              <select
-                id="internal-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
+              <Input
+                id="internal-date"
+                type="date"
+                name="transactionDate"
+                defaultValue={values.transactionDate ?? defaultDate}
                 disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item</option>
-                {internalItems.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <input type="hidden" name="itemType" value="CONSUMABLE_INTERNAL" />
-
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="internal-date"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Tanggal Transaksi
-                </label>
-                <input
-                  id="internal-date"
-                  type="date"
-                  name="transactionDate"
-                  defaultValue={values.transactionDate ?? defaultDate}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label
-                  htmlFor="internal-quantity"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Jumlah Pakai
-                </label>
-                <input
-                  id="internal-quantity"
-                  type="number"
-                  min="1"
-                  name="quantity"
-                  defaultValue={values.quantity ?? ""}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="internal-notes"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Catatan
-              </label>
-              <textarea
-                id="internal-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
-                disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               />
             </div>
 
-            <TransactionFeedback
-              error={formState.error}
-              message={formState.message}
-              impact={formState.impact}
-            />
+            <div className="grid gap-1.5">
+              <label
+                htmlFor="internal-quantity"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+              >
+                Jumlah Pakai
+              </label>
+              <Input
+                id="internal-quantity"
+                type="number"
+                min="1"
+                name="quantity"
+                placeholder="Jumlah unit"
+                defaultValue={values.quantity ?? ""}
+                disabled={pending}
+              />
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="internal-notes"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
             >
-              {pending ? "Menyimpan..." : "Simpan Pemakaian Internal"}
-            </button>
-          </form>
+              Catatan
+            </label>
+            <Textarea
+              id="internal-notes"
+              name="notes"
+              rows={3}
+              placeholder="Catatan keperluan operasional atau nomor mesin..."
+              defaultValue={values.notes ?? ""}
+              disabled={pending}
+            />
+          </div>
+
+          <TransactionFeedback
+            error={formState.error}
+            message={formState.message}
+            impact={formState.impact}
+          />
+
+          <Button
+            type="submit"
+            disabled={pending}
+            variant="primary"
+            size="lg"
+            className="w-full mt-2"
+          >
+            <Wrench className="h-4 w-4" />
+            <span>{pending ? "Menyimpan..." : "Simpan Pemakaian Internal"}</span>
+          </Button>
+        </form>
       }
       supportingContent={
         <>
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Tinjau pemakaian internal yang baru tercatat.
-          </p>
-          <div className="mt-5">
-            <TransactionHistoryTable
-              caption="Riwayat terbaru"
-              rows={recentTransactions}
-            />
-          </div>
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TransactionHistoryTable
+                caption="Riwayat terbaru"
+                rows={recentTransactions}
+              />
+            </CardContent>
+          </Card>
 
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Sisa stok</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Pantau stok konsumabel internal yang masih tersedia.
-          </p>
-          <div className="mt-5">
-            <StockSummaryTable caption="Sisa stok" rows={stockSummary} />
-          </div>
-        </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Sisa stok</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StockSummaryTable caption="Sisa stok" rows={stockSummary} />
+            </CardContent>
+          </Card>
         </>
       }
     />

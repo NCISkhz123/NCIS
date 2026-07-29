@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { Edit2, Save, X } from "lucide-react";
 
 import { saveItemAction } from "@/app/(protected)/cssd/master-data/items/actions";
 import { DataTable } from "@/components/data/data-table";
 import { MasterDataFeedback } from "@/components/cssd/master-data/master-data-feedback";
 import { StatusPill } from "@/components/cssd/master-data/status-pill";
 import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   ITEM_TYPE_LABELS,
   ITEM_TYPES,
@@ -44,188 +51,207 @@ export function ItemMasterDataView({
 
   return (
     <div className="grid gap-6">
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
-        <div className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-          <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Master data"
-              title="Data item"
-              description="Item yang dipakai di transaksi CSSD."
-              size="hero"
-            />
-            <div>
-              <p className="mb-3 text-sm font-semibold text-slate-800">
-                Daftar item
-              </p>
-              <DataTable
-                caption="Daftar item"
-                columns={["Kode", "Nama", "Jenis", "Satuan", "Status", "Aksi"]}
-                rows={items.map((item) => [
-                  item.code,
-                  item.name,
-                  ITEM_TYPE_LABELS[item.item_type],
-                  uomLabelMap.get(item.uom_id) ?? item.uom_id,
-                  <StatusPill key={`${item.id}-status`} active={item.is_active} />,
-                  <Link
-                    key={`${item.id}-edit`}
-                    href={`/cssd/master-data/items?edit=${item.id}`}
-                    className="text-sm font-semibold text-sky-700 underline-offset-4 hover:underline"
-                  >
-                    Edit
-                  </Link>,
-                ])}
+      <section className="grid gap-6 xl:grid-cols-12 items-start">
+        {/* Left Table Section */}
+        <div className="xl:col-span-7 space-y-4">
+          <Card>
+            <CardHeader>
+              <ShellSectionHeading
+                eyebrow="Master Data CSSD"
+                title="Data Item & Katalog"
+                description="Katalog item sterilisasi, konsumabel, dan reusable yang aktif di sistem."
+                size="hero"
               />
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                    Total {items.length} Item Terdaftar
+                  </p>
+                </div>
+                <DataTable
+                  caption="Daftar Katalog Item"
+                  columns={["Kode", "Nama Item", "Jenis", "Satuan", "Status", "Aksi"]}
+                  rows={items.map((item) => [
+                    <span key={`${item.id}-code`} className="font-mono text-xs font-bold text-slate-900">
+                      {item.code}
+                    </span>,
+                    item.name,
+                    <Badge key={`${item.id}-type`} variant="info">
+                      {ITEM_TYPE_LABELS[item.item_type]}
+                    </Badge>,
+                    uomLabelMap.get(item.uom_id) ?? item.uom_id,
+                    <StatusPill key={`${item.id}-status`} active={item.is_active} />,
+                    <Link
+                      key={`${item.id}-edit`}
+                      href={`/cssd/master-data/items?edit=${item.id}`}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-900"
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                      <span>Edit</span>
+                    </Link>,
+                  ])}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title={editingRecord ? "Ubah item" : "Tambah item"}
-            description="Isi data item lalu simpan."
-          />
-
-          <form action={formAction} className="mt-6 grid gap-4">
-            <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="item-code"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Kode item
-              </label>
-              <input
-                id="item-code"
-                name="code"
-                placeholder="Opsional"
-                defaultValue={values.code ?? editingRecord?.code ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+        {/* Right Sticky Form Section */}
+        <div className="xl:col-span-5">
+          <Card className="sticky top-24 border-slate-200 shadow-sm">
+            <CardHeader>
+              <ShellSectionHeading
+                eyebrow="Form Input"
+                title={editingRecord ? "Ubah Data Item" : "Tambah Item Baru"}
+                description="Isi rincian item lalu simpan ke database master."
               />
-            </div>
+            </CardHeader>
+            <CardContent>
+              <form action={formAction} className="grid gap-4">
+                <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="item-name"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Nama item
-              </label>
-              <input
-                id="item-name"
-                name="name"
-                defaultValue={values.name ?? editingRecord?.name ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="item-code"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Kode item
+                  </label>
+                  <Input
+                    id="item-code"
+                    name="code"
+                    placeholder="Contoh: ITM-001 (Opsional)"
+                    defaultValue={values.code ?? editingRecord?.code ?? ""}
+                    disabled={pending}
+                  />
+                </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="item-type"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Jenis item
-              </label>
-              <select
-                id="item-type"
-                name="itemType"
-                defaultValue={
-                  values.itemType ?? editingRecord?.item_type ?? ITEM_TYPES[0]
-                }
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                {ITEM_TYPES.map((itemType) => (
-                  <option key={itemType} value={itemType}>
-                    {ITEM_TYPE_LABELS[itemType]}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="item-name"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Nama item
+                  </label>
+                  <Input
+                    id="item-name"
+                    name="name"
+                    placeholder="Nama spesifikasi item..."
+                    defaultValue={values.name ?? editingRecord?.name ?? ""}
+                    disabled={pending}
+                  />
+                </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="item-uom"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Satuan
-              </label>
-              <select
-                id="item-uom"
-                name="uomId"
-                defaultValue={values.uomId ?? editingRecord?.uom_id ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih satuan</option>
-                {unitsOfMeasure.map((uom) => (
-                  <option key={uom.id} value={uom.id}>
-                    {uom.name} ({uom.code})
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="item-type"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Jenis item
+                  </label>
+                  <Select
+                    id="item-type"
+                    name="itemType"
+                    defaultValue={
+                      values.itemType ?? editingRecord?.item_type ?? ITEM_TYPES[0]
+                    }
+                    disabled={pending}
+                  >
+                    {ITEM_TYPES.map((itemType) => (
+                      <option key={itemType} value={itemType}>
+                        {ITEM_TYPE_LABELS[itemType]}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="item-notes"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Catatan
-              </label>
-              <textarea
-                id="item-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? editingRecord?.notes ?? ""}
-                disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="item-uom"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Satuan
+                  </label>
+                  <Select
+                    id="item-uom"
+                    name="uomId"
+                    defaultValue={values.uomId ?? editingRecord?.uom_id ?? ""}
+                    disabled={pending}
+                  >
+                    <option value="">Pilih satuan</option>
+                    {unitsOfMeasure.map((uom) => (
+                      <option key={uom.id} value={uom.id}>
+                        {uom.name} ({uom.code})
+                      </option>
+                    ))}
+                  </Select>
+                </div>
 
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                name="isActive"
-                defaultChecked={
-                  values.isActive === "false"
-                    ? false
-                    : values.isActive === "true"
-                      ? true
-                      : editingRecord?.is_active ?? true
-                }
-                disabled={pending}
-              />
-              Aktif
-            </label>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="item-notes"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Catatan
+                  </label>
+                  <Textarea
+                    id="item-notes"
+                    name="notes"
+                    rows={3}
+                    placeholder="Keterangan atau panduan penanganan..."
+                    defaultValue={values.notes ?? editingRecord?.notes ?? ""}
+                    disabled={pending}
+                  />
+                </div>
 
-            <MasterDataFeedback
-              error={formState.error}
-              message={formState.message}
-            />
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-800">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    defaultChecked={
+                      values.isActive === "false"
+                        ? false
+                        : values.isActive === "true"
+                          ? true
+                          : editingRecord?.is_active ?? true
+                    }
+                    disabled={pending}
+                    className="h-4 w-4 rounded-md border-slate-300 text-sky-600 focus:ring-sky-500"
+                  />
+                  <span>Aktif</span>
+                </label>
 
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="submit"
-                disabled={pending}
-                className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {pending ? "Menyimpan..." : "Simpan item"}
-              </button>
-              {editingRecord ? (
-                <Link
-                  href="/cssd/master-data/items"
-                  className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
-                >
-                  Batal
-                </Link>
-              ) : null}
-            </div>
-          </form>
-        </section>
+                <MasterDataFeedback
+                  error={formState.error}
+                  message={formState.message}
+                />
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={pending}
+                    variant="primary"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>{pending ? "Menyimpan..." : "Simpan item"}</span>
+                  </Button>
+                  {editingRecord ? (
+                    <Button asChild variant="outline" size="lg">
+                      <Link href="/cssd/master-data/items">
+                        <X className="h-4 w-4" />
+                        <span>Batal</span>
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </section>
     </div>
   );

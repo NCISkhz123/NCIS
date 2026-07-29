@@ -1,4 +1,5 @@
 import { UomMasterDataView } from "@/components/cssd/master-data/uom-master-data-view";
+import { requireCssdAdminAccess } from "@/lib/auth/guards";
 import {
   createSupabaseMasterDataClient,
   listUnitOfMeasures,
@@ -14,6 +15,8 @@ type MasterDataSatuanPageProps = {
 export default async function MasterDataSatuanPage({
   searchParams,
 }: MasterDataSatuanPageProps) {
+  await requireCssdAdminAccess();
+
   const params = (await searchParams) ?? {};
   const supabase = await createServerSupabaseClient();
   const client = createSupabaseMasterDataClient(supabase);

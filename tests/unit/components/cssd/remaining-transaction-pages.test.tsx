@@ -97,10 +97,6 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(
-      screen.getByRole("heading", { name: /^pemakaian internal$/i })
-    ).toBeVisible();
-    expect(screen.getByText(/item internal aktif/i)).toBeVisible();
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/sisa stok/i).length).toBeGreaterThan(0);
     const itemSelect = screen.getByLabelText(/item konsumabel internal/i);
@@ -127,8 +123,6 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(screen.getByRole("heading", { name: /^stok opname$/i })).toBeVisible();
-    expect(screen.getByText(/belum ada sesi aktif/i)).toBeVisible();
     expect(screen.getAllByText(/posisi stok/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/riwayat sesi/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/tanggal opname/i)).toBeVisible();

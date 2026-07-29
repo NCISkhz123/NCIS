@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { Edit2, Save, X } from "lucide-react";
 
 import { saveHospitalUnitAction } from "@/app/(protected)/cssd/master-data/unit/actions";
 import { DataTable } from "@/components/data/data-table";
 import { MasterDataFeedback } from "@/components/cssd/master-data/master-data-feedback";
 import { StatusPill } from "@/components/cssd/master-data/status-pill";
 import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   initialHospitalUnitFormState,
   type HospitalUnitFormState,
@@ -34,121 +38,134 @@ export function UnitMasterDataView({
 
   return (
     <div className="grid gap-6">
-      <section className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-        <div className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-          <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Master data"
-              title="Data unit"
-              description="Unit yang terhubung dengan CSSD."
-              size="hero"
-            />
-            <div>
-              <p className="mb-3 text-sm font-semibold text-slate-800">
-                Daftar unit
-              </p>
+      <section className="grid gap-6 xl:grid-cols-12 items-start">
+        {/* Left Table */}
+        <div className="xl:col-span-7 space-y-4">
+          <Card>
+            <CardHeader>
+              <ShellSectionHeading
+                eyebrow="Master Data CSSD"
+                title="Data Unit Rumah Sakit"
+                description="Daftar unit pelayanan, poliklinik, dan ruang perawatan yang terhubung ke CSSD."
+                size="hero"
+              />
+            </CardHeader>
+            <CardContent>
               <DataTable
-                caption="Daftar unit"
-                columns={["Kode", "Nama", "Status", "Aksi"]}
+                caption="Daftar Unit Terdaftar"
+                columns={["Kode Unit", "Nama Unit Pelayanan", "Status", "Aksi"]}
                 rows={records.map((record) => [
-                  record.code,
+                  <span key={`${record.id}-code`} className="font-mono text-xs font-bold text-slate-900">
+                    {record.code}
+                  </span>,
                   record.name,
                   <StatusPill key={`${record.id}-status`} active={record.is_active} />,
                   <Link
                     key={`${record.id}-edit`}
                     href={`/cssd/master-data/unit?edit=${record.id}`}
-                    className="text-sm font-semibold text-sky-700 underline-offset-4 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-900"
                   >
-                    Edit
+                    <Edit2 className="h-3.5 w-3.5" />
+                    <span>Edit</span>
                   </Link>,
                 ])}
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title={editingRecord ? "Ubah unit" : "Tambah unit"}
-            description="Isi kode dan nama unit."
-          />
-
-          <form action={formAction} className="mt-6 grid gap-4">
-            <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="unit-code"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Kode unit
-              </label>
-              <input
-                id="unit-code"
-                name="code"
-                defaultValue={values.code ?? editingRecord?.code ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+        {/* Right Form Card */}
+        <div className="xl:col-span-5">
+          <Card className="sticky top-24 border-slate-200 shadow-sm">
+            <CardHeader>
+              <ShellSectionHeading
+                eyebrow="Form Input"
+                title={editingRecord ? "Ubah Data Unit" : "Tambah Unit Baru"}
+                description="Isi kode dan nama unit rumah sakit."
               />
-            </div>
+            </CardHeader>
+            <CardContent>
+              <form action={formAction} className="grid gap-4">
+                <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="unit-name"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Nama unit
-              </label>
-              <input
-                id="unit-name"
-                name="name"
-                defaultValue={values.name ?? editingRecord?.name ?? ""}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="unit-code"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Kode Unit
+                  </label>
+                  <Input
+                    id="unit-code"
+                    name="code"
+                    placeholder="Contoh: OK, ICU, VK, POLI-GIGI"
+                    defaultValue={values.code ?? editingRecord?.code ?? ""}
+                    disabled={pending}
+                  />
+                </div>
 
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                name="isActive"
-                defaultChecked={
-                  values.isActive === "false"
-                    ? false
-                    : values.isActive === "true"
-                      ? true
-                      : editingRecord?.is_active ?? true
-                }
-                disabled={pending}
-              />
-              Aktif
-            </label>
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor="unit-name"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+                  >
+                    Nama Unit Pelayanan
+                  </label>
+                  <Input
+                    id="unit-name"
+                    name="name"
+                    placeholder="Contoh: Kamar Bedah (OK Utama)"
+                    defaultValue={values.name ?? editingRecord?.name ?? ""}
+                    disabled={pending}
+                  />
+                </div>
 
-            <MasterDataFeedback
-              error={formState.error}
-              message={formState.message}
-            />
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-800">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    defaultChecked={
+                      values.isActive === "false"
+                        ? false
+                        : values.isActive === "true"
+                          ? true
+                          : editingRecord?.is_active ?? true
+                    }
+                    disabled={pending}
+                    className="h-4 w-4 rounded-md border-slate-300 text-sky-600 focus:ring-sky-500"
+                  />
+                  <span>Status Aktif</span>
+                </label>
 
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="submit"
-                disabled={pending}
-                className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {pending ? "Menyimpan..." : "Simpan unit"}
-              </button>
-              {editingRecord ? (
-                <Link
-                  href="/cssd/master-data/unit"
-                  className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
-                >
-                  Batal
-                </Link>
-              ) : null}
-            </div>
-          </form>
-        </section>
+                <MasterDataFeedback
+                  error={formState.error}
+                  message={formState.message}
+                />
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={pending}
+                    variant="primary"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>{pending ? "Menyimpan..." : "Simpan Unit"}</span>
+                  </Button>
+                  {editingRecord ? (
+                    <Button asChild variant="outline" size="lg">
+                      <Link href="/cssd/master-data/unit">
+                        <X className="h-4 w-4" />
+                        <span>Batal</span>
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </section>
     </div>
   );

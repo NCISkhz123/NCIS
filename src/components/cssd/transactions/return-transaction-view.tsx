@@ -1,6 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import {
+  RotateCcw,
+  ArrowRight,
+  Flame,
+  CheckCircle2,
+  Package,
+} from "lucide-react";
 
 import {
   initialReturnFormState,
@@ -17,6 +24,12 @@ import { TransactionFeedback } from "@/components/cssd/transactions/transaction-
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
 import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
 import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   RETURN_DESTINATION_POSITIONS,
   STOCK_POSITION_LABELS,
@@ -71,46 +84,45 @@ export function ReturnTransactionView({
     <TransactionPageShell
       eyebrow="CSSD"
       title="Pengembalian reusable"
-      description="Catat reusable yang kembali dari unit ke CSSD."
+      description="Catat alat reusable yang kembali dari unit rumah sakit dan proses ke tahap sterilisasi."
       summary={
         <TransactionSummaryStrip
           items={[
             {
               label: "Reusable siap diproses",
               value: readyToProcessCount,
-              helper: "Belum steril atau masih di area sterilisasi.",
+              helper: "Di area tidak steril atau proses sterilisasi.",
+              accent: "emphasis",
             },
             {
               label: "Riwayat terbaru",
               value: recentTransactions.length,
-              helper: "Pengembalian yang baru tercatat.",
+              helper: "Pengembalian baru tercatat.",
             },
             {
-              label: "Stok saat ini",
+              label: "Posisi stok reusable",
               value: stockSummary.length,
-              helper: "Pantau posisi reusable per unit dan area.",
-              accent: "emphasis",
+              helper: "Per posisi unit & area CSSD.",
             },
           ]}
         />
       }
       formTitle="Catat pengembalian"
-      formDescription="Pilih reusable, unit asal, tujuan pengembalian, lalu simpan."
+      formDescription="Pilih item reusable, unit asal, dan posisi tujuan awal."
       form={
         <form action={returnAction} className="grid gap-4">
-          <div className="grid gap-2">
+          <div className="grid gap-1.5">
             <label
               htmlFor="return-item"
-              className="text-sm font-semibold text-slate-700"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
             >
               Item Reusable
             </label>
-            <select
+            <Select
               id="return-item"
               name="itemId"
               defaultValue={values.itemId ?? ""}
               disabled={returnPending}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             >
               <option value="">Pilih item reusable</option>
               {reusableItems.map((item) => (
@@ -118,24 +130,23 @@ export function ReturnTransactionView({
                   {item.code} - {item.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
           <input type="hidden" name="itemType" value="REUSABLE" />
 
-          <div className="grid gap-2">
+          <div className="grid gap-1.5">
             <label
               htmlFor="return-source-unit"
-              className="text-sm font-semibold text-slate-700"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
             >
               Unit Asal
             </label>
-            <select
+            <Select
               id="return-source-unit"
               name="sourceUnitId"
               defaultValue={values.sourceUnitId ?? ""}
               disabled={returnPending}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             >
               <option value="">Pilih unit asal</option>
               {hospitalUnits.map((unit) => (
@@ -143,84 +154,82 @@ export function ReturnTransactionView({
                   {unit.name} ({unit.code})
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
-          <div className="grid gap-2 md:grid-cols-2">
-            <div className="grid gap-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
               <label
                 htmlFor="return-date"
-                className="text-sm font-semibold text-slate-700"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-800"
               >
                 Tanggal Transaksi
               </label>
-              <input
+              <Input
                 id="return-date"
                 type="date"
                 name="transactionDate"
                 defaultValue={values.transactionDate ?? defaultDate}
                 disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               />
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-1.5">
               <label
                 htmlFor="return-quantity"
-                className="text-sm font-semibold text-slate-700"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-800"
               >
                 Jumlah Kembali
               </label>
-              <input
+              <Input
                 id="return-quantity"
                 type="number"
                 min="1"
                 name="quantity"
+                placeholder="Jumlah unit"
                 defaultValue={values.quantity ?? ""}
                 disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               />
             </div>
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid gap-1.5">
             <label
               htmlFor="return-destination"
-              className="text-sm font-semibold text-slate-700"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
             >
               Tujuan Pengembalian
             </label>
-            <select
+            <Select
               id="return-destination"
               name="destinationPosition"
               defaultValue={
                 values.destinationPosition ?? RETURN_DESTINATION_POSITIONS[0]
               }
               disabled={returnPending}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             >
               {RETURN_DESTINATION_POSITIONS.map((position) => (
                 <option key={position} value={position}>
                   {STOCK_POSITION_LABELS[position]}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
-          <div className="grid gap-2">
+          <div className="grid gap-1.5">
             <label
               htmlFor="return-notes"
-              className="text-sm font-semibold text-slate-700"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
             >
-              Catatan
+              Catatan Pengembalian
             </label>
-            <textarea
+            <Textarea
               id="return-notes"
               name="notes"
-              rows={4}
+              rows={3}
+              placeholder="Catatan kondisi barang atau info penyerahan..."
               defaultValue={values.notes ?? ""}
               disabled={returnPending}
-              className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             />
           </div>
 
@@ -230,210 +239,272 @@ export function ReturnTransactionView({
             impact={returnState.impact}
           />
 
-          <button
+          <Button
             type="submit"
             disabled={returnPending}
-            className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            variant="primary"
+            size="lg"
+            className="w-full mt-2"
           >
-            {returnPending ? "Menyimpan..." : "Simpan Pengembalian"}
-          </button>
+            <RotateCcw className="h-4 w-4" />
+            <span>{returnPending ? "Menyimpan..." : "Simpan pengembalian"}</span>
+          </Button>
         </form>
       }
       supportingContent={
         <>
-        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Tinjau pengembalian reusable yang baru masuk.
-          </p>
-          <div className="mt-5">
-            <TransactionHistoryTable
-              caption="Riwayat terbaru"
-              rows={recentTransactions}
-            />
-          </div>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">Stok saat ini</p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Pantau reusable per posisi dan unit.
-          </p>
-          <div className="mt-5">
-            <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
-          </div>
-        </section>
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-sm font-semibold text-slate-900">
-            Lanjutkan reusable
-          </p>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Pindahkan reusable ke tahap berikutnya setelah diproses.
-          </p>
-
-          <div className="mt-5">
-            <TransactionFeedback
-              error={processingState.error}
-              message={processingState.message}
-              impact={processingState.impact}
-            />
-          </div>
-
-          <div className="mt-5 grid gap-4">
-            {reusableProcessingSummary.length ? (
-              reusableProcessingSummary.map((row) => (
-                <article
-                  key={row.itemId}
-                  className="rounded-[1.35rem] border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {row.itemCode} - {row.itemName}
-                      </p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">
-                        Tidak Steril {row.availableNonSterile} | Area Sterilisasi{" "}
-                        {row.availableSterilizationArea} | Rusak {row.availableDamaged}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <form action={processingAction} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-semibold text-slate-800">
-                        Dari Tidak Steril
-                      </p>
-                      <input type="hidden" name="itemId" value={row.itemId} />
-                      <input type="hidden" name="itemType" value="REUSABLE" />
-                      <input
-                        type="hidden"
-                        name="transactionDate"
-                        value={defaultDate}
-                      />
-                      <input
-                        type="hidden"
-                        name="fromPosition"
-                        value="NON_STERILE"
-                      />
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor={`process-non-sterile-${row.itemId}`}
-                          className="text-sm font-semibold text-slate-700"
-                        >
-                          Qty proses
-                        </label>
-                        <input
-                          id={`process-non-sterile-${row.itemId}`}
-                          type="number"
-                          min="1"
-                          name="quantity"
-                          defaultValue={row.availableNonSterile || ""}
-                          disabled={processingPending || row.availableNonSterile === 0}
-                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                        />
-                      </div>
-                      <input
-                        type="hidden"
-                        name="notes"
-                        value="Proses reusable dari Tidak Steril"
-                      />
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="to-sterilization"
-                          disabled={processingPending || row.availableNonSterile === 0}
-                          className="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Kirim ke Area Sterilisasi
-                        </button>
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="mark-damaged-non-sterile"
-                          disabled={processingPending || row.availableNonSterile === 0}
-                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Tandai Rusak
-                        </button>
-                      </div>
-                    </form>
-
-                    <form action={processingAction} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-semibold text-slate-800">
-                        Dari Area Sterilisasi
-                      </p>
-                      <input type="hidden" name="itemId" value={row.itemId} />
-                      <input type="hidden" name="itemType" value="REUSABLE" />
-                      <input
-                        type="hidden"
-                        name="transactionDate"
-                        value={defaultDate}
-                      />
-                      <input
-                        type="hidden"
-                        name="fromPosition"
-                        value="STERILIZATION_AREA"
-                      />
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor={`process-sterilization-${row.itemId}`}
-                          className="text-sm font-semibold text-slate-700"
-                        >
-                          Qty proses
-                        </label>
-                        <input
-                          id={`process-sterilization-${row.itemId}`}
-                          type="number"
-                          min="1"
-                          name="quantity"
-                          defaultValue={row.availableSterilizationArea || ""}
-                          disabled={
-                            processingPending || row.availableSterilizationArea === 0
-                          }
-                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                        />
-                      </div>
-                      <input
-                        type="hidden"
-                        name="notes"
-                        value="Proses reusable dari Area Sterilisasi"
-                      />
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="to-ready"
-                          disabled={
-                            processingPending || row.availableSterilizationArea === 0
-                          }
-                          className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Tandai Steril
-                        </button>
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="mark-damaged-sterilization"
-                          disabled={
-                            processingPending || row.availableSterilizationArea === 0
-                          }
-                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Tandai Rusak
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </article>
-              ))
-            ) : (
-              <div className="rounded-[1.35rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-                Belum ada reusable di Tidak Steril atau Area Sterilisasi.
+          {/* Reusable Processing Board */}
+          <Card className="border-slate-200 bg-white">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-900">
+                    <Flame className="h-4 w-4 text-amber-600" />
+                    Lanjutkan reusable
+                  </CardTitle>
+                  <CardDescription className="text-xs text-slate-600 font-medium">
+                    Pindahkan alat reusable ke tahap sterilisasi atau tandai rusak.
+                  </CardDescription>
+                </div>
+                <Badge variant="warning" dot>
+                  {readyToProcessCount} Unit Menunggu
+                </Badge>
               </div>
-            )}
-          </div>
-        </section>
+            </CardHeader>
+            <CardContent>
+              <TransactionFeedback
+                error={processingState.error}
+                message={processingState.message}
+                impact={processingState.impact}
+              />
+
+              <div className="mt-4 grid gap-4">
+                {reusableProcessingSummary.length ? (
+                  reusableProcessingSummary.map((row) => (
+                    <div
+                      key={row.itemId}
+                      className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 shadow-2xs"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-sky-600" />
+                          <p className="text-sm font-bold text-slate-900">
+                            {row.itemCode} - {row.itemName}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge variant="warning">
+                            Tidak Steril: {row.availableNonSterile}
+                          </Badge>
+                          <Badge variant="info">
+                            Sterilisasi: {row.availableSterilizationArea}
+                          </Badge>
+                          {row.availableDamaged > 0 && (
+                            <Badge variant="destructive">
+                              Rusak: {row.availableDamaged}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        {/* Process from NON_STERILE */}
+                        <form
+                          action={processingAction}
+                          className="flex flex-col justify-between rounded-xl border border-amber-300 bg-amber-50/80 p-4"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-bold uppercase tracking-wider text-amber-950">
+                                1. Dari Tidak Steril
+                              </p>
+                              <Badge variant="warning">
+                                Stok: {row.availableNonSterile}
+                              </Badge>
+                            </div>
+                            <input type="hidden" name="itemId" value={row.itemId} />
+                            <input type="hidden" name="itemType" value="REUSABLE" />
+                            <input
+                              type="hidden"
+                              name="transactionDate"
+                              value={defaultDate}
+                            />
+                            <input
+                              type="hidden"
+                              name="fromPosition"
+                              value="NON_STERILE"
+                            />
+                            <input
+                              type="hidden"
+                              name="notes"
+                              value="Proses reusable dari Tidak Steril"
+                            />
+                            <div className="grid gap-1.5">
+                              <label
+                                htmlFor={`process-non-sterile-${row.itemId}`}
+                                className="text-xs font-semibold uppercase text-slate-800"
+                              >
+                                Qty Proses
+                              </label>
+                              <Input
+                                id={`process-non-sterile-${row.itemId}`}
+                                type="number"
+                                min="1"
+                                name="quantity"
+                                defaultValue={row.availableNonSterile || ""}
+                                disabled={
+                                  processingPending || row.availableNonSterile === 0
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2 pt-2">
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="to-sterilization"
+                              disabled={
+                                processingPending || row.availableNonSterile === 0
+                              }
+                              variant="amber"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              <span>Kirim ke area sterilisasi</span>
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="mark-damaged-non-sterile"
+                              disabled={
+                                processingPending || row.availableNonSterile === 0
+                              }
+                              variant="destructive"
+                              size="sm"
+                            >
+                              <span>Tandai rusak</span>
+                            </Button>
+                          </div>
+                        </form>
+
+                        {/* Process from STERILIZATION_AREA */}
+                        <form
+                          action={processingAction}
+                          className="flex flex-col justify-between rounded-xl border border-sky-300 bg-sky-50/80 p-4"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-bold uppercase tracking-wider text-sky-950">
+                                2. Dari Area Sterilisasi
+                              </p>
+                              <Badge variant="info">
+                                Stok: {row.availableSterilizationArea}
+                              </Badge>
+                            </div>
+                            <input type="hidden" name="itemId" value={row.itemId} />
+                            <input type="hidden" name="itemType" value="REUSABLE" />
+                            <input
+                              type="hidden"
+                              name="transactionDate"
+                              value={defaultDate}
+                            />
+                            <input
+                              type="hidden"
+                              name="fromPosition"
+                              value="STERILIZATION_AREA"
+                            />
+                            <input
+                              type="hidden"
+                              name="notes"
+                              value="Proses reusable dari Area Sterilisasi"
+                            />
+                            <div className="grid gap-1.5">
+                              <label
+                                htmlFor={`process-sterilization-${row.itemId}`}
+                                className="text-xs font-semibold uppercase text-slate-800"
+                              >
+                                Qty Proses
+                              </label>
+                              <Input
+                                id={`process-sterilization-${row.itemId}`}
+                                type="number"
+                                min="1"
+                                name="quantity"
+                                defaultValue={row.availableSterilizationArea || ""}
+                                disabled={
+                                  processingPending ||
+                                  row.availableSterilizationArea === 0
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2 pt-2">
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="to-ready"
+                              disabled={
+                                processingPending ||
+                                row.availableSterilizationArea === 0
+                              }
+                              variant="success"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              <span>Tandai steril</span>
+                            </Button>
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="mark-damaged-sterilization"
+                              disabled={
+                                processingPending ||
+                                row.availableSterilizationArea === 0
+                              }
+                              variant="destructive"
+                              size="sm"
+                            >
+                              <span>Tandai rusak</span>
+                            </Button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-xs font-semibold text-slate-700">
+                    Tidak ada reusable yang berada di area Tidak Steril atau Area Sterilisasi saat ini.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Transactions & Stock Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TransactionHistoryTable
+                caption="Riwayat terbaru"
+                rows={recentTransactions}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Stok reusable saat ini</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StockSummaryTable caption="Stok reusable saat ini" rows={stockSummary} />
+            </CardContent>
+          </Card>
         </>
       }
     />

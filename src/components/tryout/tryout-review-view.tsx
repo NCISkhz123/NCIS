@@ -14,19 +14,48 @@ export function TryoutReviewView({ initialData }: TryoutReviewViewProps) {
   const [activeQuestionNumber, setActiveQuestionNumber] = useState(1);
   const [filterOnlyWrong, setFilterOnlyWrong] = useState(false);
 
-  const activeQuestion =
-    initialData.questions.find((q) => q.number === activeQuestionNumber) ||
-    initialData.questions[0];
+  const visibleQuestions = React.useMemo(() => {
+    return filterOnlyWrong
+      ? initialData.questions.filter((q) => !q.isCorrect)
+      : initialData.questions;
+  }, [initialData.questions, filterOnlyWrong]);
+
+  const activeQuestion = React.useMemo(() => {
+    return (
+      visibleQuestions.find((q) => q.number === activeQuestionNumber) ||
+      visibleQuestions[0] ||
+      initialData.questions[0]
+    );
+  }, [visibleQuestions, activeQuestionNumber, initialData.questions]);
+
+  const handleToggleFilter = (value: boolean) => {
+    setFilterOnlyWrong(value);
+    if (value) {
+      const wrongQuestions = initialData.questions.filter((q) => !q.isCorrect);
+      if (wrongQuestions.length > 0) {
+        const isCurrentWrong = wrongQuestions.some(
+          (q) => q.number === activeQuestionNumber
+        );
+        if (!isCurrentWrong) {
+          setActiveQuestionNumber(wrongQuestions[0].number);
+        }
+      }
+    }
+  };
+
+  const currentIndexInVisible = visibleQuestions.findIndex(
+    (q) => q.number === activeQuestion.number
+  );
 
   const handlePrevious = () => {
-    if (activeQuestionNumber > 1) {
-      setActiveQuestionNumber((prev) => prev - 1);
+    if (currentIndexInVisible > 0) {
+      setActiveQuestionNumber(visibleQuestions[currentIndexInVisible - 1].number);
     }
   };
 
   const handleNext = () => {
-    if (activeQuestionNumber < initialData.questions.length) {
-      setActiveQuestionNumber((prev) => prev + 1);
+    if (currentIndexInVisible >= 0 && currentIndexInVisible < visibleQuestions.length - 1) {
+      setActiveQuestionNumber(visibleQuestions[currentIndexInVisible + 1].number);
     }
   };
 
@@ -36,7 +65,7 @@ export function TryoutReviewView({ initialData }: TryoutReviewViewProps) {
       <TryoutReviewHeader
         summary={initialData}
         filterOnlyWrong={filterOnlyWrong}
-        onToggleFilter={setFilterOnlyWrong}
+        onToggleFilter={handleToggleFilter}
       />
 
       {/* 2-Column Main Content Layout */}

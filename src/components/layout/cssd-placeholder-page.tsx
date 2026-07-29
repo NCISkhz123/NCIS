@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { EmptyState } from "@/components/data/empty-state";
 import { CSSD_NAV_ITEMS } from "@/lib/cssd/constants";
 import { LAUNDRY_NAV_ITEMS } from "@/lib/laundry/constants";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type CssdPlaceholderPageProps = {
   eyebrow?: string;
@@ -35,27 +39,27 @@ function buildSections(module: "cssd" | "laundry"): QuickSection[] {
 
   return [
     {
-      label: "Master data",
-      title: "Siapkan data utama",
-      description: `Lengkapi item, satuan, dan unit ${moduleLabel} sebelum transaksi dimulai.`,
+      label: "Master Data",
+      title: "Siapkan Data Utama",
+      description: `Lengkapi katalog item, satuan (UOM), dan unit ${moduleLabel} sebelum transaksi.`,
       links:
         masterDataGroup?.type === "group"
           ? masterDataGroup.children
           : [],
     },
     {
-      label: "Transaksi",
-      title: "Catat pekerjaan harian",
-      description: `Buka transaksi ${moduleLabel} sesuai alur kerja yang sedang berjalan.`,
+      label: "Transaksi Operasional",
+      title: "Catat Pekerjaan Harian",
+      description: `Buka transaksi ${moduleLabel} untuk penerimaan, pengiriman, atau pergerakan barang.`,
       links: transactionLinks.map((item) => ({
         label: item.label,
         href: item.href,
       })),
     },
     {
-      label: "Laporan",
-      title: "Periksa hasil dan stok",
-      description: "Lihat riwayat, posisi stok, dan pergerakan item.",
+      label: "Laporan & Monitoring",
+      title: "Periksa Hasil & Saldo Stok",
+      description: "Tinjau riwayat transaksi, laporan pergerakan, dan saldo fisik.",
       links:
         reportGroup?.type === "group"
           ? reportGroup.children
@@ -73,78 +77,79 @@ export function CssdPlaceholderPage({
   const sections = buildSections(module);
 
   return (
-    <div className="grid gap-7">
+    <div className="grid gap-6">
       <EmptyState eyebrow={eyebrow} title={title} description={description} />
 
-      <section className="grid gap-5 xl:grid-cols-[1.12fr_.88fr]">
-        <div className="grid gap-5">
+      <section className="grid gap-6 xl:grid-cols-12 items-start">
+        <div className="xl:col-span-7 grid gap-4">
           {sections.map((section) => (
-            <article
-              key={section.label}
-              className="shell-surface rounded-[1.75rem] p-6 md:p-7"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="max-w-2xl">
-                  <p className="text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    {section.label}
-                  </p>
-                  <h2 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-                    {section.title}
-                  </h2>
-                  <p className="mt-3 text-sm leading-7 text-slate-600">
-                    {section.description}
-                  </p>
+            <Card key={section.label}>
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <Badge variant="info">{section.label}</Badge>
+                    <CardTitle className="mt-2 text-base font-bold text-slate-900">
+                      {section.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs text-slate-600 font-medium">
+                      {section.description}
+                    </CardDescription>
+                  </div>
+                  <Badge variant="secondary">
+                    {section.links.length} Akses
+                  </Badge>
                 </div>
-                <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  {section.links.length} menu
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {section.links.map((link) => (
+                    <Button key={link.href} asChild variant="outline" size="sm">
+                      <Link href={link.href}>
+                        <span>{link.label}</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+                      </Link>
+                    </Button>
+                  ))}
                 </div>
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                {section.links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </article>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        <aside className="rounded-[1.75rem] border border-slate-200 bg-[linear-gradient(180deg,#153149_0%,#0e2536_100%)] p-6 text-slate-50 shadow-sm md:p-7">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-sky-100/80">
-            Mulai kerja
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-balance">
-            Urutkan pekerjaan tanpa bolak-balik menu
-          </h2>
-          <p className="mt-3 text-sm leading-7 text-slate-200">
-            Gunakan halaman ini sebagai titik masuk cepat untuk data utama,
-            transaksi harian, dan laporan.
-          </p>
+        <div className="xl:col-span-5">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
+            <Badge variant="success" dot>
+              ALUR KERJA OPERASIONAL
+            </Badge>
+            <h2 className="mt-3 text-xl font-bold tracking-tight text-slate-900">
+              Navigasi Cepat Pekerjaan Shift
+            </h2>
+            <p className="mt-2 text-xs leading-relaxed text-slate-700 font-medium">
+              Titik masuk terpadu untuk memastikan seluruh siklus sterilisasi & logistik tercatat tanpa hambatan.
+            </p>
 
-          <div className="mt-6 grid gap-3">
-            {[
-              "Lengkapi master data lebih dulu.",
-              "Catat transaksi sesuai alur kerja.",
-              "Periksa stok dan riwayat sebelum tutup shift.",
-            ].map((step, index) => (
-              <div
-                key={step}
-                className="rounded-[1.35rem] border border-white/10 bg-white/8 px-4 py-4"
-              >
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-sky-100/75">
-                  Langkah {index + 1}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white">{step}</p>
-              </div>
-            ))}
+            <div className="mt-5 grid gap-3">
+              {[
+                { title: "Katalog Master Data", desc: "Pastikan item & unit terdaftar." },
+                { title: "Input Transaksi Harian", desc: "Catat penerimaan, distribusi, & reuse." },
+                { title: "Audit & Laporan Stok", desc: "Verifikasi saldo stok sebelum tutup shift." },
+              ].map((step, index) => (
+                <div
+                  key={step.title}
+                  className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5 transition-all hover:bg-slate-100"
+                >
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sky-600 text-xs font-bold text-white">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">{step.title}</p>
+                    <p className="mt-0.5 text-xs text-slate-600 font-medium">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </aside>
+        </div>
       </section>
     </div>
   );

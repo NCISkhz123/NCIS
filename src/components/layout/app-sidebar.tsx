@@ -1,54 +1,93 @@
-"use client";
-
-import { usePathname } from "next/navigation";
+import { Activity } from "lucide-react";
 
 import { LogoutButton } from "@/components/layout/logout-button";
 import { ModuleSwitcher } from "@/components/layout/module-switcher";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { NCIS_MODULES } from "@/lib/cssd/constants";
+import type { CurrentProfile } from "@/lib/auth/profile";
+import type { AppRole } from "@/lib/auth/roles";
 import type { ModuleKey } from "@/lib/modules";
 
 type AppSidebarProps = {
   activeModuleKey: ModuleKey;
   availableModuleKeys: readonly ModuleKey[];
+  pathname?: string;
+  profile?: CurrentProfile | null;
+  role?: AppRole | null;
   logoutAction: () => Promise<void>;
 };
+
+const roleLabels = {
+  ADMIN_CSSD: "Admin CSSD",
+  PETUGAS_CSSD: "Petugas CSSD",
+  ADMIN_LAUNDRY: "Admin Laundry",
+  PETUGAS_LAUNDRY: "Petugas Laundry",
+} as const;
 
 export function AppSidebar({
   activeModuleKey,
   availableModuleKeys,
+  pathname = "",
+  profile,
+  role,
   logoutAction,
 }: AppSidebarProps) {
-  const pathname = usePathname();
+  const currentRole = profile?.role ?? role ?? null;
+  const currentName = profile?.fullName ?? "Pengguna NCIS";
+  const currentEmail = profile?.email ?? "user@ncis.local";
 
   return (
-    <aside className="flex min-h-full w-full max-w-[18.75rem] flex-col gap-7 border-r border-white/10 bg-[linear-gradient(180deg,#12314a_0%,#0b2234_100%)] px-6 py-7 text-slate-50 lg:max-w-[19.75rem]">
-      <div className="border-b border-white/12 pb-6">
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.32em] text-sky-100/80">
-          Sistem Terpadu
-        </p>
-        <p className="mt-3 text-[2.35rem] font-semibold tracking-[0.14em] text-white">
-          NCIS
-        </p>
-        <p className="mt-2 max-w-[13rem] text-sm leading-6 text-slate-300">
-          Non Clinical Integrated System
-        </p>
-        <div className="mt-5">
+    <aside className="sticky top-0 flex h-screen w-72 flex-col justify-between border-r border-slate-800 bg-slate-900 p-5 text-white shadow-xl">
+      <div className="space-y-6 overflow-y-auto">
+        {/* Brand & Module Header */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 px-1">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white shadow-md">
+              <Activity className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold tracking-tight text-white text-base">
+                  NCIS HEALTH
+                </span>
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <p className="text-xs text-slate-300 font-medium">
+                Integrated Hospital OS
+              </p>
+            </div>
+          </div>
+
           <ModuleSwitcher
             activeModuleKey={activeModuleKey}
             availableModuleKeys={availableModuleKeys}
             modules={NCIS_MODULES}
           />
         </div>
+
+        {/* Sidebar Navigation Links */}
+        <SidebarNav pathname={pathname} role={currentRole ?? undefined} />
       </div>
 
-      <SidebarNav pathname={pathname} />
+      {/* User Profile & Logout Bottom Card */}
+      <div className="pt-4 border-t border-slate-800 space-y-3">
+        <div className="rounded-xl border border-slate-800 bg-slate-800/80 p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold text-white truncate">
+              {currentName}
+            </p>
+            <span className="rounded-md bg-sky-500/20 px-2 py-0.5 text-[0.7rem] font-bold text-sky-300 border border-sky-500/30">
+              {currentRole && currentRole in roleLabels
+                ? roleLabels[currentRole as keyof typeof roleLabels]
+                : currentRole ?? "PETUGAS"}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-slate-400 truncate font-mono">
+            {currentEmail}
+          </p>
+        </div>
 
-      <div className="mt-auto pt-2">
-        <LogoutButton
-          logoutAction={logoutAction}
-          className="w-full"
-        />
+        <LogoutButton logoutAction={logoutAction} />
       </div>
     </aside>
   );
