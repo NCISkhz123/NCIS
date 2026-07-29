@@ -22,7 +22,9 @@ export function StockSummaryTable({
               ITEM_TYPE_LABELS[row.itemType],
               row.stockPositionLabel,
               row.hospitalUnitName ?? "-",
-              row.quantity,
+              <span key={`${row.itemId}-${row.stockPosition}-qty`} className="font-mono tabular-nums text-slate-900">
+                {row.quantity}
+              </span>,
             ])
           : [["-", "Belum ada stok", "-", "-", "-"]]
       }

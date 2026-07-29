@@ -60,7 +60,7 @@ export async function loginWithPassword(
   };
 }
 
-const MODULE_ACCESS_MESSAGE = "Akun ini belum memiliki akses modul NCIS.";
+const MODULE_ACCESS_MESSAGE = "Akun ini belum memiliki akses NCIS.";
 
 export async function loginAction(
   _: LoginActionState | null,
@@ -88,7 +88,7 @@ export async function loginAction(
     if (!user) {
       return {
         ok: false,
-        message: "Sesi login tidak dapat diverifikasi.",
+        message: "Login gagal. Coba lagi.",
       };
     }
 
@@ -108,7 +108,7 @@ export async function loginAction(
     return {
       ok: false,
       message:
-        error instanceof Error ? error.message : "Terjadi kesalahan saat login.",
+        error instanceof Error ? error.message : "Login gagal. Coba lagi.",
     };
   }
 

@@ -110,7 +110,7 @@ describe("loginAction", () => {
 
     expect(result).toEqual({
       ok: false,
-      message: "Akun ini belum memiliki akses modul NCIS.",
+      message: "Akun ini belum memiliki akses NCIS.",
     });
     expect(signOut).toHaveBeenCalledTimes(1);
     expect(redirectMock).not.toHaveBeenCalled();

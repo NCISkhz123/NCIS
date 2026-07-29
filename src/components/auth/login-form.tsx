@@ -23,7 +23,7 @@ export function LoginForm({ action }: LoginFormProps) {
           type="email"
           autoComplete="email"
           className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-slate-400"
-          placeholder="nama@rumahsakit.id"
+          placeholder="Email"
         />
       </label>
 
@@ -34,7 +34,7 @@ export function LoginForm({ action }: LoginFormProps) {
           type="password"
           autoComplete="current-password"
           className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-slate-400"
-          placeholder="Masukkan password"
+          placeholder="Password"
         />
       </label>
 
@@ -49,7 +49,7 @@ export function LoginForm({ action }: LoginFormProps) {
         disabled={pending}
         className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
       >
-        {pending ? "Memproses..." : "Masuk ke CSSD"}
+        {pending ? "Masuk..." : "Masuk"}
       </button>
     </form>
   );

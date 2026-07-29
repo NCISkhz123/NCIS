@@ -1,7 +1,14 @@
 import { cleanup } from "@testing-library/react";
-import "@testing-library/jest-dom/vitest";
-import { afterEach } from "vitest";
+import { afterEach, beforeAll } from "vitest";
+
+beforeAll(async () => {
+  if (typeof window !== "undefined") {
+    await import("@testing-library/jest-dom/vitest");
+  }
+});
 
 afterEach(() => {
-  cleanup();
+  if (typeof window !== "undefined") {
+    cleanup();
+  }
 });

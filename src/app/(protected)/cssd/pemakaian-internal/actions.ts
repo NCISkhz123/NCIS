@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import { requireCssdAccess } from "@/lib/auth/guards";
+import type {
+  InternalUsageFormState,
+  TransactionImpact,
+} from "@/lib/cssd/forms/transactions";
 import { STOCK_POSITION_LABELS } from "@/lib/cssd/constants";
 import { recordInternalUsage } from "@/lib/cssd/services/internal-usages";
 import {
@@ -10,34 +14,6 @@ import {
   type StockMutationResultData,
 } from "@/lib/cssd/services/stock";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-type InternalUsageImpact = {
-  movementLabel: string;
-  quantity: number;
-  fromLabel?: string | null;
-  toLabel?: string | null;
-  resultingBalance: number;
-  resultingBalanceLabel: string;
-};
-
-export type InternalUsageFormState = {
-  error: string | null;
-  message: string | null;
-  impact: InternalUsageImpact | null;
-  values?: {
-    itemId?: string;
-    itemType?: string;
-    transactionDate?: string;
-    quantity?: string;
-    notes?: string;
-  };
-};
-
-export const initialInternalUsageFormState: InternalUsageFormState = {
-  error: null,
-  message: null,
-  impact: null,
-};
 
 function getStockPositionLabel(position: string | null | undefined) {
   if (!position) {
@@ -49,7 +25,7 @@ function getStockPositionLabel(position: string | null | undefined) {
 
 function buildInternalUsageImpact(
   data: StockMutationResultData
-): InternalUsageImpact {
+): TransactionImpact {
   return {
     movementLabel:
       "Pemakaian internal tersimpan dan stok konsumabel internal CSSD berkurang.",

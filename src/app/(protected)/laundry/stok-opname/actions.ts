@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import { requireLaundryAccess } from "@/lib/auth/guards";
+import type {
+  StockOpnameDraftFormState,
+  StockOpnameFinalizeFormState,
+  StockOpnameLineFormState,
+} from "@/lib/laundry/forms/transactions";
 import {
   createDraftStockOpnameSession,
   finalizeStockOpnameSession,
@@ -10,31 +15,6 @@ import {
 } from "@/lib/laundry/services/stock-opname";
 import { createSupabaseRpcClient } from "@/lib/laundry/services/stock";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-type StockOpnameFeedbackState = {
-  error: string | null;
-  message: string | null;
-  values?: Record<string, string>;
-};
-
-export type StockOpnameDraftFormState = StockOpnameFeedbackState;
-export type StockOpnameLineFormState = StockOpnameFeedbackState;
-export type StockOpnameFinalizeFormState = StockOpnameFeedbackState;
-
-export const initialStockOpnameDraftFormState: StockOpnameDraftFormState = {
-  error: null,
-  message: null,
-};
-
-export const initialStockOpnameLineFormState: StockOpnameLineFormState = {
-  error: null,
-  message: null,
-};
-
-export const initialStockOpnameFinalizeFormState: StockOpnameFinalizeFormState = {
-  error: null,
-  message: null,
-};
 
 function revalidateStockOpnameSurfaces() {
   revalidatePath("/laundry/stok-opname");

@@ -28,11 +28,10 @@ export default async function LoginPage() {
           </p>
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-[-0.03em] text-slate-950">
-              Login CSSD
+              Masuk ke NCIS
             </h1>
             <p className="text-sm leading-6 text-slate-600">
-              Masuk untuk melanjutkan pencatatan gudang, distribusi, pengembalian,
-              dan stok opname CSSD di NCIS.
+              Masuk dengan akun Anda.
             </p>
           </div>
         </div>

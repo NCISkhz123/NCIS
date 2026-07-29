@@ -5,16 +5,19 @@ import { useActionState } from "react";
 import {
   createStockOpnameDraftAction,
   finalizeStockOpnameSessionAction,
+  saveStockOpnameLineAction,
+} from "@/app/(protected)/laundry/stok-opname/actions";
+import { DataTable } from "@/components/data/data-table";
+import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
+import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
+import {
   initialStockOpnameDraftFormState,
   initialStockOpnameFinalizeFormState,
   initialStockOpnameLineFormState,
-  saveStockOpnameLineAction,
   type StockOpnameDraftFormState,
   type StockOpnameFinalizeFormState,
   type StockOpnameLineFormState,
-} from "@/app/(protected)/laundry/stok-opname/actions";
-import { DataTable } from "@/components/data/data-table";
-import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
+} from "@/lib/laundry/forms/transactions";
 import type { ItemRow, HospitalUnitRow } from "@/lib/laundry/services/master-data";
 import type { StockSummaryEntry } from "@/lib/laundry/services/transaction-read-models";
 import type {
@@ -100,37 +103,31 @@ export function StockOpnameView({
   return (
     <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
       <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Transaksi Laundry
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-            Kelola Stok Opname Laundry
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-            Draft opname dipakai untuk mencatat hitungan fisik tanpa mengubah
-            saldo. Perubahan stok baru dilakukan saat finalisasi.
-          </p>
-
-          <div className="mt-6">
+        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
+          <div className="space-y-6">
+            <ShellSectionHeading
+              eyebrow="Laundry"
+              title="Stok opname"
+              description="Cocokkan stok sistem dengan hitungan fisik."
+              size="hero"
+            />
             <p className="mb-3 text-sm font-semibold text-slate-800">
-              Snapshot stok saat ini
+              Posisi stok
             </p>
-            <StockSummaryTable caption="Snapshot stok saat ini" rows={stockSummary} />
+            <StockSummaryTable caption="Posisi stok" rows={stockSummary} />
           </div>
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Riwayat Sesi
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Sesi opname terbaru
-          </h3>
+          <ShellSectionHeading
+            eyebrow="Sesi"
+            title="Riwayat sesi"
+            description="Lihat sesi opname yang sudah selesai."
+          />
 
           <div className="mt-5">
             <DataTable
-              caption="Riwayat sesi stok opname"
+              caption="Riwayat sesi"
               columns={["Tanggal", "Status", "Baris", "Catatan"]}
               rows={
                 recentSessions.length
@@ -150,16 +147,11 @@ export function StockOpnameView({
       <div className="grid gap-6">
         {!draftSession ? (
           <section className="shell-surface rounded-[1.75rem] p-6">
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Draft Opname
-            </p>
-            <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-              Buat draft baru
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              MVP hanya mengizinkan satu draft aktif agar tim fokus menyelesaikan
-              satu sesi opname lebih dulu.
-            </p>
+            <ShellSectionHeading
+              eyebrow="Draft"
+              title="Mulai sesi baru"
+              description="Satu draft aktif dalam satu waktu."
+            />
 
             <form action={draftAction} className="mt-6 grid gap-4">
               <div className="grid gap-2">
@@ -203,21 +195,16 @@ export function StockOpnameView({
                 disabled={draftPending}
                 className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {draftPending ? "Membuat..." : "Buat Draft Opname"}
+                {draftPending ? "Membuat..." : "Buat draft"}
               </button>
             </form>
           </section>
         ) : (
           <>
             <section className="shell-surface rounded-[1.75rem] p-6">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Draft Aktif
-              </p>
-              <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-                Draft opname aktif
-              </h3>
+              <ShellSectionHeading eyebrow="Draft aktif" title="Sesi berjalan" />
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Tanggal {formatDateLabel(draftSession.opnameDate)} • {draftSession.lineCount} baris
+                Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
               </p>
               {draftSession.notes ? (
                 <p className="mt-2 text-sm leading-6 text-slate-600">{draftSession.notes}</p>
@@ -225,12 +212,11 @@ export function StockOpnameView({
             </section>
 
             <section className="shell-surface rounded-[1.75rem] p-6">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Baris Opname
-              </p>
-              <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-                Input hasil hitung
-              </h3>
+              <ShellSectionHeading
+                eyebrow="Hitung item"
+                title="Input hasil hitung"
+                description="Pilih item dan posisi stok, lalu isi qty fisik."
+              />
 
               <form action={lineAction} className="mt-6 grid gap-4">
                 <input type="hidden" name="sessionId" value={draftSession.id} />
@@ -347,22 +333,21 @@ export function StockOpnameView({
                   disabled={linePending}
                   className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {linePending ? "Menyimpan..." : "Simpan Baris Opname"}
+                  {linePending ? "Menyimpan..." : "Simpan hasil hitung"}
                 </button>
               </form>
             </section>
 
             <section className="shell-surface rounded-[1.75rem] p-6">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Draft Lines
-              </p>
-              <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-                Baris opname tersimpan
-              </h3>
+              <ShellSectionHeading
+                eyebrow="Item draft"
+                title="Hasil tersimpan"
+                description="Periksa hasil hitung sebelum finalisasi."
+              />
 
               <div className="mt-5">
                 <DataTable
-                  caption="Draft line stok opname"
+                  caption="Hasil tersimpan"
                   columns={["Item", "Jenis", "Posisi", "Unit", "Qty Hitung", "Qty Sistem", "Catatan"]}
                   rows={
                     draftLines.length
@@ -391,7 +376,7 @@ export function StockOpnameView({
                   disabled={finalizePending || draftLines.length === 0}
                   className="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {finalizePending ? "Memfinalisasi..." : "Finalisasi Stok Opname"}
+                  {finalizePending ? "Memfinalisasi..." : "Finalisasi hasil"}
                 </button>
               </form>
             </section>

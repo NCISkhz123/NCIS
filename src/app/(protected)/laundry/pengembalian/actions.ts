@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 
 import { requireLaundryAccess } from "@/lib/auth/guards";
 import { STOCK_POSITION_LABELS } from "@/lib/laundry/constants";
+import type {
+  ReturnFormState,
+  ReusableProcessingFormState,
+  TransactionImpact,
+} from "@/lib/laundry/forms/transactions";
 import { transferReusableStock } from "@/lib/laundry/services/reusable-transfers";
 import { returnStock } from "@/lib/laundry/services/returns";
 import {
@@ -11,47 +16,6 @@ import {
   type StockMutationResultData,
 } from "@/lib/laundry/services/stock";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-type ReturnImpact = {
-  movementLabel: string;
-  quantity: number;
-  fromLabel?: string | null;
-  toLabel?: string | null;
-  resultingBalance: number;
-  resultingBalanceLabel: string;
-};
-
-export type ReturnFormState = {
-  error: string | null;
-  message: string | null;
-  impact: ReturnImpact | null;
-  values?: {
-    itemId?: string;
-    sourceUnitId?: string;
-    destinationPosition?: string;
-    transactionDate?: string;
-    quantity?: string;
-    notes?: string;
-  };
-};
-
-export type ReusableProcessingFormState = {
-  error: string | null;
-  message: string | null;
-  impact: ReturnImpact | null;
-};
-
-export const initialReturnFormState: ReturnFormState = {
-  error: null,
-  message: null,
-  impact: null,
-};
-
-export const initialReusableProcessingFormState: ReusableProcessingFormState = {
-  error: null,
-  message: null,
-  impact: null,
-};
 
 function getStockPositionLabel(position: string | null | undefined) {
   if (!position) {
@@ -65,7 +29,7 @@ function buildReturnImpact(
   data: StockMutationResultData,
   movementLabel: string,
   resultingBalanceLabel: string
-): ReturnImpact {
+): TransactionImpact {
   return {
     movementLabel,
     quantity: data.quantity,

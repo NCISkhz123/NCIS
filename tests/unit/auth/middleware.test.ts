@@ -6,9 +6,14 @@ const { createServerClientMock, getPublicEnvMock } = vi.hoisted(() => ({
   getPublicEnvMock: vi.fn(),
 }));
 
-vi.mock("@supabase/ssr", () => ({
-  createServerClient: createServerClientMock,
-}));
+vi.mock("@supabase/ssr", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@supabase/ssr")>();
+
+  return {
+    ...actual,
+    createServerClient: createServerClientMock,
+  };
+});
 
 vi.mock("../../../src/lib/env", () => ({
   getPublicEnv: getPublicEnvMock,
@@ -87,5 +92,37 @@ describe("updateSession", () => {
     );
 
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
+  });
+
+  it("clears stale Supabase auth cookies when auth rejects the session", async () => {
+    createServerClientMock.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: null,
+          },
+          error: {
+            name: "AuthApiError",
+            message: "Invalid Refresh Token: Refresh Token Not Found",
+          },
+        }),
+      },
+      from: vi.fn(),
+    } as never);
+
+    const response = await updateSession(
+      new NextRequest("http://localhost:3000/login", {
+        headers: {
+          cookie:
+            "sb-127-auth-token.0=stale; sb-ncis-cssd-mvp-auth-token.0=stale",
+        },
+      })
+    );
+
+    const setCookie = response.headers.getSetCookie().join("; ");
+
+    expect(setCookie).toContain("sb-127-auth-token.0=;");
+    expect(setCookie).toContain("sb-ncis-cssd-mvp-auth-token.0=;");
+    expect(setCookie).toContain("Max-Age=0");
   });
 });

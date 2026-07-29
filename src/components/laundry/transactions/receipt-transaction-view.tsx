@@ -2,14 +2,15 @@
 
 import { useActionState } from "react";
 
-import {
-  initialReceiptFormState,
-  saveReceiptAction,
-  type ReceiptFormState,
-} from "@/app/(protected)/laundry/pemasukan/actions";
+import { saveReceiptAction } from "@/app/(protected)/laundry/pemasukan/actions";
+import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
 import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
+import {
+  initialReceiptFormState,
+  type ReceiptFormState,
+} from "@/lib/laundry/forms/transactions";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -39,24 +40,19 @@ export function ReceiptTransactionView({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-          Transaksi Laundry
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-          Kelola Pemasukan Stok Laundry
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-          Catat barang masuk agar stok siap pakai langsung bertambah dan tercatat
-          pada riwayat pergerakan stok.
-        </p>
-
-        <div className="mt-6">
+      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
+        <div className="space-y-6">
+          <ShellSectionHeading
+            eyebrow="Laundry"
+            title="Pemasukan"
+            description="Catat barang masuk ke stok Laundry."
+            size="hero"
+          />
           <p className="mb-3 text-sm font-semibold text-slate-800">
-            Riwayat pemasukan terbaru
+            Riwayat pemasukan
           </p>
           <TransactionHistoryTable
-            caption="Riwayat pemasukan terbaru"
+            caption="Riwayat pemasukan"
             rows={recentTransactions}
           />
         </div>
@@ -64,12 +60,11 @@ export function ReceiptTransactionView({
 
       <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Pemasukan
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Tambah stok masuk
-          </h3>
+          <ShellSectionHeading
+            eyebrow="Input"
+            title="Tambah stok masuk"
+            description="Pilih item, isi tanggal, lalu simpan."
+          />
           <form action={formAction} className="mt-6 grid gap-4">
             <div className="grid gap-2">
               <label htmlFor="receipt-item" className="text-sm font-semibold text-slate-700">
@@ -181,19 +176,13 @@ export function ReceiptTransactionView({
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Detail Stok
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Posisi stok saat ini
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Snapshot cepat untuk melihat item mana yang paling banyak tersedia
-            di Laundry.
-          </p>
-
+          <ShellSectionHeading
+            eyebrow="Posisi stok"
+            title="Stok saat ini"
+            description="Pantau stok berdasarkan posisi dan unit."
+          />
           <div className="mt-5">
-            <StockSummaryTable caption="Posisi stok saat ini" rows={stockSummary} />
+            <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
           </div>
         </section>
       </div>

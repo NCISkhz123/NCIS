@@ -59,12 +59,12 @@ describe("laundry report page export links", () => {
   });
 
   it("renders the stock status export link with active filters", async () => {
-    const module = await import(
+    const pageModule = await import(
       "@/app/(protected)/laundry/laporan/stok-status/page"
     );
 
     render(
-      await module.default({
+      await pageModule.default({
         searchParams: Promise.resolve({
           stockItem: "item-1",
           stockUnit: "unit-1",
@@ -72,19 +72,26 @@ describe("laundry report page export links", () => {
       })
     );
 
-    const exportLink = screen.getByRole("link", { name: /export csv/i });
+    const exportLink = screen.getByRole("link", { name: /ekspor csv/i });
     expect(exportLink.getAttribute("href")).toBe(
       "/laundry/laporan/stok-status/export?stockItem=item-1&stockUnit=unit-1"
+    );
+    expect(listCurrentStockReportMock).toHaveBeenCalledWith(
+      { kind: "report-client" },
+      {
+        itemId: "item-1",
+        unitId: "unit-1",
+      }
     );
   });
 
   it("renders the transaction history export link with active filters", async () => {
-    const module = await import(
+    const pageModule = await import(
       "@/app/(protected)/laundry/laporan/riwayat-transaksi/page"
     );
 
     render(
-      await module.default({
+      await pageModule.default({
         searchParams: Promise.resolve({
           historyItem: "item-1",
           historyUnit: "unit-1",
@@ -94,35 +101,44 @@ describe("laundry report page export links", () => {
       })
     );
 
-    const exportLink = screen.getByRole("link", { name: /export csv/i });
+    const exportLink = screen.getByRole("link", { name: /ekspor csv/i });
     expect(exportLink.getAttribute("href")).toBe(
       "/laundry/laporan/riwayat-transaksi/export?historyItem=item-1&historyUnit=unit-1&historyFrom=2026-07-01&historyTo=2026-07-03"
+    );
+    expect(listTransactionHistoryReportMock).toHaveBeenCalledWith(
+      { kind: "report-client" },
+      {
+        itemId: "item-1",
+        unitId: "unit-1",
+        dateFrom: "2026-07-01",
+        dateTo: "2026-07-03",
+      }
     );
   });
 
   it("disables stock card export when no item is selected", async () => {
-    const module = await import(
+    const pageModule = await import(
       "@/app/(protected)/laundry/laporan/kartu-stok/page"
     );
 
     render(
-      await module.default({
+      await pageModule.default({
         searchParams: Promise.resolve({}),
       })
     );
 
     expect(
-      screen.getByRole("button", { name: /export csv/i })
+      screen.getByRole("button", { name: /ekspor csv/i })
     ).toBeDisabled();
   });
 
   it("renders the stock card export link when an item is selected", async () => {
-    const module = await import(
+    const pageModule = await import(
       "@/app/(protected)/laundry/laporan/kartu-stok/page"
     );
 
     render(
-      await module.default({
+      await pageModule.default({
         searchParams: Promise.resolve({
           cardItem: "item-1",
           cardUnit: "unit-1",
@@ -132,9 +148,18 @@ describe("laundry report page export links", () => {
       })
     );
 
-    const exportLink = screen.getByRole("link", { name: /export csv/i });
+    const exportLink = screen.getByRole("link", { name: /ekspor csv/i });
     expect(exportLink.getAttribute("href")).toBe(
       "/laundry/laporan/kartu-stok/export?cardItem=item-1&cardUnit=unit-1&cardFrom=2026-07-01&cardTo=2026-07-03"
+    );
+    expect(listItemStockCardReportMock).toHaveBeenCalledWith(
+      { kind: "report-client" },
+      {
+        itemId: "item-1",
+        unitId: "unit-1",
+        dateFrom: "2026-07-01",
+        dateTo: "2026-07-03",
+      }
     );
   });
 });

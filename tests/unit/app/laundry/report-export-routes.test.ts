@@ -59,7 +59,6 @@ describe("laundry report export routes", () => {
       {
         itemId: "item-1",
         unitId: "unit-1",
-        limit: 100,
       }
     );
     expect(response.status).toBe(200);
@@ -91,7 +90,6 @@ describe("laundry report export routes", () => {
         unitId: "unit-1",
         dateFrom: "2026-07-01",
         dateTo: "2026-07-02",
-        limit: 100,
       }
     );
     expect(response.status).toBe(200);

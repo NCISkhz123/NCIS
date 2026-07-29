@@ -8,25 +8,8 @@ import {
   createSupabaseMasterDataClient,
   updateItem,
 } from "@/lib/laundry/services/master-data";
+import type { ItemFormState } from "@/lib/laundry/forms/master-data";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-export type ItemFormState = {
-  error: string | null;
-  message: string | null;
-  values?: {
-    code?: string;
-    name?: string;
-    itemType?: string;
-    uomId?: string;
-    notes?: string;
-    isActive?: "true" | "false";
-  };
-};
-
-export const initialItemFormState: ItemFormState = {
-  error: null,
-  message: null,
-};
 
 export async function saveItemAction(
   _previousState: ItemFormState,

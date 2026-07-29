@@ -7,27 +7,30 @@ import { ItemMasterDataView } from "@/components/cssd/master-data/item-master-da
 import { UomMasterDataView } from "@/components/cssd/master-data/uom-master-data-view";
 import { UnitMasterDataView } from "@/components/cssd/master-data/unit-master-data-view";
 
-vi.mock("@/app/(protected)/cssd/master-data/items/actions", () => ({
+vi.mock("@/lib/cssd/forms/master-data", () => ({
   initialItemFormState: {
     error: null,
     message: null,
   },
-  saveItemAction: vi.fn(),
-}));
-
-vi.mock("@/app/(protected)/cssd/master-data/satuan/actions", () => ({
   initialUnitOfMeasureFormState: {
     error: null,
     message: null,
   },
-  saveUnitOfMeasureAction: vi.fn(),
-}));
-
-vi.mock("@/app/(protected)/cssd/master-data/unit/actions", () => ({
   initialHospitalUnitFormState: {
     error: null,
     message: null,
   },
+}));
+
+vi.mock("@/app/(protected)/cssd/master-data/items/actions", () => ({
+  saveItemAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/master-data/satuan/actions", () => ({
+  saveUnitOfMeasureAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/master-data/unit/actions", () => ({
   saveHospitalUnitAction: vi.fn(),
 }));
 
@@ -49,7 +52,10 @@ describe("CSSD master data pages", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /kelola item cssd/i })
+      screen.getByRole("heading", { name: /data item/i })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /tambah item/i })
     ).toBeVisible();
     expect(screen.getByLabelText(/kode item/i)).toBeVisible();
     expect(screen.getByLabelText(/nama item/i)).toBeVisible();
@@ -64,7 +70,10 @@ describe("CSSD master data pages", () => {
     render(<UomMasterDataView records={[]} editingRecord={null} />);
 
     expect(
-      screen.getByRole("heading", { name: /kelola satuan cssd/i })
+      screen.getByRole("heading", { name: /data satuan/i })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /tambah satuan/i })
     ).toBeVisible();
     expect(screen.getByLabelText(/kode satuan/i)).toBeVisible();
     expect(screen.getByLabelText(/nama satuan/i)).toBeVisible();
@@ -77,7 +86,10 @@ describe("CSSD master data pages", () => {
     render(<UnitMasterDataView records={[]} editingRecord={null} />);
 
     expect(
-      screen.getByRole("heading", { name: /kelola unit cssd/i })
+      screen.getByRole("heading", { name: /data unit/i })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: /tambah unit/i })
     ).toBeVisible();
     expect(screen.getByLabelText(/kode unit/i)).toBeVisible();
     expect(screen.getByLabelText(/nama unit/i)).toBeVisible();

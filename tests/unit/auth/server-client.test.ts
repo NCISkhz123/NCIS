@@ -43,4 +43,20 @@ describe("createServerSupabaseClient", () => {
     expect(options.cookies.getAll()).toEqual([]);
     expect(options.cookies.setAll).toBeUndefined();
   });
+
+  it("uses an app-specific auth cookie name instead of the localhost default", async () => {
+    const cookieStore = {
+      getAll: vi.fn().mockReturnValue([]),
+      set: vi.fn(),
+    };
+
+    cookiesMock.mockResolvedValue(cookieStore);
+    createServerClientMock.mockReturnValue({} as never);
+
+    await createServerSupabaseClient();
+
+    const options = createServerClientMock.mock.calls[0]?.[2];
+
+    expect(options.cookieOptions.name).toBe("sb-ncis-cssd-mvp-auth-token");
+  });
 });

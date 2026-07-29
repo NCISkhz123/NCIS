@@ -8,8 +8,11 @@ type FilterFieldProps = {
 
 export function FilterField(props: FilterFieldProps) {
   return (
-    <div className="grid gap-2">
-      <label htmlFor={props.htmlFor} className="text-sm font-semibold text-slate-700">
+    <div className="grid gap-2.5">
+      <label
+        htmlFor={props.htmlFor}
+        className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500"
+      >
         {props.label}
       </label>
       {props.children}

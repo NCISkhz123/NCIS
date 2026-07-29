@@ -3,30 +3,13 @@
 import { revalidatePath } from "next/cache";
 
 import { requireCssdAccess } from "@/lib/auth/guards";
+import type { ItemFormState } from "@/lib/cssd/forms/master-data";
 import {
   createItem,
   createSupabaseMasterDataClient,
   updateItem,
 } from "@/lib/cssd/services/master-data";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-export type ItemFormState = {
-  error: string | null;
-  message: string | null;
-  values?: {
-    code?: string;
-    name?: string;
-    itemType?: string;
-    uomId?: string;
-    notes?: string;
-    isActive?: "true" | "false";
-  };
-};
-
-export const initialItemFormState: ItemFormState = {
-  error: null,
-  message: null,
-};
 
 export async function saveItemAction(
   _previousState: ItemFormState,

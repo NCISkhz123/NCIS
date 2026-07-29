@@ -4,40 +4,16 @@ import { revalidatePath } from "next/cache";
 
 import { requireLaundryAccess } from "@/lib/auth/guards";
 import { STOCK_POSITION_LABELS } from "@/lib/laundry/constants";
+import type {
+  InternalUsageFormState,
+  TransactionImpact,
+} from "@/lib/laundry/forms/transactions";
 import { recordInternalUsage } from "@/lib/laundry/services/internal-usages";
 import {
   createSupabaseRpcClient,
   type StockMutationResultData,
 } from "@/lib/laundry/services/stock";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-type InternalUsageImpact = {
-  movementLabel: string;
-  quantity: number;
-  fromLabel?: string | null;
-  toLabel?: string | null;
-  resultingBalance: number;
-  resultingBalanceLabel: string;
-};
-
-export type InternalUsageFormState = {
-  error: string | null;
-  message: string | null;
-  impact: InternalUsageImpact | null;
-  values?: {
-    itemId?: string;
-    itemType?: string;
-    transactionDate?: string;
-    quantity?: string;
-    notes?: string;
-  };
-};
-
-export const initialInternalUsageFormState: InternalUsageFormState = {
-  error: null,
-  message: null,
-  impact: null,
-};
 
 function getStockPositionLabel(position: string | null | undefined) {
   if (!position) {
@@ -49,7 +25,7 @@ function getStockPositionLabel(position: string | null | undefined) {
 
 function buildInternalUsageImpact(
   data: StockMutationResultData
-): InternalUsageImpact {
+): TransactionImpact {
   return {
     movementLabel:
       "Pemakaian internal tersimpan dan stok konsumabel internal Laundry berkurang.",

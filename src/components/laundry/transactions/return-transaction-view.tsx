@@ -3,13 +3,10 @@
 import { useActionState } from "react";
 
 import {
-  initialReturnFormState,
-  initialReusableProcessingFormState,
   processReusableAction,
   saveReturnAction,
-  type ReturnFormState,
-  type ReusableProcessingFormState,
 } from "@/app/(protected)/laundry/pengembalian/actions";
+import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
 import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
@@ -17,6 +14,12 @@ import {
   RETURN_DESTINATION_POSITIONS,
   STOCK_POSITION_LABELS,
 } from "@/lib/laundry/constants";
+import {
+  initialReturnFormState,
+  initialReusableProcessingFormState,
+  type ReturnFormState,
+  type ReusableProcessingFormState,
+} from "@/lib/laundry/forms/transactions";
 import type {
   ReusableProcessingSummaryEntry,
   StockSummaryEntry,
@@ -62,40 +65,34 @@ export function ReturnTransactionView({
   return (
     <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
       <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Transaksi Laundry
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-            Kelola Pengembalian Reusable
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-            Pengembalian dari unit langsung mengarahkan item reusable ke posisi
-            Kotor atau Rusak, lalu dapat dilanjutkan ke proses steril.
-          </p>
-
-          <div className="mt-6">
+        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
+          <div className="space-y-6">
+            <ShellSectionHeading
+              eyebrow="Laundry"
+              title="Pengembalian reusable"
+              description="Catat reusable yang kembali dari unit ke Laundry."
+              size="hero"
+            />
             <p className="mb-3 text-sm font-semibold text-slate-800">
-              Riwayat pengembalian terbaru
+              Riwayat pengembalian
             </p>
             <TransactionHistoryTable
-              caption="Riwayat pengembalian terbaru"
+              caption="Riwayat pengembalian"
               rows={recentTransactions}
             />
           </div>
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Snapshot Stok
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Posisi reusable saat ini
-          </h3>
+          <ShellSectionHeading
+            eyebrow="Posisi stok"
+            title="Reusable saat ini"
+            description="Pantau reusable per posisi dan unit."
+          />
 
           <div className="mt-5">
             <StockSummaryTable
-              caption="Posisi reusable saat ini"
+              caption="Reusable saat ini"
               rows={stockSummary}
             />
           </div>
@@ -104,12 +101,11 @@ export function ReturnTransactionView({
 
       <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Pengembalian
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Catat item reusable kembali
-          </h3>
+          <ShellSectionHeading
+            eyebrow="Input"
+            title="Catat pengembalian"
+            description="Pilih item reusable, unit asal, lalu simpan."
+          />
 
           <form action={returnAction} className="mt-6 grid gap-4">
             <div className="grid gap-2">
@@ -250,17 +246,11 @@ export function ReturnTransactionView({
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Proses Lanjutan
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Lanjutkan reusable internal
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Gunakan bagian ini untuk memindahkan reusable dari Kotor ke
-            Area Pencucian, meloloskannya menjadi Bersih, atau menandainya
-            sebagai Rusak.
-          </p>
+          <ShellSectionHeading
+            eyebrow="Proses reusable"
+            title="Lanjutkan proses"
+            description="Pindahkan reusable ke tahap berikutnya setelah diproses."
+          />
 
           <div className="mt-5">
             <TransactionFeedback
@@ -283,8 +273,8 @@ export function ReturnTransactionView({
                         {row.itemCode} - {row.itemName}
                       </p>
                       <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">
-                        Non Steril {row.availableNonSterile} • Area Pencucian{" "}
-                        {row.availableSterilizationArea} • Rusak {row.availableDamaged}
+                        Kotor {row.availableNonSterile} | Area Pencucian{" "}
+                        {row.availableSterilizationArea} | Rusak {row.availableDamaged}
                       </p>
                     </div>
                   </div>
@@ -420,7 +410,7 @@ export function ReturnTransactionView({
               ))
             ) : (
               <div className="rounded-[1.35rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-                Belum ada reusable pada posisi Kotor atau Area Pencucian.
+                Belum ada reusable di Kotor atau Area Pencucian.
               </div>
             )}
           </div>

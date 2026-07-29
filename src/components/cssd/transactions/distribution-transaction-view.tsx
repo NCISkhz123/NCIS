@@ -4,12 +4,14 @@ import { useActionState } from "react";
 
 import {
   initialDistributionFormState,
-  saveDistributionAction,
   type DistributionFormState,
-} from "@/app/(protected)/cssd/distribusi/actions";
+} from "@/lib/cssd/forms/transactions";
+import { saveDistributionAction } from "@/app/(protected)/cssd/distribusi/actions";
 import { StockSummaryTable } from "@/components/cssd/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/cssd/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
+import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
+import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -41,42 +43,41 @@ export function DistributionTransactionView({
 
   const values = formState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
+  const firstUnitLabel = hospitalUnits.length
+    ? `${hospitalUnits[0]?.name} (${hospitalUnits[0]?.code})`
+    : "Belum ada unit";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-          Transaksi CSSD
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-          Kelola Distribusi CSSD
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-          Distribusi reusable akan berpindah ke stok unit, sedangkan
-          konsumabel distribusi akan mengurangi stok siap pakai CSSD.
-        </p>
-
-        <div className="mt-6">
-          <p className="mb-3 text-sm font-semibold text-slate-800">
-            Riwayat distribusi terbaru
-          </p>
-          <TransactionHistoryTable
-            caption="Riwayat distribusi terbaru"
-            rows={recentTransactions}
-          />
-        </div>
-      </section>
-
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Distribusi
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Catat distribusi ke unit
-          </h3>
-
-          <form action={formAction} className="mt-6 grid gap-4">
+    <TransactionPageShell
+      eyebrow="CSSD"
+      title="Distribusi"
+      description="Catat barang keluar dari CSSD ke unit."
+      summary={
+        <TransactionSummaryStrip
+          items={[
+            {
+              label: "Unit tujuan aktif",
+              value: hospitalUnits.length,
+              helper: firstUnitLabel,
+            },
+            {
+              label: "Riwayat terbaru",
+              value: recentTransactions.length,
+              helper: "Distribusi yang sudah tercatat.",
+            },
+            {
+              label: "Stok siap kirim",
+              value: stockSummary.length,
+              helper: "Cek stok sebelum barang keluar.",
+              accent: "emphasis",
+            },
+          ]}
+        />
+      }
+      formTitle="Catat distribusi"
+      formDescription="Pilih item, unit tujuan, tanggal, dan jumlah distribusi."
+      form={
+        <form action={formAction} className="grid gap-4">
             <div className="grid gap-2">
               <label
                 htmlFor="distribution-item"
@@ -212,28 +213,36 @@ export function DistributionTransactionView({
               {pending ? "Menyimpan..." : "Simpan Distribusi"}
             </button>
           </form>
+      }
+      supportingContent={
+        <>
+        <section className="shell-surface rounded-[1.75rem] p-6">
+          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Tinjau distribusi yang baru dikirim ke unit.
+          </p>
+          <div className="mt-5">
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
+            />
+          </div>
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Ketersediaan
+          <p className="text-sm font-semibold text-slate-900">Stok siap kirim</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Gunakan sebagai acuan sebelum barang dikirim.
           </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Stok siap distribusi
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Gunakan daftar ini untuk memastikan jumlah distribusi tidak melebihi
-            stok siap pakai yang tersedia di CSSD.
-          </p>
-
           <div className="mt-5">
             <StockSummaryTable
-              caption="Stok siap distribusi"
+              caption="Stok siap kirim"
               rows={stockSummary}
             />
           </div>
         </section>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

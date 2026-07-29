@@ -23,7 +23,6 @@ export async function GET(request: Request) {
   const rows = await listCurrentStockReport(reportClient, {
     itemId,
     unitId,
-    limit: 100,
   });
 
   const table = buildStockStatusCsvTable(rows);

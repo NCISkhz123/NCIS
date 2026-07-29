@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 import { getPublicEnv } from "@/lib/env";
+import { SUPABASE_AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookies";
 
 type CreateServerSupabaseClientOptions = {
   writeCookies?: boolean;
@@ -18,6 +19,7 @@ export async function createServerSupabaseClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
+      cookieOptions: SUPABASE_AUTH_COOKIE_OPTIONS,
       cookies: {
         getAll() {
           return cookieStore.getAll();

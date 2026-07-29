@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { clearAuthCookiesAtScopes, createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
@@ -8,6 +8,10 @@ import {
 import { getProfileRoleForUser } from "@/lib/auth/profile";
 import { getPublicEnv } from "@/lib/env";
 import { normalizeRole } from "@/lib/auth/roles";
+import {
+  getSupabaseAuthCookieNamesToClear,
+  SUPABASE_AUTH_COOKIE_OPTIONS,
+} from "@/lib/supabase/cookies";
 
 function copyResponseState(source: NextResponse, target: NextResponse) {
   source.cookies.getAll().forEach((cookie) => {
@@ -23,6 +27,27 @@ function copyResponseState(source: NextResponse, target: NextResponse) {
   });
 }
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return "";
+}
+
+function isInvalidRefreshTokenError(error: unknown) {
+  return /refresh token/i.test(getErrorMessage(error));
+}
+
 export async function updateSession(request: NextRequest) {
   const env = getPublicEnv();
 
@@ -32,40 +57,68 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
+  const incomingCookies = request.cookies.getAll();
+  const getAll = () => request.cookies.getAll();
+  const setAll = (
+    cookiesToSet: {
+      name: string;
+      value: string;
+      options?: Parameters<typeof supabaseResponse.cookies.set>[2];
+    }[],
+    headers?: Record<string, string>
+  ) => {
+    cookiesToSet.forEach(({ name, value }) =>
+      request.cookies.set(name, value)
+    );
+
+    const previousResponse = supabaseResponse;
+
+    supabaseResponse = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+
+    copyResponseState(previousResponse, supabaseResponse);
+
+    cookiesToSet.forEach(({ name, value, options }) =>
+      supabaseResponse.cookies.set(name, value, options)
+    );
+
+    Object.entries(headers ?? {}).forEach(([key, value]) => {
+      supabaseResponse.headers.set(key, value);
+    });
+  };
+
   const supabase = createServerClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
+      cookieOptions: SUPABASE_AUTH_COOKIE_OPTIONS,
       cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet, headers) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-
-          supabaseResponse = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-
-          Object.entries(headers ?? {}).forEach(([key, value]) => {
-            supabaseResponse.headers.set(key, value);
-          });
-        },
+        getAll,
+        setAll,
       },
     }
   );
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  if (!user && isInvalidRefreshTokenError(error)) {
+    for (const storageKey of getSupabaseAuthCookieNamesToClear(
+      env.NEXT_PUBLIC_SUPABASE_URL
+    )) {
+      await clearAuthCookiesAtScopes({
+        getAll: () => incomingCookies,
+        setAll,
+        storageKey,
+        scopes: [{ path: "/" }],
+      });
+    }
+  }
 
   const userId = user?.id ?? null;
   const role = userId

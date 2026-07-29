@@ -3,27 +3,13 @@
 import { revalidatePath } from "next/cache";
 
 import { requireCssdAccess } from "@/lib/auth/guards";
+import type { HospitalUnitFormState } from "@/lib/cssd/forms/master-data";
 import {
   createHospitalUnit,
   createSupabaseMasterDataClient,
   updateHospitalUnit,
 } from "@/lib/cssd/services/master-data";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-export type HospitalUnitFormState = {
-  error: string | null;
-  message: string | null;
-  values?: {
-    code?: string;
-    name?: string;
-    isActive?: "true" | "false";
-  };
-};
-
-export const initialHospitalUnitFormState: HospitalUnitFormState = {
-  error: null,
-  message: null,
-};
 
 export async function saveHospitalUnitAction(
   _previousState: HospitalUnitFormState,

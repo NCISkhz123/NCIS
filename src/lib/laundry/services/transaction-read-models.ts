@@ -37,8 +37,8 @@ type StockMovementJoinedRow = {
   quantity: number;
   notes: string | null;
   occurred_at: string;
-  laundry_items: JoinedItemRow[] | null;
-  laundry_hospital_units: JoinedHospitalUnitRow[] | null;
+  laundry_items: JoinedItemRow | JoinedItemRow[] | null;
+  laundry_hospital_units: JoinedHospitalUnitRow | JoinedHospitalUnitRow[] | null;
 };
 
 type StockBalanceJoinedRow = {
@@ -46,8 +46,8 @@ type StockBalanceJoinedRow = {
   stock_position: keyof typeof STOCK_POSITION_LABELS;
   quantity: number;
   hospital_unit_id: string | null;
-  laundry_items: JoinedItemRow[] | null;
-  laundry_hospital_units: JoinedHospitalUnitRow[] | null;
+  laundry_items: JoinedItemRow | JoinedItemRow[] | null;
+  laundry_hospital_units: JoinedHospitalUnitRow | JoinedHospitalUnitRow[] | null;
 };
 
 export type TransactionHistoryEntry = {
@@ -82,6 +82,14 @@ export type ReusableProcessingSummaryEntry = {
   availableSterilizationArea: number;
   availableDamaged: number;
 };
+
+function normalizeJoinedRecord<T>(value: T | T[] | null | undefined): T | null {
+  if (Array.isArray(value)) {
+    return value[0] ?? null;
+  }
+
+  return value ?? null;
+}
 
 export async function listActiveItems(
   supabase: SupabaseClient,
@@ -149,8 +157,8 @@ export async function listRecentTransactionHistory(
 
   return rows
     .map((row) => {
-      const item = row.laundry_items?.[0] ?? null;
-      const hospitalUnit = row.laundry_hospital_units?.[0] ?? null;
+      const item = normalizeJoinedRecord(row.laundry_items);
+      const hospitalUnit = normalizeJoinedRecord(row.laundry_hospital_units);
 
       return {
         row,
@@ -213,8 +221,8 @@ export async function listStockSummary(
 
   return rows
     .map((row) => {
-      const item = row.laundry_items?.[0] ?? null;
-      const hospitalUnit = row.laundry_hospital_units?.[0] ?? null;
+      const item = normalizeJoinedRecord(row.laundry_items);
+      const hospitalUnit = normalizeJoinedRecord(row.laundry_hospital_units);
 
       return {
         row,

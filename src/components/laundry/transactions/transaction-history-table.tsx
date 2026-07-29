@@ -37,13 +37,15 @@ export function TransactionHistoryTable({
         "Tujuan",
         "Catatan",
       ]}
-      rows={
-        rows.length
+        rows={
+          rows.length
           ? rows.map((row) => [
               formatDateLabel(row.transactionDate),
               `${row.itemCode} - ${row.itemName}`,
               ITEM_TYPE_LABELS[row.itemType],
-              row.quantity,
+              <span key={`${row.id}-qty`} className="font-mono tabular-nums text-slate-900">
+                {row.quantity}
+              </span>,
               row.targetUnitName ?? "-",
               row.destinationLabel ?? "-",
               row.notes ?? "-",

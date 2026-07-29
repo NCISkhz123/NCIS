@@ -8,22 +8,8 @@ import {
   createUnitOfMeasure,
   updateUnitOfMeasure,
 } from "@/lib/laundry/services/master-data";
+import type { UnitOfMeasureFormState } from "@/lib/laundry/forms/master-data";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-export type UnitOfMeasureFormState = {
-  error: string | null;
-  message: string | null;
-  values?: {
-    code?: string;
-    name?: string;
-    isActive?: "true" | "false";
-  };
-};
-
-export const initialUnitOfMeasureFormState: UnitOfMeasureFormState = {
-  error: null,
-  message: null,
-};
 
 export async function saveUnitOfMeasureAction(
   _previousState: UnitOfMeasureFormState,

@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import { requireCssdAccess } from "@/lib/auth/guards";
+import type {
+  DistributionFormState,
+  TransactionImpact,
+} from "@/lib/cssd/forms/transactions";
 import { STOCK_POSITION_LABELS } from "@/lib/cssd/constants";
 import { distributeStock } from "@/lib/cssd/services/distributions";
 import {
@@ -10,35 +14,6 @@ import {
   type StockMutationResultData,
 } from "@/lib/cssd/services/stock";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-type DistributionImpact = {
-  movementLabel: string;
-  quantity: number;
-  fromLabel?: string | null;
-  toLabel?: string | null;
-  resultingBalance: number;
-  resultingBalanceLabel: string;
-};
-
-export type DistributionFormState = {
-  error: string | null;
-  message: string | null;
-  impact: DistributionImpact | null;
-  values?: {
-    itemId?: string;
-    itemType?: string;
-    targetUnitId?: string;
-    transactionDate?: string;
-    quantity?: string;
-    notes?: string;
-  };
-};
-
-export const initialDistributionFormState: DistributionFormState = {
-  error: null,
-  message: null,
-  impact: null,
-};
 
 function getStockPositionLabel(position: string | null | undefined) {
   if (!position) {
@@ -50,7 +25,7 @@ function getStockPositionLabel(position: string | null | undefined) {
 
 function buildDistributionImpact(
   data: StockMutationResultData
-): DistributionImpact {
+): TransactionImpact {
   const isReusableFlow = data.to_position === "IN_UNIT";
 
   return {

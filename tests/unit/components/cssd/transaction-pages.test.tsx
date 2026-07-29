@@ -7,25 +7,17 @@ import { ReceiptTransactionView } from "@/components/cssd/transactions/receipt-t
 import { DistributionTransactionView } from "@/components/cssd/transactions/distribution-transaction-view";
 import { ReturnTransactionView } from "@/components/cssd/transactions/return-transaction-view";
 
-vi.mock("@/app/(protected)/cssd/pemasukan/actions", () => ({
+vi.mock("@/lib/cssd/forms/transactions", () => ({
   initialReceiptFormState: {
     error: null,
     message: null,
     impact: null,
   },
-  saveReceiptAction: vi.fn(),
-}));
-
-vi.mock("@/app/(protected)/cssd/distribusi/actions", () => ({
   initialDistributionFormState: {
     error: null,
     message: null,
     impact: null,
   },
-  saveDistributionAction: vi.fn(),
-}));
-
-vi.mock("@/app/(protected)/cssd/pengembalian/actions", () => ({
   initialReturnFormState: {
     error: null,
     message: null,
@@ -36,6 +28,17 @@ vi.mock("@/app/(protected)/cssd/pengembalian/actions", () => ({
     message: null,
     impact: null,
   },
+}));
+
+vi.mock("@/app/(protected)/cssd/pemasukan/actions", () => ({
+  saveReceiptAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/distribusi/actions", () => ({
+  saveDistributionAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/pengembalian/actions", () => ({
   saveReturnAction: vi.fn(),
   processReusableAction: vi.fn(),
 }));
@@ -111,17 +114,19 @@ describe("CSSD transaction pages", () => {
       />
     );
 
-    expect(
-      screen.getByRole("heading", { name: /kelola pemasukan stok cssd/i })
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: /^pemasukan$/i })).toBeVisible();
+    expect(screen.getByText(/item aktif/i)).toBeVisible();
+    expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/stok saat ini/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/item cssd/i)).toBeVisible();
     expect(screen.getByLabelText(/tanggal transaksi/i)).toBeVisible();
     expect(screen.getByLabelText(/jumlah masuk/i)).toBeVisible();
     expect(
       screen.getByRole("button", { name: /simpan pemasukan/i })
     ).toBeVisible();
-    expect(screen.getAllByText(/riwayat pemasukan terbaru/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/posisi stok saat ini/i).length).toBeGreaterThan(0);
+    expect(
+      screen.queryByRole("heading", { name: /kelola pemasukan stok cssd/i })
+    ).not.toBeInTheDocument();
   });
 
   it("renders the distribution page with target unit and stock availability", () => {
@@ -158,15 +163,18 @@ describe("CSSD transaction pages", () => {
       />
     );
 
-    expect(
-      screen.getByRole("heading", { name: /kelola distribusi cssd/i })
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: /^distribusi$/i })).toBeVisible();
+    expect(screen.getByText(/unit tujuan aktif/i)).toBeVisible();
+    expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/stok siap kirim/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/unit tujuan/i)).toBeVisible();
     expect(screen.getByLabelText(/jumlah distribusi/i)).toBeVisible();
-    expect(screen.getAllByText(/stok siap distribusi/i).length).toBeGreaterThan(0);
     expect(
       screen.getByRole("button", { name: /simpan distribusi/i })
     ).toBeVisible();
+    expect(
+      screen.queryByRole("heading", { name: /kelola distribusi cssd/i })
+    ).not.toBeInTheDocument();
   });
 
   it("renders the return page with reusable-only options and reusable processing actions", () => {
@@ -214,8 +222,11 @@ describe("CSSD transaction pages", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /kelola pengembalian reusable/i })
+      screen.getByRole("heading", { name: /^pengembalian reusable$/i })
     ).toBeVisible();
+    expect(screen.getByText(/reusable siap diproses/i)).toBeVisible();
+    expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/lanjutkan reusable/i)).toBeVisible();
     expect(screen.getByLabelText(/tujuan pengembalian/i)).toBeVisible();
 
     const itemSelect = screen.getByLabelText(/item reusable/i);
@@ -227,7 +238,6 @@ describe("CSSD transaction pages", () => {
     expect(destinationSelect).toHaveTextContent(/tidak steril/i);
     expect(destinationSelect).toHaveTextContent(/rusak/i);
 
-    expect(screen.getByText(/lanjutkan reusable internal/i)).toBeVisible();
     expect(
       screen.getByRole("button", { name: /kirim ke area sterilisasi/i })
     ).toBeVisible();
@@ -237,5 +247,8 @@ describe("CSSD transaction pages", () => {
     expect(
       screen.getAllByRole("button", { name: /tandai rusak/i }).length
     ).toBeGreaterThan(0);
+    expect(
+      screen.queryByRole("heading", { name: /kelola pengembalian reusable/i })
+    ).not.toBeInTheDocument();
   });
 });

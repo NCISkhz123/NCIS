@@ -6,16 +6,12 @@ import { describe, expect, it, vi } from "vitest";
 import { InternalUsageTransactionView } from "@/components/cssd/transactions/internal-usage-transaction-view";
 import { StockOpnameView } from "@/components/cssd/transactions/stock-opname-view";
 
-vi.mock("@/app/(protected)/cssd/pemakaian-internal/actions", () => ({
+vi.mock("@/lib/cssd/forms/transactions", () => ({
   initialInternalUsageFormState: {
     error: null,
     message: null,
     impact: null,
   },
-  saveInternalUsageAction: vi.fn(),
-}));
-
-vi.mock("@/app/(protected)/cssd/stok-opname/actions", () => ({
   initialStockOpnameDraftFormState: {
     error: null,
     message: null,
@@ -28,6 +24,13 @@ vi.mock("@/app/(protected)/cssd/stok-opname/actions", () => ({
     error: null,
     message: null,
   },
+}));
+
+vi.mock("@/app/(protected)/cssd/pemakaian-internal/actions", () => ({
+  saveInternalUsageAction: vi.fn(),
+}));
+
+vi.mock("@/app/(protected)/cssd/stok-opname/actions", () => ({
   createStockOpnameDraftAction: vi.fn(),
   saveStockOpnameLineAction: vi.fn(),
   finalizeStockOpnameSessionAction: vi.fn(),
@@ -95,8 +98,11 @@ describe("CSSD remaining transaction pages", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /kelola pemakaian internal cssd/i })
+      screen.getByRole("heading", { name: /^pemakaian internal$/i })
     ).toBeVisible();
+    expect(screen.getByText(/item internal aktif/i)).toBeVisible();
+    expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/sisa stok/i).length).toBeGreaterThan(0);
     const itemSelect = screen.getByLabelText(/item konsumabel internal/i);
     expect(itemSelect).toHaveTextContent(/chemical sterilizer/i);
     expect(itemSelect).not.toHaveTextContent(/set minor/i);
@@ -104,6 +110,9 @@ describe("CSSD remaining transaction pages", () => {
     expect(
       screen.getByRole("button", { name: /simpan pemakaian internal/i })
     ).toBeVisible();
+    expect(
+      screen.queryByRole("heading", { name: /kelola pemakaian internal cssd/i })
+    ).not.toBeInTheDocument();
   });
 
   it("renders stock opname draft creation when no active session exists", () => {
@@ -118,13 +127,17 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(
-      screen.getByRole("heading", { name: /kelola stok opname cssd/i })
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: /^stok opname$/i })).toBeVisible();
+    expect(screen.getByText(/belum ada sesi aktif/i)).toBeVisible();
+    expect(screen.getAllByText(/posisi stok/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/riwayat sesi/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/tanggal opname/i)).toBeVisible();
     expect(
-      screen.getByRole("button", { name: /buat draft opname/i })
+      screen.getByRole("button", { name: /buat sesi/i })
     ).toBeVisible();
+    expect(
+      screen.queryByRole("heading", { name: /kelola stok opname cssd/i })
+    ).not.toBeInTheDocument();
   });
 
   it("renders stock opname line entry and finalize action for active draft", () => {
@@ -178,15 +191,17 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(screen.getByText(/draft opname aktif/i)).toBeVisible();
+    expect(screen.getAllByText(/sesi aktif/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/baris tersimpan/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/hasil hitung/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/item stok/i)).toBeVisible();
     expect(screen.getByLabelText(/posisi stok/i)).toBeVisible();
     expect(screen.getByLabelText(/qty hitung/i)).toBeVisible();
     expect(
-      screen.getByRole("button", { name: /simpan baris opname/i })
+      screen.getByRole("button", { name: /simpan hasil hitung/i })
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: /finalisasi stok opname/i })
+      screen.getByRole("button", { name: /finalisasi hasil/i })
     ).toBeVisible();
   });
 });

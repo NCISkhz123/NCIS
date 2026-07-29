@@ -5,14 +5,18 @@ import { useActionState } from "react";
 import {
   initialReturnFormState,
   initialReusableProcessingFormState,
-  processReusableAction,
-  saveReturnAction,
   type ReturnFormState,
   type ReusableProcessingFormState,
+} from "@/lib/cssd/forms/transactions";
+import {
+  processReusableAction,
+  saveReturnAction,
 } from "@/app/(protected)/cssd/pengembalian/actions";
 import { StockSummaryTable } from "@/components/cssd/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/cssd/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
+import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
+import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
 import {
   RETURN_DESTINATION_POSITIONS,
   STOCK_POSITION_LABELS,
@@ -58,208 +62,213 @@ export function ReturnTransactionView({
   const values = returnState.values ?? {};
   const reusableItems = items.filter((item) => item.item_type === "REUSABLE");
   const defaultDate = new Date().toISOString().slice(0, 10);
+  const readyToProcessCount = reusableProcessingSummary.reduce(
+    (total, row) => total + row.availableNonSterile + row.availableSterilizationArea,
+    0
+  );
 
   return (
-    <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Transaksi CSSD
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-            Kelola Pengembalian Reusable
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-            Pengembalian dari unit langsung mengarahkan item reusable ke posisi
-            Tidak Steril atau Rusak, lalu dapat dilanjutkan ke proses steril.
-          </p>
+    <TransactionPageShell
+      eyebrow="CSSD"
+      title="Pengembalian reusable"
+      description="Catat reusable yang kembali dari unit ke CSSD."
+      summary={
+        <TransactionSummaryStrip
+          items={[
+            {
+              label: "Reusable siap diproses",
+              value: readyToProcessCount,
+              helper: "Belum steril atau masih di area sterilisasi.",
+            },
+            {
+              label: "Riwayat terbaru",
+              value: recentTransactions.length,
+              helper: "Pengembalian yang baru tercatat.",
+            },
+            {
+              label: "Stok saat ini",
+              value: stockSummary.length,
+              helper: "Pantau posisi reusable per unit dan area.",
+              accent: "emphasis",
+            },
+          ]}
+        />
+      }
+      formTitle="Catat pengembalian"
+      formDescription="Pilih reusable, unit asal, tujuan pengembalian, lalu simpan."
+      form={
+        <form action={returnAction} className="grid gap-4">
+          <div className="grid gap-2">
+            <label
+              htmlFor="return-item"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Item Reusable
+            </label>
+            <select
+              id="return-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={returnPending}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            >
+              <option value="">Pilih item reusable</option>
+              {reusableItems.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.code} - {item.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <div className="mt-6">
-            <p className="mb-3 text-sm font-semibold text-slate-800">
-              Riwayat pengembalian terbaru
-            </p>
+          <input type="hidden" name="itemType" value="REUSABLE" />
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="return-source-unit"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Unit Asal
+            </label>
+            <select
+              id="return-source-unit"
+              name="sourceUnitId"
+              defaultValue={values.sourceUnitId ?? ""}
+              disabled={returnPending}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            >
+              <option value="">Pilih unit asal</option>
+              {hospitalUnits.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.name} ({unit.code})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-2">
+              <label
+                htmlFor="return-date"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Tanggal Transaksi
+              </label>
+              <input
+                id="return-date"
+                type="date"
+                name="transactionDate"
+                defaultValue={values.transactionDate ?? defaultDate}
+                disabled={returnPending}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="return-quantity"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Jumlah Kembali
+              </label>
+              <input
+                id="return-quantity"
+                type="number"
+                min="1"
+                name="quantity"
+                defaultValue={values.quantity ?? ""}
+                disabled={returnPending}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="return-destination"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Tujuan Pengembalian
+            </label>
+            <select
+              id="return-destination"
+              name="destinationPosition"
+              defaultValue={
+                values.destinationPosition ?? RETURN_DESTINATION_POSITIONS[0]
+              }
+              disabled={returnPending}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            >
+              {RETURN_DESTINATION_POSITIONS.map((position) => (
+                <option key={position} value={position}>
+                  {STOCK_POSITION_LABELS[position]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="return-notes"
+              className="text-sm font-semibold text-slate-700"
+            >
+              Catatan
+            </label>
+            <textarea
+              id="return-notes"
+              name="notes"
+              rows={4}
+              defaultValue={values.notes ?? ""}
+              disabled={returnPending}
+              className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            />
+          </div>
+
+          <TransactionFeedback
+            error={returnState.error}
+            message={returnState.message}
+            impact={returnState.impact}
+          />
+
+          <button
+            type="submit"
+            disabled={returnPending}
+            className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {returnPending ? "Menyimpan..." : "Simpan Pengembalian"}
+          </button>
+        </form>
+      }
+      supportingContent={
+        <>
+        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
+          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Tinjau pengembalian reusable yang baru masuk.
+          </p>
+          <div className="mt-5">
             <TransactionHistoryTable
-              caption="Riwayat pengembalian terbaru"
+              caption="Riwayat terbaru"
               rows={recentTransactions}
             />
           </div>
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Snapshot Stok
+          <p className="text-sm font-semibold text-slate-900">Stok saat ini</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Pantau reusable per posisi dan unit.
           </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Posisi reusable saat ini
-          </h3>
-
           <div className="mt-5">
-            <StockSummaryTable
-              caption="Posisi reusable saat ini"
-              rows={stockSummary}
-            />
+            <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
           </div>
         </section>
-      </div>
-
-      <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Pengembalian
+          <p className="text-sm font-semibold text-slate-900">
+            Lanjutkan reusable
           </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Catat item reusable kembali
-          </h3>
-
-          <form action={returnAction} className="mt-6 grid gap-4">
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-item"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Item Reusable
-              </label>
-              <select
-                id="return-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
-                disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item reusable</option>
-                {reusableItems.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <input type="hidden" name="itemType" value="REUSABLE" />
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-source-unit"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Unit Asal
-              </label>
-              <select
-                id="return-source-unit"
-                name="sourceUnitId"
-                defaultValue={values.sourceUnitId ?? ""}
-                disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih unit asal</option>
-                {hospitalUnits.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.name} ({unit.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="return-date"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Tanggal Transaksi
-                </label>
-                <input
-                  id="return-date"
-                  type="date"
-                  name="transactionDate"
-                  defaultValue={values.transactionDate ?? defaultDate}
-                  disabled={returnPending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label
-                  htmlFor="return-quantity"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Jumlah Kembali
-                </label>
-                <input
-                  id="return-quantity"
-                  type="number"
-                  min="1"
-                  name="quantity"
-                  defaultValue={values.quantity ?? ""}
-                  disabled={returnPending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-destination"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Tujuan Pengembalian
-              </label>
-              <select
-                id="return-destination"
-                name="destinationPosition"
-                defaultValue={values.destinationPosition ?? RETURN_DESTINATION_POSITIONS[0]}
-                disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                {RETURN_DESTINATION_POSITIONS.map((position) => (
-                  <option key={position} value={position}>
-                    {STOCK_POSITION_LABELS[position]}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-2">
-              <label htmlFor="return-notes" className="text-sm font-semibold text-slate-700">
-                Catatan
-              </label>
-              <textarea
-                id="return-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
-                disabled={returnPending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
-
-            <TransactionFeedback
-              error={returnState.error}
-              message={returnState.message}
-              impact={returnState.impact}
-            />
-
-            <button
-              type="submit"
-              disabled={returnPending}
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {returnPending ? "Menyimpan..." : "Simpan Pengembalian"}
-            </button>
-          </form>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Proses Lanjutan
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Lanjutkan reusable internal
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Gunakan bagian ini untuk memindahkan reusable dari Tidak Steril ke
-            Area Sterilisasi, meloloskannya menjadi Steril, atau menandainya
-            sebagai Rusak.
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Pindahkan reusable ke tahap berikutnya setelah diproses.
           </p>
 
           <div className="mt-5">
@@ -283,8 +292,8 @@ export function ReturnTransactionView({
                         {row.itemCode} - {row.itemName}
                       </p>
                       <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">
-                        Non Steril {row.availableNonSterile} • Area Sterilisasi{" "}
-                        {row.availableSterilizationArea} • Rusak {row.availableDamaged}
+                        Tidak Steril {row.availableNonSterile} | Area Sterilisasi{" "}
+                        {row.availableSterilizationArea} | Rusak {row.availableDamaged}
                       </p>
                     </div>
                   </div>
@@ -420,12 +429,13 @@ export function ReturnTransactionView({
               ))
             ) : (
               <div className="rounded-[1.35rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-                Belum ada reusable pada posisi Tidak Steril atau Area Sterilisasi.
+                Belum ada reusable di Tidak Steril atau Area Sterilisasi.
               </div>
             )}
           </div>
         </section>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

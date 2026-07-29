@@ -8,22 +8,8 @@ import {
   createSupabaseMasterDataClient,
   updateHospitalUnit,
 } from "@/lib/laundry/services/master-data";
+import type { HospitalUnitFormState } from "@/lib/laundry/forms/master-data";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-export type HospitalUnitFormState = {
-  error: string | null;
-  message: string | null;
-  values?: {
-    code?: string;
-    name?: string;
-    isActive?: "true" | "false";
-  };
-};
-
-export const initialHospitalUnitFormState: HospitalUnitFormState = {
-  error: null,
-  message: null,
-};
 
 export async function saveHospitalUnitAction(
   _previousState: HospitalUnitFormState,

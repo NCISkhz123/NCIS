@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import { requireLaundryAccess } from "@/lib/auth/guards";
+import type {
+  ReceiptFormState,
+  TransactionImpact,
+} from "@/lib/laundry/forms/transactions";
 import {
   createSupabaseRpcClient,
   type StockMutationResultData,
@@ -10,34 +14,6 @@ import {
 import { receiveStock } from "@/lib/laundry/services/receipts";
 import { STOCK_POSITION_LABELS } from "@/lib/laundry/constants";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-
-type ReceiptImpact = {
-  movementLabel: string;
-  quantity: number;
-  fromLabel?: string | null;
-  toLabel?: string | null;
-  resultingBalance: number;
-  resultingBalanceLabel: string;
-};
-
-export type ReceiptFormState = {
-  error: string | null;
-  message: string | null;
-  impact: ReceiptImpact | null;
-  values?: {
-    itemId?: string;
-    itemType?: string;
-    transactionDate?: string;
-    quantity?: string;
-    notes?: string;
-  };
-};
-
-export const initialReceiptFormState: ReceiptFormState = {
-  error: null,
-  message: null,
-  impact: null,
-};
 
 function getStockPositionLabel(position: string | null | undefined) {
   if (!position) {
@@ -47,7 +23,7 @@ function getStockPositionLabel(position: string | null | undefined) {
   return STOCK_POSITION_LABELS[position as keyof typeof STOCK_POSITION_LABELS];
 }
 
-function buildReceiptImpact(data: StockMutationResultData): ReceiptImpact {
+function buildReceiptImpact(data: StockMutationResultData): TransactionImpact {
   return {
     movementLabel: "Pemasukan tersimpan dan stok Laundry diperbarui.",
     quantity: data.quantity,

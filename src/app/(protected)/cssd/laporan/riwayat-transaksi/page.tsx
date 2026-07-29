@@ -1,5 +1,6 @@
 import { FilterField } from "@/components/cssd/reports/filter-field";
 import { SectionHeader } from "@/components/cssd/reports/section-header";
+import { ReportActionLink } from "@/components/reports/report-action";
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
 import {
   createSupabaseReportClient,
@@ -24,6 +25,35 @@ type RiwayatTransaksiPageProps = {
 
 function normalizeQueryValue(value: QueryValue) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function formatDateLabel(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+function buildPeriodLabel(from?: string, to?: string) {
+  const fromLabel = formatDateLabel(from);
+  const toLabel = formatDateLabel(to);
+
+  if (!fromLabel && !toLabel) {
+    return "Semua tanggal";
+  }
+
+  return `${fromLabel ?? "Awal"} - ${toLabel ?? "Sekarang"}`;
 }
 
 function buildExportHref(input: {
@@ -86,93 +116,140 @@ export default async function RiwayatTransaksiPage({
     historyFrom,
     historyTo,
   });
+  const activeFilterCount = [
+    historyItem,
+    historyUnit,
+    historyFrom,
+    historyTo,
+  ].filter(Boolean).length;
+  const periodLabel = buildPeriodLabel(historyFrom, historyTo);
 
   return (
     <section className="shell-surface rounded-[1.9rem] p-6 md:p-8">
       <SectionHeader
         eyebrow="Riwayat Transaksi"
-        title="Telusuri transaksi dengan filter tanggal"
-        description="Filter rentang tanggal, item, dan unit untuk meninjau pola distribusi, pengembalian, pemakaian, atau perpindahan reusable."
+        title="Riwayat transaksi"
+        description="Cari transaksi lalu ekspor bila diperlukan."
       />
 
-      <form className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_0.9fr_0.9fr_auto]">
-        <FilterField label="Item" htmlFor="history-item">
-          <select
-            id="history-item"
-            name="historyItem"
-            defaultValue={historyItem ?? ""}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-          >
-            <option value="">Semua item</option>
-            {items.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.code} - {item.name}
-              </option>
-            ))}
-          </select>
-        </FilterField>
-
-        <FilterField label="Unit" htmlFor="history-unit">
-          <select
-            id="history-unit"
-            name="historyUnit"
-            defaultValue={historyUnit ?? ""}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-          >
-            <option value="">Semua unit</option>
-            {hospitalUnits.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name} ({unit.code})
-              </option>
-            ))}
-          </select>
-        </FilterField>
-
-        <FilterField label="Dari Tanggal" htmlFor="history-from">
-          <input
-            id="history-from"
-            type="date"
-            name="historyFrom"
-            defaultValue={historyFrom ?? ""}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-          />
-        </FilterField>
-
-        <FilterField label="Sampai Tanggal" htmlFor="history-to">
-          <input
-            id="history-to"
-            type="date"
-            name="historyTo"
-            defaultValue={historyTo ?? ""}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-          />
-        </FilterField>
-
-        <div className="flex items-end gap-3">
-          <button
-            type="submit"
-            className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
-            Terapkan
-          </button>
-          <a
-            href={exportHref}
-            className="rounded-full border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:text-emerald-900"
-          >
-            Export CSV
-          </a>
-          <a
-            href="/cssd/laporan/riwayat-transaksi"
-            className="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
-          >
-            Reset
-          </a>
+      <div className="mt-6 grid gap-3 md:grid-cols-3">
+        <div className="rounded-[1.4rem] border border-slate-200 bg-white/80 p-4">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Data tampil
+          </p>
+          <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-slate-950">
+            {transactionHistory.length}
+          </p>
         </div>
-      </form>
+        <div className="rounded-[1.4rem] border border-slate-200 bg-white/80 p-4">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Periode
+          </p>
+          <p className="mt-2 text-sm font-semibold text-slate-950">
+            {periodLabel}
+          </p>
+        </div>
+        <div className="rounded-[1.4rem] border border-slate-200 bg-white/80 p-4">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Filter aktif
+          </p>
+          <p className="mt-2 font-mono text-2xl font-semibold tabular-nums text-slate-950">
+            {activeFilterCount}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-[1.6rem] border border-slate-200 bg-slate-50/80 p-5">
+        <div className="flex flex-col gap-2">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Filter
+          </p>
+          <p className="text-sm leading-6 text-slate-600">
+            Atur filter lalu tampilkan hasil.
+          </p>
+        </div>
+
+        <form className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_0.9fr_0.9fr_auto]">
+          <FilterField label="Item" htmlFor="history-item">
+            <select
+              id="history-item"
+              name="historyItem"
+              defaultValue={historyItem ?? ""}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            >
+              <option value="">Semua item</option>
+              {items.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.code} - {item.name}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+
+          <FilterField label="Unit" htmlFor="history-unit">
+            <select
+              id="history-unit"
+              name="historyUnit"
+              defaultValue={historyUnit ?? ""}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            >
+              <option value="">Semua unit</option>
+              {hospitalUnits.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.name} ({unit.code})
+                </option>
+              ))}
+            </select>
+          </FilterField>
+
+          <FilterField label="Dari tanggal" htmlFor="history-from">
+            <input
+              id="history-from"
+              type="date"
+              name="historyFrom"
+              defaultValue={historyFrom ?? ""}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            />
+          </FilterField>
+
+          <FilterField label="Sampai tanggal" htmlFor="history-to">
+            <input
+              id="history-to"
+              type="date"
+              name="historyTo"
+              defaultValue={historyTo ?? ""}
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+            />
+          </FilterField>
+
+          <div className="flex flex-wrap items-end gap-3">
+            <button
+              type="submit"
+              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              Terapkan
+            </button>
+            <ReportActionLink href={exportHref} variant="export">
+              Ekspor CSV
+            </ReportActionLink>
+            <ReportActionLink href="/cssd/laporan/riwayat-transaksi">
+              Reset
+            </ReportActionLink>
+          </div>
+        </form>
+      </div>
 
       <div className="mt-6">
+        <div className="mb-4">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Hasil
+          </p>
+          <h3 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-slate-950">
+            Riwayat
+          </h3>
+        </div>
         <TransactionHistoryTable
-          caption="Riwayat transaksi CSSD"
+          caption="Riwayat transaksi"
           rows={transactionHistory.map((row) => ({
             id: row.movementId,
             referenceNo: null,

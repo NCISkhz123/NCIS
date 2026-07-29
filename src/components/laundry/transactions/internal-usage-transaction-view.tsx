@@ -2,14 +2,15 @@
 
 import { useActionState } from "react";
 
-import {
-  initialInternalUsageFormState,
-  saveInternalUsageAction,
-  type InternalUsageFormState,
-} from "@/app/(protected)/laundry/pemakaian-internal/actions";
+import { saveInternalUsageAction } from "@/app/(protected)/laundry/pemakaian-internal/actions";
+import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
 import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
+import {
+  initialInternalUsageFormState,
+  type InternalUsageFormState,
+} from "@/lib/laundry/forms/transactions";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -42,24 +43,19 @@ export function InternalUsageTransactionView({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-          Transaksi Laundry
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-          Kelola Pemakaian Internal Laundry
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-          Catat pemakaian konsumabel internal seperti chemical sterilizer agar
-          sisa stok Laundry tetap akurat.
-        </p>
-
-        <div className="mt-6">
+      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
+        <div className="space-y-6">
+          <ShellSectionHeading
+            eyebrow="Laundry"
+            title="Pemakaian internal"
+            description="Catat konsumabel yang dipakai di Laundry."
+            size="hero"
+          />
           <p className="mb-3 text-sm font-semibold text-slate-800">
-            Riwayat pemakaian internal terbaru
+            Riwayat pemakaian
           </p>
           <TransactionHistoryTable
-            caption="Riwayat pemakaian internal terbaru"
+            caption="Riwayat pemakaian"
             rows={recentTransactions}
           />
         </div>
@@ -67,12 +63,11 @@ export function InternalUsageTransactionView({
 
       <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Pemakaian
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Catat konsumabel terpakai
-          </h3>
+          <ShellSectionHeading
+            eyebrow="Input"
+            title="Catat pemakaian"
+            description="Pilih item lalu isi jumlah yang dipakai."
+          />
 
           <form action={formAction} className="mt-6 grid gap-4">
             <div className="grid gap-2">
@@ -171,16 +166,15 @@ export function InternalUsageTransactionView({
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Stok Internal
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Stok konsumabel internal
-          </h3>
+          <ShellSectionHeading
+            eyebrow="Posisi stok"
+            title="Sisa konsumabel"
+            description="Pantau stok konsumabel internal yang masih tersedia."
+          />
 
           <div className="mt-5">
             <StockSummaryTable
-              caption="Stok konsumabel internal"
+              caption="Sisa konsumabel"
               rows={stockSummary}
             />
           </div>

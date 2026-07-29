@@ -8,11 +8,11 @@ type DataTableProps = {
 
 export function DataTable({ caption, columns, rows }: DataTableProps) {
   return (
-    <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[1.6rem] border border-slate-200/90 bg-white shadow-sm">
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse">
           {caption ? (
-            <caption className="border-b border-slate-200 px-5 py-4 text-left text-sm text-slate-500">
+            <caption className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 text-left text-sm font-medium text-slate-500">
               {caption}
             </caption>
           ) : null}
@@ -22,7 +22,7 @@ export function DataTable({ caption, columns, rows }: DataTableProps) {
                 <th
                   key={column}
                   scope="col"
-                  className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.24em] text-slate-500"
+                  className="px-5 py-3.5 text-left text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-slate-500"
                 >
                   {column}
                 </th>
@@ -38,7 +38,7 @@ export function DataTable({ caption, columns, rows }: DataTableProps) {
                 {row.map((cell, cellIndex) => (
                   <td
                     key={`cell-${rowIndex}-${cellIndex}`}
-                    className="px-5 py-4 text-sm text-slate-700"
+                    className="px-5 py-4.5 text-sm leading-6 text-slate-700"
                   >
                     {cell}
                   </td>

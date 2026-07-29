@@ -27,7 +27,6 @@ export async function GET(request: Request) {
     unitId,
     dateFrom,
     dateTo,
-    limit: 100,
   });
 
   const table = buildStockCardCsvTable(rows);

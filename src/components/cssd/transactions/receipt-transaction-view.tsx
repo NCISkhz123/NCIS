@@ -4,12 +4,14 @@ import { useActionState } from "react";
 
 import {
   initialReceiptFormState,
-  saveReceiptAction,
   type ReceiptFormState,
-} from "@/app/(protected)/cssd/pemasukan/actions";
+} from "@/lib/cssd/forms/transactions";
+import { saveReceiptAction } from "@/app/(protected)/cssd/pemasukan/actions";
 import { StockSummaryTable } from "@/components/cssd/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/cssd/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
+import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
+import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -36,43 +38,46 @@ export function ReceiptTransactionView({
 
   const values = formState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
+  const activeItemLabel = items.length
+    ? `${items[0]?.code} - ${items[0]?.name}`
+    : "Belum ada item";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-          Transaksi CSSD
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-          Kelola Pemasukan Stok CSSD
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-          Catat barang masuk agar stok siap pakai langsung bertambah dan tercatat
-          pada riwayat pergerakan stok.
-        </p>
-
-        <div className="mt-6">
-          <p className="mb-3 text-sm font-semibold text-slate-800">
-            Riwayat pemasukan terbaru
-          </p>
-          <TransactionHistoryTable
-            caption="Riwayat pemasukan terbaru"
-            rows={recentTransactions}
-          />
-        </div>
-      </section>
-
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Pemasukan
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Tambah stok masuk
-          </h3>
-          <form action={formAction} className="mt-6 grid gap-4">
+    <TransactionPageShell
+      eyebrow="CSSD"
+      title="Pemasukan"
+      description="Catat barang masuk ke stok CSSD."
+      summary={
+        <TransactionSummaryStrip
+          items={[
+            {
+              label: "Item aktif",
+              value: items.length,
+              helper: activeItemLabel,
+            },
+            {
+              label: "Riwayat terbaru",
+              value: recentTransactions.length,
+              helper: "Transaksi masuk yang sudah tercatat.",
+            },
+            {
+              label: "Stok saat ini",
+              value: stockSummary.length,
+              helper: "Posisi stok yang bisa dicek sebelum simpan.",
+              accent: "emphasis",
+            },
+          ]}
+        />
+      }
+      formTitle="Catat pemasukan"
+      formDescription="Isi item, jenis, tanggal, dan jumlah masuk."
+      form={
+        <form action={formAction} className="grid gap-4">
             <div className="grid gap-2">
-              <label htmlFor="receipt-item" className="text-sm font-semibold text-slate-700">
+              <label
+                htmlFor="receipt-item"
+                className="text-sm font-semibold text-slate-700"
+              >
                 Item CSSD
               </label>
               <select
@@ -151,7 +156,10 @@ export function ReceiptTransactionView({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="receipt-notes" className="text-sm font-semibold text-slate-700">
+              <label
+                htmlFor="receipt-notes"
+                className="text-sm font-semibold text-slate-700"
+              >
                 Catatan
               </label>
               <textarea
@@ -178,25 +186,33 @@ export function ReceiptTransactionView({
               {pending ? "Menyimpan..." : "Simpan Pemasukan"}
             </button>
           </form>
+      }
+      supportingContent={
+        <>
+        <section className="shell-surface rounded-[1.75rem] p-6">
+          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Tinjau transaksi masuk yang paling baru.
+          </p>
+          <div className="mt-5">
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
+            />
+          </div>
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Detail Stok
+          <p className="text-sm font-semibold text-slate-900">Stok saat ini</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Gunakan sebagai acuan sebelum menambah stok.
           </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Posisi stok saat ini
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Snapshot cepat untuk melihat item mana yang paling banyak tersedia
-            di CSSD.
-          </p>
-
           <div className="mt-5">
-            <StockSummaryTable caption="Posisi stok saat ini" rows={stockSummary} />
+            <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
           </div>
         </section>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

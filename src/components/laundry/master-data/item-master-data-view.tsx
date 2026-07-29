@@ -3,22 +3,23 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { saveItemAction } from "@/app/(protected)/laundry/master-data/items/actions";
 import { DataTable } from "@/components/data/data-table";
 import { MasterDataFeedback } from "@/components/laundry/master-data/master-data-feedback";
 import { StatusPill } from "@/components/laundry/master-data/status-pill";
+import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
 import {
   ITEM_TYPE_LABELS,
   ITEM_TYPES,
 } from "@/lib/laundry/constants";
+import {
+  initialItemFormState,
+  type ItemFormState,
+} from "@/lib/laundry/forms/master-data";
 import type {
   ItemRow,
   UnitOfMeasureRow,
 } from "@/lib/laundry/services/master-data";
-import {
-  initialItemFormState,
-  saveItemAction,
-  type ItemFormState,
-} from "@/app/(protected)/laundry/master-data/items/actions";
 
 type ItemMasterDataViewProps = {
   initialState?: ItemFormState;
@@ -44,63 +45,61 @@ export function ItemMasterDataView({
   return (
     <div className="grid gap-6">
       <section className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
-        <div className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Master Data
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-            Kelola Item Laundry
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-            Halaman ini dipakai untuk mengelola item reusable dan konsumabel
-            yang menjadi dasar seluruh transaksi Laundry.
-          </p>
-
-          <div className="mt-6">
-            <DataTable
-              caption="Daftar item Laundry"
-              columns={["Kode", "Nama", "Jenis", "Satuan", "Status", "Aksi"]}
-              rows={items.map((item) => [
-                item.code,
-                item.name,
-                ITEM_TYPE_LABELS[item.item_type],
-                uomLabelMap.get(item.uom_id) ?? item.uom_id,
-                <StatusPill key={`${item.id}-status`} active={item.is_active} />,
-                <Link
-                  key={`${item.id}-edit`}
-                  href={`/laundry/master-data/items?edit=${item.id}`}
-                  className="text-sm font-semibold text-sky-700 underline-offset-4 hover:underline"
-                >
-                  Edit
-                </Link>,
-              ])}
+        <div className="shell-surface rounded-[1.75rem] p-6 md:p-7">
+          <div className="space-y-6">
+            <ShellSectionHeading
+              eyebrow="Master data"
+              title="Data item"
+              description="Item yang dipakai di transaksi Laundry."
+              size="hero"
             />
+            <div>
+              <p className="mb-3 text-sm font-semibold text-slate-800">
+                Daftar item
+              </p>
+              <DataTable
+                caption="Daftar item"
+                columns={["Kode", "Nama", "Jenis", "Satuan", "Status", "Aksi"]}
+                rows={items.map((item) => [
+                  item.code,
+                  item.name,
+                  ITEM_TYPE_LABELS[item.item_type],
+                  uomLabelMap.get(item.uom_id) ?? item.uom_id,
+                  <StatusPill key={`${item.id}-status`} active={item.is_active} />,
+                  <Link
+                    key={`${item.id}-edit`}
+                    href={`/laundry/master-data/items?edit=${item.id}`}
+                    className="text-sm font-semibold text-sky-700 underline-offset-4 hover:underline"
+                  >
+                    Edit
+                  </Link>,
+                ])}
+              />
+            </div>
           </div>
         </div>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Item
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            {editingRecord ? "Perbarui item" : "Tambah item baru"}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Kode item boleh diisi manual atau dikosongkan agar dibuat otomatis
-            oleh sistem berdasarkan jenis item.
-          </p>
+          <ShellSectionHeading
+            eyebrow="Input"
+            title={editingRecord ? "Ubah item" : "Tambah item"}
+            description="Isi data item lalu simpan."
+          />
 
           <form action={formAction} className="mt-6 grid gap-4">
             <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
 
             <div className="grid gap-2">
-              <label htmlFor="item-code" className="text-sm font-semibold text-slate-700">
-                Kode Item
+              <label
+                htmlFor="item-code"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Kode item
               </label>
               <input
                 id="item-code"
                 name="code"
-                placeholder="Kosongkan untuk kode otomatis"
+                placeholder="Opsional"
                 defaultValue={values.code ?? editingRecord?.code ?? ""}
                 disabled={pending}
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
@@ -108,8 +107,11 @@ export function ItemMasterDataView({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="item-name" className="text-sm font-semibold text-slate-700">
-                Nama Item
+              <label
+                htmlFor="item-name"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Nama item
               </label>
               <input
                 id="item-name"
@@ -121,13 +123,18 @@ export function ItemMasterDataView({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="item-type" className="text-sm font-semibold text-slate-700">
-                Jenis Item
+              <label
+                htmlFor="item-type"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Jenis item
               </label>
               <select
                 id="item-type"
                 name="itemType"
-                defaultValue={values.itemType ?? editingRecord?.item_type ?? ITEM_TYPES[0]}
+                defaultValue={
+                  values.itemType ?? editingRecord?.item_type ?? ITEM_TYPES[0]
+                }
                 disabled={pending}
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               >
@@ -140,7 +147,10 @@ export function ItemMasterDataView({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="item-uom" className="text-sm font-semibold text-slate-700">
+              <label
+                htmlFor="item-uom"
+                className="text-sm font-semibold text-slate-700"
+              >
                 Satuan
               </label>
               <select
@@ -160,7 +170,10 @@ export function ItemMasterDataView({
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="item-notes" className="text-sm font-semibold text-slate-700">
+              <label
+                htmlFor="item-notes"
+                className="text-sm font-semibold text-slate-700"
+              >
                 Catatan
               </label>
               <textarea
@@ -186,7 +199,7 @@ export function ItemMasterDataView({
                 }
                 disabled={pending}
               />
-              Status aktif
+              Aktif
             </label>
 
             <MasterDataFeedback
@@ -200,14 +213,14 @@ export function ItemMasterDataView({
                 disabled={pending}
                 className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {pending ? "Menyimpan..." : "Simpan Item"}
+                {pending ? "Menyimpan..." : "Simpan item"}
               </button>
               {editingRecord ? (
                 <Link
                   href="/laundry/master-data/items"
                   className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
                 >
-                  Batal Edit
+                  Batal
                 </Link>
               ) : null}
             </div>
@@ -217,4 +230,3 @@ export function ItemMasterDataView({
     </div>
   );
 }
-

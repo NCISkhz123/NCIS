@@ -4,12 +4,14 @@ import { useActionState } from "react";
 
 import {
   initialInternalUsageFormState,
-  saveInternalUsageAction,
   type InternalUsageFormState,
-} from "@/app/(protected)/cssd/pemakaian-internal/actions";
+} from "@/lib/cssd/forms/transactions";
+import { saveInternalUsageAction } from "@/app/(protected)/cssd/pemakaian-internal/actions";
 import { StockSummaryTable } from "@/components/cssd/transactions/stock-summary-table";
 import { TransactionFeedback } from "@/components/cssd/transactions/transaction-feedback";
 import { TransactionHistoryTable } from "@/components/cssd/transactions/transaction-history-table";
+import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
+import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -39,42 +41,41 @@ export function InternalUsageTransactionView({
   const internalItems = items.filter(
     (item) => item.item_type === "CONSUMABLE_INTERNAL"
   );
+  const firstInternalItem = internalItems[0]
+    ? `${internalItems[0].code} - ${internalItems[0].name}`
+    : "Belum ada item internal";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-          Transaksi CSSD
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
-          Kelola Pemakaian Internal CSSD
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-          Catat pemakaian konsumabel internal seperti chemical sterilizer agar
-          sisa stok CSSD tetap akurat.
-        </p>
-
-        <div className="mt-6">
-          <p className="mb-3 text-sm font-semibold text-slate-800">
-            Riwayat pemakaian internal terbaru
-          </p>
-          <TransactionHistoryTable
-            caption="Riwayat pemakaian internal terbaru"
-            rows={recentTransactions}
-          />
-        </div>
-      </section>
-
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Form Pemakaian
-          </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Catat konsumabel terpakai
-          </h3>
-
-          <form action={formAction} className="mt-6 grid gap-4">
+    <TransactionPageShell
+      eyebrow="CSSD"
+      title="Pemakaian internal"
+      description="Catat konsumabel yang dipakai di CSSD."
+      summary={
+        <TransactionSummaryStrip
+          items={[
+            {
+              label: "Item internal aktif",
+              value: internalItems.length,
+              helper: firstInternalItem,
+            },
+            {
+              label: "Riwayat terbaru",
+              value: recentTransactions.length,
+              helper: "Pemakaian internal yang sudah tercatat.",
+            },
+            {
+              label: "Sisa stok",
+              value: stockSummary.length,
+              helper: "Cek stok sebelum dipakai.",
+              accent: "emphasis",
+            },
+          ]}
+        />
+      }
+      formTitle="Catat pemakaian"
+      formDescription="Pilih item, isi tanggal, jumlah pakai, lalu simpan."
+      form={
+        <form action={formAction} className="grid gap-4">
             <div className="grid gap-2">
               <label
                 htmlFor="internal-item"
@@ -168,24 +169,33 @@ export function InternalUsageTransactionView({
               {pending ? "Menyimpan..." : "Simpan Pemakaian Internal"}
             </button>
           </form>
-        </section>
-
+      }
+      supportingContent={
+        <>
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
-            Stok Internal
+          <p className="text-sm font-semibold text-slate-900">Riwayat terbaru</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Tinjau pemakaian internal yang baru tercatat.
           </p>
-          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-slate-950">
-            Stok konsumabel internal
-          </h3>
-
           <div className="mt-5">
-            <StockSummaryTable
-              caption="Stok konsumabel internal"
-              rows={stockSummary}
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
             />
           </div>
         </section>
-      </div>
-    </div>
+
+        <section className="shell-surface rounded-[1.75rem] p-6">
+          <p className="text-sm font-semibold text-slate-900">Sisa stok</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            Pantau stok konsumabel internal yang masih tersedia.
+          </p>
+          <div className="mt-5">
+            <StockSummaryTable caption="Sisa stok" rows={stockSummary} />
+          </div>
+        </section>
+        </>
+      }
+    />
   );
 }

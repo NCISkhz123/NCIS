@@ -40,13 +40,20 @@ pnpm install
 copy .env.example .env.local
 ```
 
-3. Jalankan Supabase lokal:
+3. Untuk setup lokal lengkap sampai app langsung jalan, cukup pakai:
 
 ```bash
-pnpm supabase:start
+pnpm local:dev
 ```
 
-4. Ambil nilai berikut dari output `pnpm supabase:status`, lalu isi di `.env.local`:
+Command itu akan menjalankan:
+
+- `pnpm supabase:start`
+- `pnpm supabase:reset`
+- `pnpm auth:bootstrap-demo`
+- `pnpm dev`
+
+4. Jika ingin menjalankan langkahnya manual, ambil nilai berikut dari output `pnpm supabase:status`, lalu isi di `.env.local`:
 
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -62,19 +69,19 @@ pnpm supabase:start
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 ```
 
-7. Reset database lokal agar migration dan seed terbaru terpasang:
+7. Jika tidak memakai `pnpm local:dev`, reset database lokal agar migration dan seed terbaru terpasang:
 
 ```bash
 pnpm supabase:reset
 ```
 
-8. Jalankan aplikasi:
+8. Jika tidak memakai `pnpm local:dev`, jalankan aplikasi:
 
 ```bash
 pnpm dev
 ```
 
-9. Bootstrap akun demo lokal:
+9. Jika tidak memakai `pnpm local:dev`, bootstrap akun demo lokal:
 
 ```bash
 pnpm auth:bootstrap-demo
@@ -105,6 +112,12 @@ Catatan:
 Perintah yang paling sering dipakai:
 
 ```bash
+pnpm local:dev
+pnpm local:fix
+pnpm local:start
+pnpm local:app
+pnpm local:quick
+pnpm local:clean
 pnpm supabase:start
 pnpm supabase:status
 pnpm supabase:reset
@@ -114,7 +127,13 @@ pnpm auth:bootstrap-demo
 
 Keterangan:
 
-- `pnpm supabase:start`: menyalakan stack Supabase lokal
+- `pnpm local:dev`: setup lokal lengkap lalu langsung menjalankan Next.js dev server
+- `pnpm local:fix`: bersihkan stack Supabase lokal milik repo ini lalu jalankan ulang setup lengkap + dev server
+- `pnpm local:start`: jalur ringan harian untuk memastikan Supabase lokal aktif dan akun demo siap tanpa reset/stop stack lebih dulu
+- `pnpm local:app`: hanya menjalankan Next.js dev server
+- `pnpm local:quick`: jalur cepat harian, yaitu `local:start` lalu `local:app`
+- `pnpm local:clean`: hentikan stack Supabase lokal milik repo ini dan hapus data volume lokalnya
+- `pnpm supabase:start`: menyalakan stack Supabase lokal minimum yang dibutuhkan NCIS saat ini
 - `pnpm supabase:status`: melihat URL, key, dan service status lokal
 - `pnpm supabase:reset`: reset database lalu apply migration + `supabase/seed.sql`
 - `pnpm supabase:stop`: mematikan stack Supabase lokal
@@ -140,15 +159,19 @@ Role CSSD aplikasi sekarang dibaca dari `public.profiles`, bukan dijadikan sumbe
 
 Alur yang direkomendasikan untuk development:
 
-1. `pnpm supabase:start`
-2. isi `.env.local`
-3. `pnpm supabase:reset`
-4. `pnpm auth:bootstrap-demo`
-5. login memakai:
+1. isi `.env.local`
+2. jalankan `pnpm local:dev` untuk setup pertama, atau `pnpm local:quick` untuk startup harian yang lebih ringan
+3. login memakai:
    - `admin.cssd@ncis.local`
    - `petugas.cssd@ncis.local`
 
-Jika bootstrap gagal dengan error env, berarti `.env.local` belum lengkap. Jika `supabase:start` tidak sehat di Windows Docker, jalankan `pnpm supabase:stop -- --no-backup` lalu start ulang.
+Jika bootstrap gagal dengan error env, berarti `.env.local` belum lengkap. Jika stack lokal repo ini bermasalah di Windows Docker, jalankan `pnpm local:fix`.
+
+Catatan:
+
+- `pnpm local:fix` dan `pnpm local:clean` hanya menarget stack dengan `project_id = ncis-cssd-mvp`
+- jika port default Supabase dipakai project lain, command ini tidak akan mematikan project lain tersebut
+- `pnpm supabase:start` sengaja mengecualikan service opsional seperti Studio, Storage API, dan pgMeta agar startup lokal lebih stabil di Windows
 
 ## Perintah Test dan Quality Gate
 
@@ -172,8 +195,14 @@ Perintah test terpisah:
 ```bash
 pnpm test
 pnpm test:unit
+pnpm test:unit:compat
 pnpm test:integration
 ```
+
+Catatan performa lokal:
+
+- `pnpm test:unit` memakai pool `threads` dengan `1 worker` agar tetap lebih cepat dari mode `forks`, tetapi stabil di filesystem lokal Windows yang lambat.
+- Jika ada library atau test tertentu yang butuh mode paling konservatif, pakai `pnpm test:unit:compat`.
 
 ## Alur Verifikasi Manual CSSD
 

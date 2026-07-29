@@ -12,7 +12,7 @@ describe("LoginForm", () => {
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /masuk ke cssd/i })
+      screen.getByRole("button", { name: /^masuk$/i })
     ).toBeInTheDocument();
   });
 });
