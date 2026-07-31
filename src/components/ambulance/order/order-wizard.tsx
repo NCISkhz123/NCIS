@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { createAmbulanceOrder } from "@/app/(protected)/ambulance/order/actions";
+import { toast } from "sonner";
 
 const MapComponent = dynamic(() => import('@/components/ambulance/AmbulanceMap'), { ssr: false });
 
@@ -31,19 +32,18 @@ export function OrderWizard({ ambulances, hospitalCoords }: { ambulances: Ambula
     if (!selectedCar || !distanceKm || !destination) return;
     
     startTransition(async () => {
-      const totalCost = distanceKm * selectedCar.base_price_per_km;
+      const roundedDistance = Number(distanceKm.toFixed(2));
       const res = await createAmbulanceOrder({
         ambulance_id: selectedCar.id,
         destination_lat: destination[0],
         destination_lng: destination[1],
-        distance_km: distanceKm,
-        total_cost: totalCost,
+        distance_km: roundedDistance,
       });
 
       if (res.error) {
-        alert("Gagal membuat pesanan: " + res.error);
+        toast.error("Gagal membuat pesanan: " + res.error);
       } else {
-        alert("Pesanan berhasil dibuat!");
+        toast.success("Pesanan berhasil dibuat!");
         router.push("/ambulance/history"); // We don't have history page, but the task says to redirect there or show success state.
       }
     });
@@ -147,7 +147,7 @@ export function OrderWizard({ ambulances, hospitalCoords }: { ambulances: Ambula
             <div className="pt-4 border-t flex justify-between items-center">
               <span className="font-semibold text-foreground">Total Estimasi Biaya:</span>
               <span className="text-xl font-bold text-primary">
-                Rp {new Intl.NumberFormat('id-ID').format(distanceKm * selectedCar.base_price_per_km)}
+                Rp {new Intl.NumberFormat('id-ID').format(Number(distanceKm.toFixed(2)) * selectedCar.base_price_per_km)}
               </span>
             </div>
           </CardContent>
