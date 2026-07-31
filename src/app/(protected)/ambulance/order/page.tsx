@@ -18,7 +18,7 @@ export default async function AmbulanceOrderPage() {
 
   if (error) {
     console.error("Error fetching ambulances:", error);
-    // Silently handle for now, could show error boundary
+    throw new Error("Gagal mengambil data ambulans.");
   }
 
   return (

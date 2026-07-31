@@ -5,6 +5,7 @@ import { Database } from "@/types/supabase";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type Ambulance = Database["public"]["Tables"]["ambulances"]["Row"];
 
@@ -29,7 +30,7 @@ export function OrderWizard({ ambulances }: { ambulances: Ambulance[] }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ambulances.map((ambulance) => (
-              <Card key={ambulance.id} className={`flex flex-col ${selectedCar?.id === ambulance.id ? 'border-primary ring-2 ring-primary/20' : ''}`}>
+              <Card key={ambulance.id} className={cn("flex flex-col cursor-pointer transition-all", selectedCar?.id === ambulance.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/50")}>
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start gap-4">
                     <span>{ambulance.name}</span>
