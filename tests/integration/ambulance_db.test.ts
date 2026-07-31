@@ -60,9 +60,10 @@ describe("Ambulance Database Schema & RLS", () => {
     }).toThrow();
   });
 
-  it("blocks unauthenticated (anon) access on ambulances", () => {
+  it("blocks unauthenticated (anon) insert on ambulances", () => {
     const error = expectAnonFailure(`
-      select * from public.ambulances;
+      insert into public.ambulances (name, plate_number, base_price_per_km)
+      values ('Anon Ambulance', 'B 0000 ANON', 10000);
     `);
     expect(error).toBeDefined();
   });
