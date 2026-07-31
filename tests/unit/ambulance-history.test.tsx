@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
@@ -38,6 +41,6 @@ describe('AmbulanceHistoryView', () => {
 
     // distance and cost formatting based on locale 'id-ID'
     expect(screen.getByText(/15,5 km/)).toBeInTheDocument();
-    expect(screen.getByText(/Rp 150\.000/)).toBeInTheDocument();
+    expect(screen.getByText(/Rp.*150\.000/)).toBeInTheDocument();
   });
 });

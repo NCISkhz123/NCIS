@@ -1,5 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { AmbulanceHistoryView } from "@/components/ambulance/history/ambulance-history-view";
+import { AmbulanceHistoryView, type AmbulanceTransactionHistory } from "@/components/ambulance/history/ambulance-history-view";
 
 export default async function AmbulanceHistoryPage() {
   const supabase = await createServerSupabaseClient();
@@ -21,7 +21,7 @@ export default async function AmbulanceHistoryPage() {
 
   return (
     <div className="mx-auto max-w-7xl p-4 md:p-8">
-      <AmbulanceHistoryView transactions={transactions as any} />
+      <AmbulanceHistoryView transactions={transactions as unknown as AmbulanceTransactionHistory[]} />
     </div>
   );
 }

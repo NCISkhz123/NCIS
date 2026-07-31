@@ -57,7 +57,7 @@ export function AmbulanceHistoryView({ transactions }: AmbulanceHistoryViewProps
             ) : (
               transactions.map((tx) => (
                 <TableRow key={tx.id}>
-                  <TableCell>
+                  <TableCell suppressHydrationWarning>
                     {new Date(tx.created_at).toLocaleString('id-ID', {
                       dateStyle: 'medium',
                       timeStyle: 'short',
@@ -79,7 +79,7 @@ export function AmbulanceHistoryView({ transactions }: AmbulanceHistoryViewProps
                   </TableCell>
                   <TableCell>{tx.distance_km.toLocaleString('id-ID')} km</TableCell>
                   <TableCell className="text-right font-medium">
-                    Rp {tx.total_cost.toLocaleString('id-ID')}
+                    {tx.total_cost.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </TableCell>
                 </TableRow>
               ))
