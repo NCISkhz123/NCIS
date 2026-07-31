@@ -26,6 +26,15 @@ CREATE TABLE IF NOT EXISTS public.ambulance_transactions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Table level grants for Supabase roles
+GRANT ALL ON public.ambulances TO authenticated, service_role;
+GRANT ALL ON public.ambulance_settings TO authenticated, service_role;
+GRANT ALL ON public.ambulance_transactions TO authenticated, service_role;
+
+GRANT SELECT ON public.ambulances TO anon;
+GRANT SELECT ON public.ambulance_settings TO anon;
+GRANT SELECT ON public.ambulance_transactions TO anon;
+
 -- Basic RLS (Enable and add policies as per project standards)
 ALTER TABLE public.ambulances ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ambulance_settings ENABLE ROW LEVEL SECURITY;
