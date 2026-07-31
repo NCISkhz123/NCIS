@@ -1,8 +1,14 @@
 /** @vitest-environment jsdom */
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { OrderWizard } from "@/components/ambulance/order/order-wizard";
 import { Database } from "@/types/supabase";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
 
 type Ambulance = Database["public"]["Tables"]["ambulances"]["Row"];
 
@@ -29,14 +35,16 @@ const mockAmbulances: Ambulance[] = [
   }
 ];
 
+const mockHospitalCoords: [number, number] = [-6.2, 106.8];
+
 describe("OrderWizard", () => {
   it("renders empty state when no ambulances available", () => {
-    render(<OrderWizard ambulances={[]} />);
+    render(<OrderWizard ambulances={[]} hospitalCoords={mockHospitalCoords} />);
     expect(screen.getByText("Tidak ada ambulans yang tersedia saat ini.")).toBeInTheDocument();
   });
 
   it("renders list of ambulances when available", () => {
-    render(<OrderWizard ambulances={mockAmbulances} />);
+    render(<OrderWizard ambulances={mockAmbulances} hospitalCoords={mockHospitalCoords} />);
     expect(screen.getByText("Ambulans Alpha")).toBeInTheDocument();
     expect(screen.getByText("B 1234 CD")).toBeInTheDocument();
     expect(screen.getByText("Ambulans Beta")).toBeInTheDocument();
@@ -44,7 +52,7 @@ describe("OrderWizard", () => {
   });
 
   it("changes to step 2 after selecting an ambulance", () => {
-    render(<OrderWizard ambulances={mockAmbulances} />);
+    render(<OrderWizard ambulances={mockAmbulances} hospitalCoords={mockHospitalCoords} />);
     
     const selectButtons = screen.getAllByRole("button", { name: "Pilih" });
     fireEvent.click(selectButtons[0]);
@@ -55,7 +63,7 @@ describe("OrderWizard", () => {
   });
 
   it("allows going back to step 1 from step 2", () => {
-    render(<OrderWizard ambulances={mockAmbulances} />);
+    render(<OrderWizard ambulances={mockAmbulances} hospitalCoords={mockHospitalCoords} />);
     
     const selectButtons = screen.getAllByRole("button", { name: "Pilih" });
     fireEvent.click(selectButtons[0]);

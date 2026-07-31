@@ -1,17 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Database } from "@/types/supabase";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import { createAmbulanceOrder } from "@/app/(protected)/ambulance/order/actions";
+
+const MapComponent = dynamic(() => import('@/components/ambulance/AmbulanceMap'), { ssr: false });
 
 type Ambulance = Database["public"]["Tables"]["ambulances"]["Row"];
 
-export function OrderWizard({ ambulances }: { ambulances: Ambulance[] }) {
+export function OrderWizard({ ambulances, hospitalCoords }: { ambulances: Ambulance[], hospitalCoords: [number, number] }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedCar, setSelectedCar] = useState<Ambulance | null>(null);
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [destination, setDestination] = useState<[number, number] | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleRouteCalculated = (dist: number, dest: [number, number]) => {
+    setDistanceKm(dist);
+    setDestination(dest);
+  };
+
+  const handleCheckout = () => {
+    if (!selectedCar || !distanceKm || !destination) return;
+    
+    startTransition(async () => {
+      const totalCost = distanceKm * selectedCar.base_price_per_km;
+      const res = await createAmbulanceOrder({
+        ambulance_id: selectedCar.id,
+        destination_lat: destination[0],
+        destination_lng: destination[1],
+        distance_km: distanceKm,
+        total_cost: totalCost,
+      });
+
+      if (res.error) {
+        alert("Gagal membuat pesanan: " + res.error);
+      } else {
+        alert("Pesanan berhasil dibuat!");
+        router.push("/ambulance/history"); // We don't have history page, but the task says to redirect there or show success state.
+      }
+    });
+  };
 
   if (step === 1) {
     return (
@@ -86,12 +122,54 @@ export function OrderWizard({ ambulances }: { ambulances: Ambulance[] }) {
         </p>
       </div>
       
-      <div className="p-10 border rounded-md border-dashed text-center">
-        <p className="text-muted-foreground mb-4">Langkah 2: Pemilihan Peta Tujuan (Segera hadir)</p>
-        <Button variant="outline" onClick={() => setStep(1)}>
-          Kembali ke Pemilihan Armada
-        </Button>
+      <div className="border rounded-md overflow-hidden bg-background">
+        <MapComponent 
+          hospitalCoords={hospitalCoords} 
+          onRouteCalculated={handleRouteCalculated} 
+        />
       </div>
+
+      {distanceKm !== null && destination !== null && selectedCar && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Ringkasan Pesanan</CardTitle>
+            <CardDescription>Rincian estimasi jarak dan biaya perjalanan.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Jarak Tempuh:</span>
+              <span className="font-medium">{distanceKm.toFixed(2)} km</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Tarif Dasar ({selectedCar.name}):</span>
+              <span className="font-medium">Rp {new Intl.NumberFormat('id-ID').format(selectedCar.base_price_per_km)} / km</span>
+            </div>
+            <div className="pt-4 border-t flex justify-between items-center">
+              <span className="font-semibold text-foreground">Total Estimasi Biaya:</span>
+              <span className="text-xl font-bold text-primary">
+                Rp {new Intl.NumberFormat('id-ID').format(distanceKm * selectedCar.base_price_per_km)}
+              </span>
+            </div>
+          </CardContent>
+          <CardFooter className="flex gap-4">
+            <Button variant="outline" onClick={() => setStep(1)} disabled={isPending}>
+              Ganti Armada
+            </Button>
+            <Button className="flex-1" onClick={handleCheckout} disabled={isPending}>
+              {isPending ? 'Memproses...' : 'Konfirmasi & Pesan'}
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
+
+      {distanceKm === null && (
+        <div className="p-4 border rounded-md border-dashed text-center">
+          <p className="text-muted-foreground mb-4">Klik pada peta untuk menentukan lokasi tujuan.</p>
+          <Button variant="outline" onClick={() => setStep(1)}>
+            Kembali ke Pemilihan Armada
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
