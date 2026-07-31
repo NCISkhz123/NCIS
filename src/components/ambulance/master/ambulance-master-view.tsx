@@ -11,6 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Database } from "@/types/supabase";
+import dynamic from "next/dynamic";
+import { saveAmbulanceSettings, saveAmbulance } from "./actions";
+
+const MapPicker = dynamic(() => import("./hospital-map-picker-inner"), { 
+  ssr: false, 
+  loading: () => <div className="h-[400px] bg-slate-100 animate-pulse rounded-xl" /> 
+});
 
 type Ambulance = Database["public"]["Tables"]["ambulances"]["Row"];
 type AmbulanceSetting = Database["public"]["Tables"]["ambulance_settings"]["Row"];
@@ -46,9 +53,18 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
     },
   });
 
-  const onSettingsSubmit = (data: SettingsFormValues) => {
-    // Implement settings save
-    console.log("Settings form submitted", data);
+  const [isPending, setIsPending] = useState(false);
+
+  const onSettingsSubmit = async (data: SettingsFormValues) => {
+    setIsPending(true);
+    try {
+      await saveAmbulanceSettings(data);
+      alert("Pengaturan berhasil disimpan");
+    } catch (error: any) {
+      alert("Gagal menyimpan pengaturan: " + error.message);
+    } finally {
+      setIsPending(false);
+    }
   };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -81,10 +97,20 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
     setIsDialogOpen(true);
   };
 
-  const onAmbulanceSubmit = (data: AmbulanceFormValues) => {
-    // Implement ambulance save
-    console.log("Ambulance form submitted", data);
-    setIsDialogOpen(false);
+  const onAmbulanceSubmit = async (data: AmbulanceFormValues) => {
+    setIsPending(true);
+    try {
+      await saveAmbulance(editingAmbulance ? { id: editingAmbulance.id, ...data } : data);
+      setIsDialogOpen(false);
+      alert("Ambulance berhasil disimpan");
+      // Optionally we could reload the ambulances locally or rely on revalidatePath
+      // But revalidatePath will refresh the page on next navigation or here if it's a server action
+      window.location.reload(); 
+    } catch (error: any) {
+      alert("Gagal menyimpan ambulance: " + error.message);
+    } finally {
+      setIsPending(false);
+    }
   };
   
   return (
@@ -174,8 +200,23 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
                   </FormItem>
                 )}
               />
+              
               <div className="pt-2">
-                <Button type="submit" className="w-full">Simpan Pengaturan</Button>
+                <p className="text-sm font-medium text-slate-700 mb-2">Pilih Lokasi di Peta</p>
+                <MapPicker 
+                  lat={settingsForm.watch("hospital_lat")} 
+                  lng={settingsForm.watch("hospital_lng")} 
+                  onChange={(lat, lng) => {
+                    settingsForm.setValue("hospital_lat", lat);
+                    settingsForm.setValue("hospital_lng", lng);
+                  }} 
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? "Menyimpan..." : "Simpan Pengaturan"}
+                </Button>
               </div>
             </form>
           </Form>
@@ -229,11 +270,11 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} disabled={isPending}>
                   Batal
                 </Button>
-                <Button type="submit">
-                  Simpan
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? "Menyimpan..." : "Simpan"}
                 </Button>
               </DialogFooter>
             </form>

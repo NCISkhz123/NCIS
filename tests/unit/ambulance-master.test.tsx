@@ -34,6 +34,7 @@ describe("AmbulanceMasterView", () => {
       name: "Ambulans Siaga 1",
       plate_number: "B 1234 CD",
       base_price_per_km: 15000,
+      image_url: null,
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

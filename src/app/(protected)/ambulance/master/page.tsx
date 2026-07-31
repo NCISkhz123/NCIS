@@ -9,6 +9,14 @@ export default async function AmbulanceMasterPage() {
     supabase.from("ambulance_settings").select("*").limit(1).maybeSingle()
   ]);
 
+  if (ambulancesResult.error) {
+    throw new Error(`Failed to load ambulances: ${ambulancesResult.error.message}`);
+  }
+  
+  if (settingsResult.error) {
+    throw new Error(`Failed to load ambulance settings: ${settingsResult.error.message}`);
+  }
+
   return (
     <div className="mx-auto max-w-7xl p-4 md:p-8">
       <AmbulanceMasterView 
