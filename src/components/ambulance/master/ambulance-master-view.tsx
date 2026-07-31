@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Database } from "@/types/supabase";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 import { saveAmbulanceSettings, saveAmbulance } from "./actions";
 
 const MapPicker = dynamic(() => import("./hospital-map-picker-inner"), { 
@@ -43,7 +44,7 @@ type SettingsFormValues = z.infer<typeof settingsSchema>;
 type AmbulanceFormValues = z.infer<typeof ambulanceSchema>;
 
 export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Props) {
-  const [ambulances, setAmbulances] = useState<Ambulance[]>(initialAmbulances);
+  const ambulances = initialAmbulances;
   
   const settingsForm = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -58,10 +59,13 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
   const onSettingsSubmit = async (data: SettingsFormValues) => {
     setIsPending(true);
     try {
-      await saveAmbulanceSettings(data);
-      alert("Pengaturan berhasil disimpan");
+      await saveAmbulanceSettings({
+        id: initialSettings?.id,
+        ...data
+      });
+      toast.success("Pengaturan berhasil disimpan");
     } catch (error: any) {
-      alert("Gagal menyimpan pengaturan: " + error.message);
+      toast.error("Gagal menyimpan pengaturan: " + error.message);
     } finally {
       setIsPending(false);
     }
@@ -102,12 +106,9 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
     try {
       await saveAmbulance(editingAmbulance ? { id: editingAmbulance.id, ...data } : data);
       setIsDialogOpen(false);
-      alert("Ambulance berhasil disimpan");
-      // Optionally we could reload the ambulances locally or rely on revalidatePath
-      // But revalidatePath will refresh the page on next navigation or here if it's a server action
-      window.location.reload(); 
+      toast.success("Ambulance berhasil disimpan");
     } catch (error: any) {
-      alert("Gagal menyimpan ambulance: " + error.message);
+      toast.error("Gagal menyimpan ambulance: " + error.message);
     } finally {
       setIsPending(false);
     }
@@ -148,7 +149,7 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
                   <TableRow key={amb.id}>
                     <TableCell className="font-medium">{amb.name}</TableCell>
                     <TableCell>{amb.plate_number}</TableCell>
-                    <TableCell>Rp {amb.base_price_per_km.toLocaleString()}</TableCell>
+                    <TableCell>Rp {amb.base_price_per_km.toLocaleString("id-ID")}</TableCell>
                     <TableCell>
                       {amb.is_active ? (
                         <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20 ring-inset">
@@ -207,8 +208,8 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
                   lat={settingsForm.watch("hospital_lat")} 
                   lng={settingsForm.watch("hospital_lng")} 
                   onChange={(lat, lng) => {
-                    settingsForm.setValue("hospital_lat", lat);
-                    settingsForm.setValue("hospital_lng", lng);
+                    settingsForm.setValue("hospital_lat", lat, { shouldValidate: true, shouldDirty: true });
+                    settingsForm.setValue("hospital_lng", lng, { shouldValidate: true, shouldDirty: true });
                   }} 
                 />
               </div>
@@ -266,6 +267,25 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
                       <Input type="number" {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={ambulanceForm.control}
+                name="is_active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input 
+                        type="checkbox" 
+                        className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                        checked={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Ambulance Aktif</FormLabel>
+                    </div>
                   </FormItem>
                 )}
               />
