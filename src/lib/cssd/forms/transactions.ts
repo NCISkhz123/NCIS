@@ -97,13 +97,24 @@ export const initialReusableProcessingFormState: ReusableProcessingFormState = {
   impact: null,
 };
 
+export type StockOpnameDraftFormValues = {
+  opnameDate?: string;
+  notes?: string;
+  hospitalUnitId?: string;
+};
+
+export type StockOpnameDraftFormState = {
+  error: string | null;
+  message: string | null;
+  values?: StockOpnameDraftFormValues;
+};
+
 type StockOpnameFeedbackState = {
   error: string | null;
   message: string | null;
   values?: Record<string, string>;
 };
 
-export type StockOpnameDraftFormState = StockOpnameFeedbackState;
 export type StockOpnameLineFormState = StockOpnameFeedbackState;
 export type StockOpnameFinalizeFormState = StockOpnameFeedbackState;
 
@@ -122,3 +133,4 @@ export const initialStockOpnameFinalizeFormState: StockOpnameFinalizeFormState =
     error: null,
     message: null,
   };
+

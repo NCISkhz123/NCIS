@@ -33,6 +33,7 @@ export async function createStockOpnameDraftAction(
 
   const opnameDate = String(formData.get("opnameDate") ?? "");
   const notes = String(formData.get("notes") ?? "");
+  const hospitalUnitId = String(formData.get("hospitalUnitId") ?? "");
 
   const supabase = await createServerSupabaseClient({
     writeCookies: true,
@@ -41,6 +42,7 @@ export async function createStockOpnameDraftAction(
   const result = await createDraftStockOpnameSession(client, {
     opnameDate,
     notes,
+    hospitalUnitId: hospitalUnitId || null,
   });
 
   if (!result.success) {
@@ -50,6 +52,7 @@ export async function createStockOpnameDraftAction(
       values: {
         opnameDate,
         notes,
+        hospitalUnitId,
       },
     };
   }
