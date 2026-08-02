@@ -27,8 +27,8 @@ export function TransactionPageShell({
     <div className="space-y-6">
       {eyebrow || title || description ? (
         <ShellSectionHeading
-          eyebrow={eyebrow}
-          title={title}
+          eyebrow={eyebrow ?? ""}
+          title={title ?? ""}
           description={description}
         />
       ) : null}
