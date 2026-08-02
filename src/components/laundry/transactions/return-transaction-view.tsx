@@ -186,27 +186,7 @@ export function ReturnTransactionView({
               </div>
             </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-destination"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Tujuan Pengembalian
-              </label>
-              <select
-                id="return-destination"
-                name="destinationPosition"
-                defaultValue={values.destinationPosition ?? RETURN_DESTINATION_POSITIONS[0]}
-                disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                {RETURN_DESTINATION_POSITIONS.map((position) => (
-                  <option key={position} value={position}>
-                    {STOCK_POSITION_LABELS[position]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <input type="hidden" name="destinationPosition" value="DIRT_DIRTY" />
 
 
             <TransactionFeedback

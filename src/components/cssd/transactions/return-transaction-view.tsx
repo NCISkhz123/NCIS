@@ -213,28 +213,7 @@ export function ReturnTransactionView({
             </div>
           </div>
 
-          <div className="grid gap-1.5">
-            <label
-              htmlFor="return-destination"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
-            >
-              Tujuan Pengembalian
-            </label>
-            <Select
-              id="return-destination"
-              name="destinationPosition"
-              defaultValue={
-                values.destinationPosition ?? RETURN_DESTINATION_POSITIONS[0]
-              }
-              disabled={returnPending}
-            >
-              {RETURN_DESTINATION_POSITIONS.map((position) => (
-                <option key={position} value={position}>
-                  {STOCK_POSITION_LABELS[position]}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <input type="hidden" name="destinationPosition" value="NON_STERILE" />
 
           <TransactionFeedback
             error={returnState.error}
