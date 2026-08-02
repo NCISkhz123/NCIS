@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
-import { Activity, ShieldCheck, Hospital } from "lucide-react";
 
 import { LoginForm } from "@/components/auth/login-form";
 import { getDefaultModulePath } from "@/lib/auth/guards";
@@ -27,53 +26,31 @@ export default async function LoginPage() {
         fill
         priority
         sizes="100vw"
-        className="object-cover object-center filter brightness-[0.52] contrast-[1.1] scale-[1.01] transition-transform duration-1000"
+        className="object-cover object-center filter brightness-[0.6] contrast-[1.08] scale-[1.01] transition-transform duration-1000"
       />
 
-      {/* UNIFORM SEAMLESS DARK OVERLAYS ACROSS ENTIRE CANVAS */}
-      <div className="absolute inset-0 bg-slate-950/60" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60" />
+      {/* UNIFORM SEAMLESS DARK OVERLAY & SCRIM VIGNETTE */}
+      <div className="absolute inset-0 bg-slate-950/50" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-slate-950/70" />
 
       {/* DECORATIVE GLOW ORBS */}
-      <div className="pointer-events-none absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-sky-500/15 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-teal-500/15 blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-sky-500/10 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-teal-500/10 blur-[140px]" />
 
       {/* LEFT BRANDING SECTION (~60% Width Desktop) */}
-      <div className="relative z-10 flex min-h-[420px] lg:min-h-[100dvh] w-full lg:w-[58%] xl:w-[62%] flex-col items-center justify-center p-6 sm:p-10 lg:p-14">
-        {/* WIDE HORIZONTAL OVERLAY CONTAINER (BORDERLESS GLASS) */}
-        <div className="w-full max-w-3xl text-center">
-          <div className="relative rounded-3xl bg-slate-950/40 p-6 sm:p-10 backdrop-blur-md transition-all duration-300">
-            {/* Top Chip / Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-4 py-1.5 text-xs font-bold tracking-widest text-sky-400 uppercase shadow-inner mb-5">
-              <Activity className="h-4 w-4 animate-pulse text-sky-400" />
-              <span>NCIS HEALTHCARE PLATFORM</span>
-            </div>
+      <div className="relative z-10 flex min-h-[320px] lg:min-h-[100dvh] w-full lg:w-[58%] xl:w-[62%] flex-col items-center justify-center p-6 sm:p-10 lg:p-14">
+        {/* CLEAN MINIMALIST HERO TEXT (NO LOCAL BLUR BOX) */}
+        <div className="w-full max-w-2xl text-center space-y-3 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
+          {/* Main Headline: Plus Jakarta Sans (Bold) */}
+          <h1 className="font-[var(--font-plus-jakarta)] text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight uppercase">
+            NON CLINICAL INTEGRATED SYSTEM
+          </h1>
 
-            {/* Main Headline: Plus Jakarta Sans (Bold) */}
-            <h1 className="font-[var(--font-plus-jakarta)] text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-snug uppercase">
-              NON CLINICAL INTEGRATED SYSTEM
-            </h1>
-
-            {/* Subtitle: Roboto (Regular) */}
-            <div className="mt-3.5 flex items-center justify-center gap-2 font-[var(--font-roboto)] text-base sm:text-lg lg:text-xl font-normal text-sky-200 tracking-wide">
-              <Hospital className="h-5 w-5 text-sky-400 shrink-0" />
-              <span>RSUD KHZ. MUSTHAFA TASIKMALAYA</span>
-            </div>
-
-            {/* Subtle Divider */}
-            <div className="my-5 mx-auto h-px w-32 bg-gradient-to-r from-transparent via-sky-500/40 to-transparent" />
-
-            {/* Description Subtext */}
-            <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed max-w-xl mx-auto">
-              Portal Operasional Terpadu untuk Manajemen Sterilisasi Sentral (CSSD), Laundry & Distribusi Logistik Non-Klinis.
-            </p>
-
-            {/* Security Pill */}
-            <div className="mt-5 inline-flex items-center gap-2 text-[11px] font-mono text-slate-400 bg-slate-900/50 px-3.5 py-1 rounded-full border border-slate-800/80">
-              <ShieldCheck className="h-3.5 w-3.5 text-teal-400" />
-              <span>Enkripsi Sesi End-to-End RSUD</span>
-            </div>
-          </div>
+          {/* Subtitle: Roboto (Regular) */}
+          <p className="font-[var(--font-roboto)] text-base sm:text-lg lg:text-xl font-normal text-sky-300 tracking-wider">
+            RSUD KHZ. MUSTHAFA TASIKMALAYA
+          </p>
         </div>
       </div>
 
