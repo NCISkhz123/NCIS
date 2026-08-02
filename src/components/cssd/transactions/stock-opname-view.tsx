@@ -116,6 +116,13 @@ export function StockOpnameView({
   const lineValues = lineState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
 
+  const scopeLabel =
+    draftSession?.scopeType === "INTERNAL"
+      ? "Depo Utama CSSD"
+      : draftSession?.scopeType === "UNIT" && draftSession.hospitalUnitName
+        ? `Unit ${draftSession.hospitalUnitName}`
+        : "Seluruh Unit (Global)";
+
   const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
 
   const summaryItems = draftSession
@@ -123,9 +130,7 @@ export function StockOpnameView({
         {
           label: "Sesi aktif",
           value: formatDateLabel(draftSession.opnameDate),
-          helper: draftSession.hospitalUnitName
-            ? `Cakupan: ${draftSession.hospitalUnitName}`
-            : "Cakupan: Seluruh Unit (Global)",
+          helper: `Cakupan: ${scopeLabel}`,
         },
         {
           label: "Baris tersimpan",
@@ -190,6 +195,7 @@ export function StockOpnameView({
           disabled={draftPending}
         >
           <option value="">Seluruh Unit (Global)</option>
+          <option value="INTERNAL">Depo Utama CSSD</option>
           {hospitalUnits.map((unit) => (
             <option key={unit.id} value={unit.id}>
               {unit.name} ({unit.code})
@@ -371,9 +377,7 @@ export function StockOpnameView({
                       Sesi aktif: Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
                     </CardTitle>
                     <CardDescription className="text-xs text-slate-600 font-medium">
-                      {draftSession.hospitalUnitName
-                        ? `Cakupan: ${draftSession.hospitalUnitName}`
-                        : "Cakupan: Seluruh Unit (Global)"}
+                      Cakupan: {scopeLabel}
                       {draftSession.notes ? ` • ${draftSession.notes}` : ""}
                     </CardDescription>
                   </div>

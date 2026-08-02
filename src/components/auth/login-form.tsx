@@ -71,7 +71,7 @@ export function LoginForm({ action }: LoginFormProps) {
         disabled={pending}
         variant="default"
         size="lg"
-        className="w-full mt-2"
+        className="w-full mt-3 h-11 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold shadow-lg shadow-sky-500/25 cursor-pointer rounded-xl transition-all"
       >
         {pending ? (
           <>

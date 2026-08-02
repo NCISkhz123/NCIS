@@ -104,7 +104,7 @@ export function SidebarNav({ pathname: propPathname, role }: SidebarNavProps) {
               <button
                 type="button"
                 className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-left transition-all duration-200",
+                  "flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-left transition-all duration-200 cursor-pointer",
                   isGroupActive
                     ? "bg-sky-500/10 text-sky-100"
                     : "text-slate-400 hover:bg-white/5 hover:text-slate-200"

@@ -229,19 +229,16 @@ export default async function KartuStokPage({
           </FilterField>
 
           <div className="flex flex-wrap items-end gap-3">
-            <button
-              type="submit"
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
+            <ReportActionButton type="submit" variant="primary">
               Tampilkan
-            </button>
+            </ReportActionButton>
             {selectedCardItem ? (
               <ReportActionLink href={exportHref} variant="export">
-                Ekspor CSV
+                Ekspor Excel
               </ReportActionLink>
             ) : (
               <ReportActionButton type="button" disabled variant="disabled">
-                Ekspor CSV
+                Ekspor Excel
               </ReportActionButton>
             )}
             <ReportActionLink href="/laundry/laporan/kartu-stok">

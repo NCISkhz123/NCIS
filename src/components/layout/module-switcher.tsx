@@ -107,9 +107,9 @@ export function ModuleSwitcher({
         aria-controls={panelId}
         onClick={handleOpenToggle}
         className={cn(
-          "inline-flex w-full items-center justify-between gap-2.5 rounded-xl transition-all",
+          "inline-flex w-full items-center justify-between gap-2.5 rounded-xl transition-all cursor-pointer active:scale-[0.99]",
           compact
-            ? "border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:border-slate-300 shadow-xs"
+            ? "border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 shadow-xs"
             : "border border-white/5 bg-white/5 px-3 py-2.5 text-sm font-semibold tracking-wide text-slate-100 hover:bg-white/10"
         )}
       >

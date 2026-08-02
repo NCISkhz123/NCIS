@@ -32,6 +32,7 @@ type StockOpnameSessionRow = {
   opname_date: string;
   status: "DRAFT" | "FINALIZED";
   notes: string | null;
+  scope_type: "GLOBAL" | "INTERNAL" | "UNIT";
   hospital_unit_id: string | null;
   hospital_units: JoinedHospitalUnitRow[] | null;
   stock_opname_lines: Array<{ id: string }> | null;
@@ -50,11 +51,14 @@ type StockOpnameLineJoinedRow = {
 
 type StockOpnameBalanceResponse = number | null;
 
+export type StockOpnameScopeType = "GLOBAL" | "INTERNAL" | "UNIT";
+
 export type StockOpnameSessionSummary = {
   id: string;
   opnameDate: string;
   status: "DRAFT" | "FINALIZED";
   notes: string | null;
+  scopeType: StockOpnameScopeType;
   hospitalUnitId: string | null;
   hospitalUnitName: string | null;
   lineCount: number;
@@ -148,6 +152,7 @@ export async function createDraftStockOpnameSession(
       p_opname_date: parsed.data.opnameDate.toISOString().slice(0, 10),
       p_notes: parsed.data.notes ?? null,
       p_hospital_unit_id: parsed.data.hospitalUnitId ?? null,
+      p_scope_type: parsed.data.scopeType ?? "GLOBAL",
     }
   );
 }
@@ -207,7 +212,7 @@ export async function getDraftStockOpnameSession(
   const { data, error } = await supabase
     .from("stock_opname_sessions")
     .select(
-      "id, opname_date, status, notes, hospital_unit_id, hospital_units(name), stock_opname_lines(id)"
+      "id, opname_date, status, notes, scope_type, hospital_unit_id, hospital_units(name), stock_opname_lines(id)"
     )
     .eq("status", "DRAFT")
     .order("created_at", { ascending: false })
@@ -225,6 +230,7 @@ export async function getDraftStockOpnameSession(
     opnameDate: row.opname_date,
     status: row.status,
     notes: row.notes,
+    scopeType: row.scope_type ?? "GLOBAL",
     hospitalUnitId: row.hospital_unit_id ?? null,
     hospitalUnitName: row.hospital_units?.[0]?.name ?? null,
     lineCount: row.stock_opname_lines?.length ?? 0,
@@ -238,7 +244,7 @@ export async function listRecentStockOpnameSessions(
   const { data, error } = await supabase
     .from("stock_opname_sessions")
     .select(
-      "id, opname_date, status, notes, hospital_unit_id, hospital_units(name), stock_opname_lines(id)"
+      "id, opname_date, status, notes, scope_type, hospital_unit_id, hospital_units(name), stock_opname_lines(id)"
     )
     .neq("status", "DRAFT")
     .order("created_at", { ascending: false })
@@ -253,6 +259,7 @@ export async function listRecentStockOpnameSessions(
     opnameDate: row.opname_date,
     status: row.status,
     notes: row.notes,
+    scopeType: row.scope_type ?? "GLOBAL",
     hospitalUnitId: row.hospital_unit_id ?? null,
     hospitalUnitName: row.hospital_units?.[0]?.name ?? null,
     lineCount: row.stock_opname_lines?.length ?? 0,

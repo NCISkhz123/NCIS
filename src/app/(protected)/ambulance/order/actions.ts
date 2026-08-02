@@ -9,6 +9,10 @@ export async function createAmbulanceOrder(data: {
   destination_lng: number;
   distance_km: number;
 }) {
+  if (data.distance_km <= 0 || data.distance_km > 2000) {
+    return { error: 'Jarak tempuh tidak valid.' };
+  }
+
   const supabase = await createServerSupabaseClient();
   
   // Check if ambulance is already in use
@@ -68,7 +72,8 @@ export async function completeAmbulanceOrder(transactionId: string) {
       status: 'COMPLETED',
       completed_at: new Date().toISOString(),
     })
-    .eq('id', transactionId);
+    .eq('id', transactionId)
+    .eq('status', 'IN_USE');
 
   if (error) {
     return { error: error.message };

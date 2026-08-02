@@ -1,8 +1,8 @@
-import { serializeCsvTable } from "@/lib/csv";
+import { buildExcelBuffer } from "@/lib/excel";
 import {
-  buildReportCsvFilename,
-  buildStockStatusCsvTable,
-} from "@/lib/laundry/reports/csv-export";
+  buildReportExcelFilename,
+  buildStockStatusExcelTable,
+} from "@/lib/laundry/reports/excel-export";
 import {
   createSupabaseReportClient,
   listCurrentStockReport,
@@ -24,18 +24,20 @@ export async function GET(request: Request) {
   const rows = await listCurrentStockReport(reportClient, {
     itemId,
     unitId,
+    limit: 100,
   });
 
-  const table = buildStockStatusCsvTable(rows);
-  const filename = buildReportCsvFilename("stock-status", {
+  const table = buildStockStatusExcelTable(rows, "LAPORAN STOK STATUS LAUNDRY");
+  const filename = buildReportExcelFilename("stock-status", {
     date: getExportDate(),
   });
 
-  return new Response(serializeCsvTable(table), {
+  const buffer = await buildExcelBuffer(table);
+
+  return new Response(buffer as unknown as BodyInit, {
     headers: {
-      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });
 }
-

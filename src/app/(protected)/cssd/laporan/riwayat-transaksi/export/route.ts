@@ -1,8 +1,8 @@
-import { serializeCsvTable } from "@/lib/csv";
+import { buildExcelBuffer } from "@/lib/excel";
 import {
-  buildReportCsvFilename,
-  buildTransactionHistoryCsvTable,
-} from "@/lib/cssd/reports/csv-export";
+  buildReportExcelFilename,
+  buildTransactionHistoryExcelTable,
+} from "@/lib/cssd/reports/excel-export";
 import {
   createSupabaseReportClient,
   listTransactionHistoryReport,
@@ -11,6 +11,13 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 function getExportDate() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function formatPeriod(dateFrom?: string, dateTo?: string) {
+  if (dateFrom && dateTo) return `${dateFrom} s/d ${dateTo}`;
+  if (dateFrom) return `Sejak ${dateFrom}`;
+  if (dateTo) return `Hingga ${dateTo}`;
+  return "Semua Waktu";
 }
 
 export async function GET(request: Request) {
@@ -33,14 +40,17 @@ export async function GET(request: Request) {
     limit: 100,
   });
 
-  const table = buildTransactionHistoryCsvTable(rows);
-  const filename = buildReportCsvFilename("transaction-history", {
+  const period = formatPeriod(dateFrom, dateTo);
+  const table = buildTransactionHistoryExcelTable(rows, "LAPORAN RIWAYAT TRANSAKSI CSSD", period);
+  const filename = buildReportExcelFilename("transaction-history", {
     date: getExportDate(),
   });
 
-  return new Response(serializeCsvTable(table), {
+  const buffer = await buildExcelBuffer(table);
+
+  return new Response(buffer as unknown as BodyInit, {
     headers: {
-      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });

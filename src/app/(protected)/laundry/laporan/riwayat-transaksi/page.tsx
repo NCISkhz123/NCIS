@@ -1,6 +1,9 @@
 import { FilterField } from "@/components/laundry/reports/filter-field";
 import { SearchableSelect } from "@/components/ui/searchable-select";
-import { ReportActionLink } from "@/components/reports/report-action";
+import {
+  ReportActionButton,
+  ReportActionLink,
+} from "@/components/reports/report-action";
 import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
 import {
   createSupabaseReportClient,
@@ -172,14 +175,11 @@ export default async function RiwayatTransaksiPage({
           </FilterField>
 
           <div className="flex flex-wrap items-end gap-3">
-            <button
-              type="submit"
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
+            <ReportActionButton type="submit" variant="primary">
               Terapkan
-            </button>
+            </ReportActionButton>
             <ReportActionLink href={exportHref} variant="export">
-              Ekspor CSV
+              Ekspor Excel
             </ReportActionLink>
             <ReportActionLink href="/laundry/laporan/riwayat-transaksi">
               Reset

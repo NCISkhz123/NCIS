@@ -169,6 +169,7 @@ export function StockOpnameView({
                   className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
                 >
                   <option value="">Seluruh Unit (Global)</option>
+                  <option value="INTERNAL">Depo Utama Laundry</option>
                   {hospitalUnits.map((unit) => (
                     <option key={unit.id} value={unit.id}>
                       {unit.name} ({unit.code})
@@ -196,9 +197,11 @@ export function StockOpnameView({
                 Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
               </p>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                {draftSession.hospitalUnitName
-                  ? `Cakupan: ${draftSession.hospitalUnitName}`
-                  : "Cakupan: Seluruh Unit (Global)"}
+                Cakupan: {draftSession.scopeType === "INTERNAL"
+                  ? "Depo Utama Laundry"
+                  : draftSession.scopeType === "UNIT" && draftSession.hospitalUnitName
+                    ? `Unit ${draftSession.hospitalUnitName}`
+                    : "Seluruh Unit (Global)"}
               </p>
               {draftSession.notes ? (
                 <p className="mt-2 text-sm leading-6 text-slate-600">{draftSession.notes}</p>

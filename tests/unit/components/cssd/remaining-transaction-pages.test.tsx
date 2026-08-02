@@ -146,6 +146,7 @@ describe("CSSD remaining transaction pages", () => {
           opnameDate: "2026-06-29",
           status: "DRAFT",
           notes: "Hitung akhir bulan",
+          scopeType: "UNIT",
           hospitalUnitId: unitIgd.id,
           hospitalUnitName: unitIgd.name,
           lineCount: 1,
@@ -171,6 +172,7 @@ describe("CSSD remaining transaction pages", () => {
             opnameDate: "2026-06-20",
             status: "FINALIZED",
             notes: "Sudah final",
+            scopeType: "GLOBAL",
             hospitalUnitId: null,
             hospitalUnitName: null,
             lineCount: 4,
@@ -192,7 +194,7 @@ describe("CSSD remaining transaction pages", () => {
     );
 
     expect(screen.getAllByText(/sesi aktif/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/cakupan: instalasi gawat darurat/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/cakupan:.*instalasi gawat darurat/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/baris tersimpan/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/hasil hitung/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/item stok/i)).toBeVisible();

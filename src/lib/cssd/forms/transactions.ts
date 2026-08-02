@@ -100,6 +100,7 @@ export const initialReusableProcessingFormState: ReusableProcessingFormState = {
 export type StockOpnameDraftFormValues = {
   opnameDate?: string;
   notes?: string;
+  scopeType?: "GLOBAL" | "INTERNAL" | "UNIT";
   hospitalUnitId?: string;
 };
 

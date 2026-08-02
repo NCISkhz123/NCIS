@@ -13,6 +13,7 @@ export const stockOpnameLineSchema = z.object({
 export const stockOpnameDraftSchema = z.object({
   opnameDate: z.coerce.date(),
   notes: z.string().trim().max(500).optional(),
+  scopeType: z.enum(["GLOBAL", "INTERNAL", "UNIT"]).optional().default("GLOBAL"),
   hospitalUnitId: z.string().uuid("Unit tidak valid").optional().nullable(),
 });
 

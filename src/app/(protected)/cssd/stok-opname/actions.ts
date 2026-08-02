@@ -33,7 +33,17 @@ export async function createStockOpnameDraftAction(
 
   const opnameDate = String(formData.get("opnameDate") ?? "");
   const notes = String(formData.get("notes") ?? "");
-  const hospitalUnitId = String(formData.get("hospitalUnitId") ?? "");
+  const scopeSelection = String(formData.get("hospitalUnitId") ?? "");
+
+  let scopeType: "GLOBAL" | "INTERNAL" | "UNIT" = "GLOBAL";
+  let hospitalUnitId: string | null = null;
+
+  if (scopeSelection === "INTERNAL") {
+    scopeType = "INTERNAL";
+  } else if (scopeSelection) {
+    scopeType = "UNIT";
+    hospitalUnitId = scopeSelection;
+  }
 
   const supabase = await createServerSupabaseClient({
     writeCookies: true,
@@ -42,7 +52,8 @@ export async function createStockOpnameDraftAction(
   const result = await createDraftStockOpnameSession(client, {
     opnameDate,
     notes,
-    hospitalUnitId: hospitalUnitId || null,
+    scopeType,
+    hospitalUnitId,
   });
 
   if (!result.success) {
@@ -52,7 +63,8 @@ export async function createStockOpnameDraftAction(
       values: {
         opnameDate,
         notes,
-        hospitalUnitId,
+        scopeType,
+        hospitalUnitId: scopeSelection,
       },
     };
   }

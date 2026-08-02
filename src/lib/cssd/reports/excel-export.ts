@@ -1,18 +1,12 @@
-import { ITEM_TYPE_LABELS } from "@/lib/laundry/constants";
+import { ITEM_TYPE_LABELS } from "@/lib/cssd/constants";
 import type {
   CurrentStockReportEntry,
   ItemStockCardEntry,
   TransactionHistoryReportEntry,
-} from "@/lib/laundry/services/reports";
+} from "@/lib/cssd/services/reports";
+import type { ExcelTable } from "@/lib/excel";
 
-type CsvCell = string | number | null | undefined;
-
-export type CsvTable = {
-  headers: string[];
-  rows: CsvCell[][];
-};
-
-type ReportCsvKind = "stock-status" | "transaction-history" | "stock-card";
+type ReportExcelKind = "stock-status" | "transaction-history" | "stock-card";
 
 function formatDateLabel(value: string) {
   const date = new Date(value);
@@ -36,10 +30,14 @@ function sanitizeFilenameSegment(value: string) {
   return value.replaceAll(/[^a-zA-Z0-9-_]+/g, "-");
 }
 
-export function buildStockStatusCsvTable(
-  rows: CurrentStockReportEntry[]
-): CsvTable {
+export function buildStockStatusExcelTable(
+  rows: CurrentStockReportEntry[],
+  title: string,
+  period?: string
+): ExcelTable {
   return {
+    title,
+    period,
     headers: ["Kode Item", "Nama Item", "Jenis", "Posisi", "Unit", "Qty"],
     rows: rows.map((row) => [
       row.itemCode,
@@ -52,10 +50,14 @@ export function buildStockStatusCsvTable(
   };
 }
 
-export function buildTransactionHistoryCsvTable(
-  rows: TransactionHistoryReportEntry[]
-): CsvTable {
+export function buildTransactionHistoryExcelTable(
+  rows: TransactionHistoryReportEntry[],
+  title: string,
+  period?: string
+): ExcelTable {
   return {
+    title,
+    period,
     headers: [
       "Tanggal",
       "Transaksi",
@@ -77,8 +79,14 @@ export function buildTransactionHistoryCsvTable(
   };
 }
 
-export function buildStockCardCsvTable(rows: ItemStockCardEntry[]): CsvTable {
+export function buildStockCardExcelTable(
+  rows: ItemStockCardEntry[],
+  title: string,
+  period?: string
+): ExcelTable {
   return {
+    title,
+    period,
     headers: ["Tanggal", "Transaksi", "Alur", "Unit", "Qty"],
     rows: rows.map((row) => [
       formatDateLabel(row.transactionDate),
@@ -90,25 +98,24 @@ export function buildStockCardCsvTable(rows: ItemStockCardEntry[]): CsvTable {
   };
 }
 
-export function buildReportCsvFilename(
-  kind: ReportCsvKind,
+export function buildReportExcelFilename(
+  kind: ReportExcelKind,
   options: {
     date: string;
     itemCode?: string;
   }
 ) {
   if (kind === "transaction-history") {
-    return `riwayat-transaksi-laundry-${options.date}.csv`;
+    return `riwayat-transaksi-cssd-${options.date}.xlsx`;
   }
 
   if (kind === "stock-status") {
-    return `stok-status-laundry-${options.date}.csv`;
+    return `stok-status-cssd-${options.date}.xlsx`;
   }
 
   if (options.itemCode) {
-    return `kartu-stok-${sanitizeFilenameSegment(options.itemCode)}-${options.date}.csv`;
+    return `kartu-stok-${sanitizeFilenameSegment(options.itemCode)}-${options.date}.xlsx`;
   }
 
-  return `kartu-stok-laundry-${options.date}.csv`;
+  return `kartu-stok-cssd-${options.date}.xlsx`;
 }
-

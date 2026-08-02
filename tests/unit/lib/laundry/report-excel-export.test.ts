@@ -4,31 +4,31 @@ import type {
   CurrentStockReportEntry,
   ItemStockCardEntry,
   TransactionHistoryReportEntry,
-} from "@/lib/cssd/services/reports";
+} from "@/lib/laundry/services/reports";
 import {
-  buildReportCsvFilename,
-  buildStockCardCsvTable,
-  buildStockStatusCsvTable,
-  buildTransactionHistoryCsvTable,
-} from "@/lib/cssd/reports/csv-export";
+  buildReportExcelFilename,
+  buildStockCardExcelTable,
+  buildStockStatusExcelTable,
+  buildTransactionHistoryExcelTable,
+} from "@/lib/laundry/reports/excel-export";
 
-describe("cssd report csv export", () => {
-  it("builds stock status csv headers and rows", () => {
-    const table = buildStockStatusCsvTable([
+describe("laundry report excel export", () => {
+  it("builds stock status excel headers and rows", () => {
+    const table = buildStockStatusExcelTable([
       {
         itemId: "item-1",
         itemCode: "R-0001",
         itemName: "Set Minor",
         itemType: "REUSABLE",
         stockPosition: "READY",
-        stockPositionLabel: "Steril",
+        stockPositionLabel: "Bersih",
         hospitalUnitId: null,
         hospitalUnitCode: null,
-        hospitalUnitName: "CSSD",
+        hospitalUnitName: "Laundry",
         quantity: 6,
         updatedAt: "2026-07-01T00:00:00.000Z",
       } satisfies CurrentStockReportEntry,
-    ]);
+    ], "Title", "Period");
 
     expect(table.headers).toEqual([
       "Kode Item",
@@ -38,11 +38,11 @@ describe("cssd report csv export", () => {
       "Unit",
       "Qty",
     ]);
-    expect(table.rows).toEqual([["R-0001", "Set Minor", "Reusable", "Steril", "CSSD", 6]]);
+    expect(table.rows).toEqual([["R-0001", "Set Minor", "Reusable", "Bersih", "Laundry", 6]]);
   });
 
-  it("builds transaction history csv headers and rows", () => {
-    const table = buildTransactionHistoryCsvTable([
+  it("builds transaction history excel headers and rows", () => {
+    const table = buildTransactionHistoryExcelTable([
       {
         movementId: "move-1",
         itemId: "item-1",
@@ -60,10 +60,10 @@ describe("cssd report csv export", () => {
         fromPosition: "IN_UNIT",
         fromPositionLabel: "Di Unit",
         toPosition: "NON_STERILE",
-        toPositionLabel: "Tidak Steril",
-        flowLabel: "ICU -> Tidak Steril",
+        toPositionLabel: "Kotor",
+        flowLabel: "ICU -> Kotor",
       } satisfies TransactionHistoryReportEntry,
-    ]);
+    ], "Title", "Period");
 
     expect(table.headers).toEqual([
       "Tanggal",
@@ -76,12 +76,12 @@ describe("cssd report csv export", () => {
       "Catatan",
     ]);
     expect(table.rows).toEqual([
-      ["01 Jul 2026", "R-0001", "Set Minor", "Reusable", 2, "ICU", "ICU -> Tidak Steril", "Kembali dari ICU"],
+      ["01 Jul 2026", "R-0001", "Set Minor", "Reusable", 2, "ICU", "ICU -> Kotor", "Kembali dari ICU"],
     ]);
   });
 
-  it("builds stock card csv headers and preserves CSSD internal unit labels", () => {
-    const table = buildStockCardCsvTable([
+  it("builds stock card excel headers and preserves Laundry internal unit labels", () => {
+    const table = buildStockCardExcelTable([
       {
         movementId: "move-1",
         itemId: "item-1",
@@ -92,17 +92,17 @@ describe("cssd report csv export", () => {
         movementTypeLabel: "Perpindahan Reusable",
         transactionDate: "2026-07-02T00:00:00.000Z",
         quantity: 1,
-        notes: "Masuk area sterilisasi",
+        notes: "Masuk area pencucian",
         hospitalUnitId: null,
         hospitalUnitCode: null,
-        hospitalUnitName: "CSSD",
+        hospitalUnitName: "Laundry",
         fromPosition: "NON_STERILE",
-        fromPositionLabel: "Tidak Steril",
+        fromPositionLabel: "Kotor",
         toPosition: "STERILIZATION_AREA",
-        toPositionLabel: "Area Sterilisasi",
-        flowLabel: "Tidak Steril -> Area Sterilisasi",
+        toPositionLabel: "Area Pencucian",
+        flowLabel: "Kotor -> Area Pencucian",
       } satisfies ItemStockCardEntry,
-    ]);
+    ], "Title", "Period");
 
     expect(table.headers).toEqual([
       "Tanggal",
@@ -116,28 +116,29 @@ describe("cssd report csv export", () => {
       [
         "02 Jul 2026",
         "Perpindahan Reusable",
-        "Tidak Steril -> Area Sterilisasi",
-        "CSSD",
+        "Kotor -> Area Pencucian",
+        "Laundry",
         1,
-        "Masuk area sterilisasi",
+        "Masuk area pencucian",
       ],
     ]);
   });
 
   it("builds report filenames with item code when available", () => {
     expect(
-      buildReportCsvFilename("stock-card", {
+      buildReportExcelFilename("stock-card", {
         date: "2026-07-01",
         itemCode: "R-0001",
       })
-    ).toBe("kartu-stok-R-0001-2026-07-01.csv");
+    ).toBe("kartu-stok-R-0001-2026-07-01.xlsx");
   });
 
   it("falls back safely when stock card item code is missing", () => {
     expect(
-      buildReportCsvFilename("stock-card", {
+      buildReportExcelFilename("stock-card", {
         date: "2026-07-01",
       })
-    ).toBe("kartu-stok-cssd-2026-07-01.csv");
+    ).toBe("kartu-stok-laundry-2026-07-01.xlsx");
   });
 });
+

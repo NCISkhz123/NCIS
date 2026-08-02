@@ -132,7 +132,7 @@ export function ReceiptTransactionView({
             <button
               type="submit"
               disabled={pending}
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-teal-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
             >
               {pending ? "Menyimpan..." : "Simpan Pemasukan"}
             </button>

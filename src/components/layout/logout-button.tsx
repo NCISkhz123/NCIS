@@ -20,7 +20,7 @@ export function LogoutButton({
         type="submit"
         aria-label="Logout"
         className={cn(
-          "inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-xs font-semibold text-slate-300 transition-all hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 active:scale-[0.98]",
+          "inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-xs font-semibold text-slate-300 transition-all hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 active:scale-[0.98] cursor-pointer",
           compact ? "px-3 py-2" : "px-4 py-2.5"
         )}
       >

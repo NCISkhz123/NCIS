@@ -68,13 +68,15 @@ export function AmbulanceHistoryView({ transactions }: AmbulanceHistoryViewProps
       let matchesEndDate = true;
 
       if (startDate) {
-        const start = new Date(startDate);
+        const [y, m, d] = startDate.split('-').map(Number);
+        const start = new Date(y, m - 1, d);
         start.setHours(0, 0, 0, 0);
         matchesStartDate = txDate >= start;
       }
 
       if (endDate) {
-        const end = new Date(endDate);
+        const [y, m, d] = endDate.split('-').map(Number);
+        const end = new Date(y, m - 1, d);
         end.setHours(23, 59, 59, 999);
         matchesEndDate = txDate <= end;
       }
