@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 type TransactionPageShellProps = {
   eyebrow?: string;
@@ -23,20 +23,6 @@ export function TransactionPageShell({
       {/* Left Column: Form Card (Sticky Desktop) */}
       <div className="xl:col-span-5">
         <Card className="sticky top-24 border-slate-200 shadow-sm">
-          {formTitle || formDescription ? (
-            <CardHeader className="pb-3">
-              {formTitle ? (
-                <CardTitle className="text-base font-bold">
-                  {formTitle}
-                </CardTitle>
-              ) : null}
-              {formDescription ? (
-                <CardDescription className="text-xs text-slate-600">
-                  {formDescription}
-                </CardDescription>
-              ) : null}
-            </CardHeader>
-          ) : null}
           <CardContent className="pt-6">{form}</CardContent>
         </Card>
       </div>
