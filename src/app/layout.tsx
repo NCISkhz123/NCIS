@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Manrope, Plus_Jakarta_Sans, Roboto } from "next/font/google";
+import { IBM_Plex_Mono, Manrope, Outfit, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -13,16 +13,16 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["600", "700", "800", "900"],
 });
 
-const roboto = Roboto({
-  variable: "--font-roboto",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${ibmPlexMono.variable} ${plusJakartaSans.variable} ${roboto.variable} h-full antialiased`}
+      className={`${manrope.variable} ${ibmPlexMono.variable} ${outfit.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
