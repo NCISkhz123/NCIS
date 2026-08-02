@@ -65,29 +65,13 @@ export default async function LoginPage() {
         <div className="w-full max-w-md space-y-6">
           {/* Form Card */}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/90 p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
-            <div className="mb-6 space-y-1">
-              <h2 className="text-2xl font-black tracking-tight text-white font-[var(--font-outfit)]">Selamat Datang Kembali</h2>
-              <p className="text-xs sm:text-sm text-slate-400 font-medium font-[var(--font-space-grotesk)]">
-                Masukan kredensial terdaftar Anda untuk mengakses portal.
-              </p>
+            <div className="mb-6">
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-[var(--font-outfit)]">
+                Selamat Datang
+              </h2>
             </div>
 
             <LoginForm action={loginAction} />
-          </div>
-
-          {/* Demo Credentials Info Box */}
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-950/70 p-4 text-center backdrop-blur-md">
-            <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
-              Kredensial Demo Akun Lokal:
-            </p>
-            <div className="mt-2 flex flex-wrap justify-center gap-2 text-xs font-mono text-slate-300">
-              <span className="rounded-lg border border-slate-700/60 bg-slate-800/80 px-2.5 py-1">
-                admin.cssd@ncis.local
-              </span>
-              <span className="rounded-lg border border-slate-700/60 bg-slate-800/80 px-2.5 py-1">
-                petugas.cssd@ncis.local
-              </span>
-            </div>
           </div>
         </div>
       </div>
