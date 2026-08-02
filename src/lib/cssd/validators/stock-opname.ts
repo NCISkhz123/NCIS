@@ -10,6 +10,12 @@ export const stockOpnameLineSchema = z.object({
   notes: z.string().trim().max(500).optional(),
 });
 
+export const stockOpnameDraftSchema = z.object({
+  opnameDate: z.coerce.date(),
+  notes: z.string().trim().max(500).optional(),
+  hospitalUnitId: z.string().uuid("Unit tidak valid").optional().nullable(),
+});
+
 export const stockOpnameSchema = z.object({
   opnameDate: z.coerce.date(),
   notes: z.string().trim().max(500).optional(),
@@ -17,3 +23,4 @@ export const stockOpnameSchema = z.object({
 });
 
 export type StockOpnameValues = z.infer<typeof stockOpnameSchema>;
+

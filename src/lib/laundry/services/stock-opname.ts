@@ -5,12 +5,7 @@ import { LAUNDRY_STOCK_POSITION_LABELS } from "@/lib/laundry/constants";
 import type { ItemType } from "@/lib/laundry/types";
 import type { HospitalUnitRow, ItemRow } from "@/lib/laundry/services/master-data";
 import type { LaundryRpcClient, ServiceResult } from "@/lib/laundry/services/stock";
-import { stockOpnameLineSchema } from "@/lib/cssd/validators/stock-opname";
-
-const stockOpnameDraftSchema = z.object({
-  opnameDate: z.coerce.date(),
-  notes: z.string().trim().max(500).optional(),
-});
+import { stockOpnameDraftSchema, stockOpnameLineSchema } from "@/lib/cssd/validators/stock-opname";
 
 const stockOpnameFinalizeSchema = z.object({
   sessionId: z.string().uuid("Session opname tidak valid"),
@@ -37,6 +32,8 @@ type StockOpnameSessionRow = {
   opname_date: string;
   status: "DRAFT" | "FINALIZED";
   notes: string | null;
+  hospital_unit_id: string | null;
+  laundry_hospital_units: JoinedHospitalUnitRow[] | null;
   laundry_stock_opname_lines: Array<{ id: string }> | null;
 };
 
@@ -58,6 +55,8 @@ export type StockOpnameSessionSummary = {
   opnameDate: string;
   status: "DRAFT" | "FINALIZED";
   notes: string | null;
+  hospitalUnitId: string | null;
+  hospitalUnitName: string | null;
   lineCount: number;
 };
 
@@ -80,6 +79,7 @@ export type StockOpnameCreateResult = {
   status: "DRAFT";
   opname_date: string;
   notes: string | null;
+  hospital_unit_id: string | null;
   line_count: number;
 };
 
@@ -147,6 +147,7 @@ export async function createDraftStockOpnameSession(
     {
       p_opname_date: parsed.data.opnameDate.toISOString().slice(0, 10),
       p_notes: parsed.data.notes ?? null,
+      p_hospital_unit_id: parsed.data.hospitalUnitId ?? null,
     }
   );
 }
@@ -205,7 +206,9 @@ export async function getDraftStockOpnameSession(
 ): Promise<StockOpnameSessionSummary | null> {
   const { data, error } = await supabase
     .from("laundry_stock_opname_sessions")
-    .select("id, opname_date, status, notes, laundry_stock_opname_lines(id)")
+    .select(
+      "id, opname_date, status, notes, hospital_unit_id, laundry_hospital_units(name), laundry_stock_opname_lines(id)"
+    )
     .eq("status", "DRAFT")
     .order("created_at", { ascending: false })
     .limit(1)
@@ -222,6 +225,8 @@ export async function getDraftStockOpnameSession(
     opnameDate: row.opname_date,
     status: row.status,
     notes: row.notes,
+    hospitalUnitId: row.hospital_unit_id ?? null,
+    hospitalUnitName: row.laundry_hospital_units?.[0]?.name ?? null,
     lineCount: row.laundry_stock_opname_lines?.length ?? 0,
   };
 }
@@ -232,7 +237,9 @@ export async function listRecentStockOpnameSessions(
 ): Promise<StockOpnameSessionSummary[]> {
   const { data, error } = await supabase
     .from("laundry_stock_opname_sessions")
-    .select("id, opname_date, status, notes, laundry_stock_opname_lines(id)")
+    .select(
+      "id, opname_date, status, notes, hospital_unit_id, laundry_hospital_units(name), laundry_stock_opname_lines(id)"
+    )
     .neq("status", "DRAFT")
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -246,6 +253,8 @@ export async function listRecentStockOpnameSessions(
     opnameDate: row.opname_date,
     status: row.status,
     notes: row.notes,
+    hospitalUnitId: row.hospital_unit_id ?? null,
+    hospitalUnitName: row.laundry_hospital_units?.[0]?.name ?? null,
     lineCount: row.laundry_stock_opname_lines?.length ?? 0,
   }));
 }
