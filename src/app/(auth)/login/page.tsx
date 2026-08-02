@@ -20,18 +20,18 @@ export default async function LoginPage() {
 
   return (
     <main className="relative flex min-h-[100dvh] w-full flex-col lg:flex-row bg-slate-950 text-slate-100 overflow-hidden antialiased">
-      {/* FULL SCREEN BACKGROUND AERIAL PHOTOGRAPHY */}
+      {/* UNIFORM FULL SCREEN BACKGROUND AERIAL PHOTOGRAPHY */}
       <Image
         src="/bg-login.jpg"
         alt="RSUD KHZ. Musthafa Tasikmalaya Aerial View"
         fill
         priority
         sizes="100vw"
-        className="object-cover object-center filter brightness-[0.55] contrast-[1.1] scale-[1.01] transition-transform duration-1000"
+        className="object-cover object-center filter brightness-[0.5] contrast-[1.1] scale-[1.01] transition-transform duration-1000"
       />
 
-      {/* FULL SCREEN DARK GRADIENT OVERLAYS */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/70" />
+      {/* UNIFORM SEAMLESS DARK OVERLAYS ACROSS ENTIRE CANVAS */}
+      <div className="absolute inset-0 bg-slate-950/65" />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60" />
 
       {/* DECORATIVE GLOW ORBS */}
@@ -77,11 +77,11 @@ export default async function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT LOGIN FORM SECTION (~40% Width Desktop) */}
-      <div className="relative z-10 flex w-full lg:w-[42%] xl:w-[38%] flex-col items-center justify-center p-6 sm:p-12 lg:bg-slate-950/40 lg:backdrop-blur-md lg:border-l lg:border-slate-800/50">
+      {/* RIGHT LOGIN FORM SECTION (~40% Width Desktop, SEAMLESS BACKGROUND) */}
+      <div className="relative z-10 flex w-full lg:w-[42%] xl:w-[38%] flex-col items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md space-y-6">
           {/* Form Card */}
-          <div className="rounded-3xl border border-slate-700/60 bg-slate-900/85 p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
+          <div className="rounded-3xl border border-slate-800/80 bg-slate-900/90 p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
             <div className="mb-6 space-y-1">
               <h2 className="text-2xl font-black tracking-tight text-white">Selamat Datang Kembali</h2>
               <p className="text-xs sm:text-sm text-slate-400 font-medium">
@@ -93,7 +93,7 @@ export default async function LoginPage() {
           </div>
 
           {/* Demo Credentials Info Box */}
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-4 text-center backdrop-blur-md">
+          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 p-4 text-center backdrop-blur-md">
             <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
               Kredensial Demo Akun Lokal:
             </p>
