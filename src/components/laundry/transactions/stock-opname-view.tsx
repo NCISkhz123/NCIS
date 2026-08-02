@@ -101,6 +101,8 @@ export function StockOpnameView({
   const lineValues = lineState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
 
+  const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
+
   return (
     <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
       <div className="grid gap-6 h-full flex flex-col">
@@ -152,6 +154,28 @@ export function StockOpnameView({
                 />
               </div>
 
+              <div className="grid gap-2">
+                <label
+                  htmlFor="opname-unit-scope"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Cakupan Unit
+                </label>
+                <select
+                  id="opname-unit-scope"
+                  name="hospitalUnitId"
+                  defaultValue={draftValues.hospitalUnitId ?? ""}
+                  disabled={draftPending}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                >
+                  <option value="">Seluruh Unit (Global)</option>
+                  {hospitalUnits.map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.name} ({unit.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <FeedbackMessage error={draftState.error} message={draftState.message} />
 
@@ -171,6 +195,11 @@ export function StockOpnameView({
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
               </p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                {draftSession.hospitalUnitName
+                  ? `Cakupan: ${draftSession.hospitalUnitName}`
+                  : "Cakupan: Seluruh Unit (Global)"}
+              </p>
               {draftSession.notes ? (
                 <p className="mt-2 text-sm leading-6 text-slate-600">{draftSession.notes}</p>
               ) : null}
@@ -181,6 +210,13 @@ export function StockOpnameView({
 
               <form action={lineAction} className="mt-6 grid gap-4">
                 <input type="hidden" name="sessionId" value={draftSession.id} />
+                {hasUnitScope ? (
+                  <input
+                    type="hidden"
+                    name="hospitalUnitId"
+                    value={draftSession.hospitalUnitId!}
+                  />
+                ) : null}
 
                 <div className="grid gap-2">
                   <label
@@ -213,7 +249,10 @@ export function StockOpnameView({
                     <select
                       id="opname-position"
                       name="stockPosition"
-                      defaultValue={lineValues.stockPosition ?? "READY"}
+                      defaultValue={
+                        lineValues.stockPosition ??
+                        (hasUnitScope ? "IN_UNIT" : "READY")
+                      }
                       disabled={linePending}
                       className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
                     >
@@ -234,9 +273,13 @@ export function StockOpnameView({
                     </label>
                     <select
                       id="opname-unit"
-                      name="hospitalUnitId"
-                      defaultValue={lineValues.hospitalUnitId ?? ""}
-                      disabled={linePending}
+                      name={hasUnitScope ? undefined : "hospitalUnitId"}
+                      defaultValue={
+                        hasUnitScope
+                          ? draftSession.hospitalUnitId!
+                          : (lineValues.hospitalUnitId ?? "")
+                      }
+                      disabled={linePending || hasUnitScope}
                       className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
                     >
                       <option value="">Kosongkan jika tidak di unit</option>
@@ -273,7 +316,7 @@ export function StockOpnameView({
                 <button
                   type="submit"
                   disabled={linePending}
-                  className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-xl bg-teal-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
                 >
                   {linePending ? "Menyimpan..." : "Simpan hasil hitung"}
                 </button>

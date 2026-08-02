@@ -87,7 +87,7 @@ export function InternalUsageTransactionView({
               htmlFor="internal-item"
               className="text-xs font-semibold uppercase tracking-wider text-slate-700"
             >
-              Item Consumable Internal
+              Item Konsumabel Internal
             </label>
             <SearchableSelect
               id="internal-item"

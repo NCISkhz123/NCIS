@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { InternalUsageTransactionView } from "@/components/cssd/transactions/internal-usage-transaction-view";
@@ -100,8 +100,9 @@ describe("CSSD remaining transaction pages", () => {
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/sisa stok/i).length).toBeGreaterThan(0);
     const itemSelect = screen.getByLabelText(/item konsumabel internal/i);
-    expect(itemSelect).toHaveTextContent(/chemical sterilizer/i);
-    expect(itemSelect).not.toHaveTextContent(/set minor/i);
+    fireEvent.focus(itemSelect);
+    expect(screen.getAllByText(/chemical sterilizer/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/set minor/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/jumlah pakai/i)).toBeVisible();
     expect(
       screen.getByRole("button", { name: /simpan pemakaian internal/i })
@@ -126,6 +127,7 @@ describe("CSSD remaining transaction pages", () => {
     expect(screen.getAllByText(/posisi stok/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/riwayat sesi/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/tanggal opname/i)).toBeVisible();
+    expect(screen.getByLabelText(/cakupan unit/i)).toBeVisible();
     expect(
       screen.getByRole("button", { name: /buat sesi/i })
     ).toBeVisible();
@@ -144,6 +146,8 @@ describe("CSSD remaining transaction pages", () => {
           opnameDate: "2026-06-29",
           status: "DRAFT",
           notes: "Hitung akhir bulan",
+          hospitalUnitId: unitIgd.id,
+          hospitalUnitName: unitIgd.name,
           lineCount: 1,
         }}
         draftLines={[
@@ -167,6 +171,8 @@ describe("CSSD remaining transaction pages", () => {
             opnameDate: "2026-06-20",
             status: "FINALIZED",
             notes: "Sudah final",
+            hospitalUnitId: null,
+            hospitalUnitName: null,
             lineCount: 4,
           },
         ]}
@@ -186,10 +192,13 @@ describe("CSSD remaining transaction pages", () => {
     );
 
     expect(screen.getAllByText(/sesi aktif/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/cakupan: instalasi gawat darurat/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/baris tersimpan/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/hasil hitung/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/item stok/i)).toBeVisible();
     expect(screen.getByLabelText(/posisi stok/i)).toBeVisible();
+    expect(screen.getByLabelText(/posisi stok/i)).toHaveValue("IN_UNIT");
+    expect(screen.getByLabelText(/unit terkait/i)).toBeDisabled();
     expect(screen.getByLabelText(/qty hitung/i)).toBeVisible();
     expect(
       screen.getByRole("button", { name: /simpan hasil hitung/i })

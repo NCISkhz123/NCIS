@@ -116,12 +116,16 @@ export function StockOpnameView({
   const lineValues = lineState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
 
+  const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
+
   const summaryItems = draftSession
     ? [
         {
           label: "Sesi aktif",
           value: formatDateLabel(draftSession.opnameDate),
-          helper: draftSession.notes ?? "Draft masih bisa dilanjutkan.",
+          helper: draftSession.hospitalUnitName
+            ? `Cakupan: ${draftSession.hospitalUnitName}`
+            : "Cakupan: Seluruh Unit (Global)",
         },
         {
           label: "Baris tersimpan",
@@ -172,6 +176,28 @@ export function StockOpnameView({
         />
       </div>
 
+      <div className="grid gap-1.5">
+        <label
+          htmlFor="opname-unit-scope"
+          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+        >
+          Cakupan Unit
+        </label>
+        <Select
+          id="opname-unit-scope"
+          name="hospitalUnitId"
+          defaultValue={draftValues.hospitalUnitId ?? ""}
+          disabled={draftPending}
+        >
+          <option value="">Seluruh Unit (Global)</option>
+          {hospitalUnits.map((unit) => (
+            <option key={unit.id} value={unit.id}>
+              {unit.name} ({unit.code})
+            </option>
+          ))}
+        </Select>
+      </div>
+
       <FeedbackMessage error={draftState.error} message={draftState.message} />
 
       <Button
@@ -188,6 +214,13 @@ export function StockOpnameView({
   ) : (
     <form action={lineAction} className="grid gap-4">
       <input type="hidden" name="sessionId" value={draftSession.id} />
+      {hasUnitScope ? (
+        <input
+          type="hidden"
+          name="hospitalUnitId"
+          value={draftSession.hospitalUnitId!}
+        />
+      ) : null}
 
       <div className="grid gap-1.5">
         <label
@@ -220,7 +253,10 @@ export function StockOpnameView({
           <Select
             id="opname-position"
             name="stockPosition"
-            defaultValue={lineValues.stockPosition ?? "READY"}
+            defaultValue={
+              lineValues.stockPosition ??
+              (hasUnitScope ? "IN_UNIT" : "READY")
+            }
             disabled={linePending}
           >
             {REUSABLE_STOCK_POSITIONS.map((position) => (
@@ -240,9 +276,13 @@ export function StockOpnameView({
           </label>
           <Select
             id="opname-unit"
-            name="hospitalUnitId"
-            defaultValue={lineValues.hospitalUnitId ?? ""}
-            disabled={linePending}
+            name={hasUnitScope ? undefined : "hospitalUnitId"}
+            defaultValue={
+              hasUnitScope
+                ? draftSession.hospitalUnitId!
+                : (lineValues.hospitalUnitId ?? "")
+            }
+            disabled={linePending || hasUnitScope}
           >
             <option value="">Kosongkan jika tidak di unit</option>
             {hospitalUnits.map((unit) => (
@@ -331,7 +371,10 @@ export function StockOpnameView({
                       Sesi aktif: Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
                     </CardTitle>
                     <CardDescription className="text-xs text-slate-600 font-medium">
-                      {draftSession.notes ?? "Draft masih bisa dilanjutkan."}
+                      {draftSession.hospitalUnitName
+                        ? `Cakupan: ${draftSession.hospitalUnitName}`
+                        : "Cakupan: Seluruh Unit (Global)"}
+                      {draftSession.notes ? ` • ${draftSession.notes}` : ""}
                     </CardDescription>
                   </div>
                   <Badge variant="info" dot>Draft Aktif</Badge>
