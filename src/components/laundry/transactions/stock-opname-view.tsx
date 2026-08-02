@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 
 import {
@@ -102,6 +102,9 @@ export function StockOpnameView({
   const defaultDate = new Date().toISOString().slice(0, 10);
 
   const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
+  const defaultPosition = lineValues.stockPosition ?? (hasUnitScope ? "IN_UNIT" : "READY");
+  const [selectedPosition, setSelectedPosition] = useState<string>();
+  const currentPosition = selectedPosition ?? defaultPosition;
 
   return (
     <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
@@ -252,10 +255,8 @@ export function StockOpnameView({
                     <select
                       id="opname-position"
                       name="stockPosition"
-                      defaultValue={
-                        lineValues.stockPosition ??
-                        (hasUnitScope ? "IN_UNIT" : "READY")
-                      }
+                      value={currentPosition}
+                      onChange={(e) => setSelectedPosition(e.target.value)}
                       disabled={linePending}
                       className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
                     >
@@ -282,7 +283,7 @@ export function StockOpnameView({
                           ? draftSession.hospitalUnitId!
                           : (lineValues.hospitalUnitId ?? "")
                       }
-                      disabled={linePending || hasUnitScope}
+                      disabled={linePending || hasUnitScope || currentPosition !== "IN_UNIT"}
                       className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
                     >
                       <option value="">Kosongkan jika tidak di unit</option>

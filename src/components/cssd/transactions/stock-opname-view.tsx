@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ClipboardCheck, CheckCircle2 } from "lucide-react";
 
 import {
@@ -116,14 +116,17 @@ export function StockOpnameView({
   const lineValues = lineState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
 
+  const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
+  const defaultPosition = lineValues.stockPosition ?? (hasUnitScope ? "IN_UNIT" : "READY");
+  const [selectedPosition, setSelectedPosition] = useState<string>();
+  const currentPosition = selectedPosition ?? defaultPosition;
+
   const scopeLabel =
     draftSession?.scopeType === "INTERNAL"
       ? "Depo Utama CSSD"
       : draftSession?.scopeType === "UNIT" && draftSession.hospitalUnitName
         ? `Unit ${draftSession.hospitalUnitName}`
         : "Seluruh Unit (Global)";
-
-  const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
 
   const summaryItems = draftSession
     ? [
@@ -259,10 +262,8 @@ export function StockOpnameView({
           <Select
             id="opname-position"
             name="stockPosition"
-            defaultValue={
-              lineValues.stockPosition ??
-              (hasUnitScope ? "IN_UNIT" : "READY")
-            }
+            value={currentPosition}
+            onChange={(e) => setSelectedPosition(e.target.value)}
             disabled={linePending}
           >
             {REUSABLE_STOCK_POSITIONS.map((position) => (
@@ -288,7 +289,7 @@ export function StockOpnameView({
                 ? draftSession.hospitalUnitId!
                 : (lineValues.hospitalUnitId ?? "")
             }
-            disabled={linePending || hasUnitScope}
+            disabled={linePending || hasUnitScope || currentPosition !== "IN_UNIT"}
           >
             <option value="">Kosongkan jika tidak di unit</option>
             {hospitalUnits.map((unit) => (
