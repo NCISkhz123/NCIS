@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
-import { Activity, ShieldCheck } from "lucide-react";
 
 import { LoginForm } from "@/components/auth/login-form";
 import { getDefaultModulePath } from "@/lib/auth/guards";
@@ -41,14 +40,8 @@ export default async function LoginPage() {
 
       {/* LEFT BRANDING SECTION (~60% Width Desktop) */}
       <div className="relative z-10 flex min-h-[420px] lg:min-h-[100dvh] w-full lg:w-[58%] xl:w-[62%] flex-col items-center justify-center p-6 sm:p-10 lg:p-14">
-        {/* LARGE MODERN HERO TYPOGRAPHY WITH HIASAN ACCENTS */}
+        {/* LARGE MODERN HERO TYPOGRAPHY */}
         <div className="w-full max-w-3xl text-center space-y-4">
-          {/* Top Decorative Tech Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-slate-950/80 px-4 py-1.5 text-xs font-mono font-bold tracking-widest text-sky-400 uppercase backdrop-blur-md shadow-[0_0_25px_rgba(56,189,248,0.25)]">
-            <Activity className="h-3.5 w-3.5 animate-pulse text-sky-400" />
-            <span>NCIS OPERATIONAL SYSTEM</span>
-          </div>
-
           {/* Main Headline: Outfit Black Display Font (Extra Large) */}
           <h1 className="font-[var(--font-outfit)] text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.08] uppercase text-white drop-shadow-[0_12px_30px_rgba(0,0,0,0.95)]">
             NON CLINICAL <br className="hidden sm:inline" />
@@ -58,10 +51,10 @@ export default async function LoginPage() {
           </h1>
 
           {/* Decorative Glowing Accent Bar */}
-          <div className="h-1.5 w-28 bg-gradient-to-r from-sky-400 via-teal-400 to-sky-500 rounded-full shadow-[0_0_20px_rgba(56,189,248,0.7)] mx-auto my-4" />
+          <div className="h-1.5 w-28 bg-gradient-to-r from-sky-400 via-teal-400 to-sky-500 rounded-full shadow-[0_0_20px_rgba(56,189,248,0.7)] mx-auto my-5" />
 
-          {/* Subtitle: Space Grotesk Bold Font */}
-          <p className="font-[var(--font-space-grotesk)] text-lg sm:text-xl lg:text-2xl font-bold tracking-widest text-sky-300 uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
+          {/* Subtitle: Space Grotesk Bold Font (Enlarged) */}
+          <p className="font-[var(--font-space-grotesk)] text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-widest text-sky-300 uppercase drop-shadow-[0_4px_14px_rgba(0,0,0,0.95)]">
             RSUD KHZ. MUSTHAFA TASIKMALAYA
           </p>
         </div>
