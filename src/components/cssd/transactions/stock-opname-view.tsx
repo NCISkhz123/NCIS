@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { ClipboardCheck, CheckCircle2 } from "lucide-react";
 
 import {
@@ -15,6 +16,8 @@ import {
   createStockOpnameDraftAction,
   finalizeStockOpnameSessionAction,
   saveStockOpnameLineAction,
+  submitStockOpnameDraftAction,
+  rejectStockOpnamePendingAction,
 } from "@/app/(protected)/cssd/stok-opname/actions";
 import { DataTable } from "@/components/data/data-table";
 import { StockSummaryTable } from "@/components/cssd/transactions/stock-summary-table";
@@ -49,6 +52,7 @@ type StockOpnameViewProps = {
   draftLines: StockOpnameLineSummary[];
   recentSessions: StockOpnameSessionSummary[];
   stockSummary: StockSummaryEntry[];
+  isChecker?: boolean;
 };
 
 function FeedbackMessage(props: {
@@ -98,6 +102,7 @@ export function StockOpnameView({
   draftLines,
   recentSessions,
   stockSummary,
+  isChecker = false,
 }: StockOpnameViewProps) {
   const [draftState, draftAction, draftPending] = useActionState(
     createStockOpnameDraftAction,
@@ -109,6 +114,14 @@ export function StockOpnameView({
   );
   const [finalizeState, finalizeAction, finalizePending] = useActionState(
     finalizeStockOpnameSessionAction,
+    initialFinalizeState
+  );
+  const [submitState, submitAction, submitPending] = useActionState(
+    submitStockOpnameDraftAction,
+    initialFinalizeState
+  );
+  const [rejectState, rejectAction, rejectPending] = useActionState(
+    rejectStockOpnamePendingAction,
     initialFinalizeState
   );
 
@@ -220,7 +233,7 @@ export function StockOpnameView({
         <span>{draftPending ? "Membuat..." : "Buat sesi"}</span>
       </Button>
     </form>
-  ) : (
+  ) : draftSession.status === "DRAFT" ? (
     <form action={lineAction} className="grid gap-4">
       <input type="hidden" name="sessionId" value={draftSession.id} />
       {hasUnitScope ? (
@@ -331,6 +344,14 @@ export function StockOpnameView({
         <span>{linePending ? "Menyimpan..." : "Simpan hasil hitung"}</span>
       </Button>
     </form>
+  ) : (
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
+      <h3 className="font-bold text-amber-900 mb-2">Menunggu Persetujuan</h3>
+      <p className="text-sm text-amber-800">
+        Sesi ini sedang dalam tahap review dan tidak dapat diubah. 
+        Menunggu keputusan Supervisor.
+      </p>
+    </div>
   );
 
   return (
@@ -353,19 +374,22 @@ export function StockOpnameView({
               <CardTitle className="text-base font-bold">Riwayat sesi</CardTitle>
             </CardHeader>
             <CardContent>
-              <DataTable
-                caption="Riwayat sesi"
-                columns={["Tanggal", "Status", "Baris"]}
-                rows={
-                  recentSessions.length
-                    ? recentSessions.map((session) => [
-                        formatDateLabel(session.opnameDate),
-                        session.status,
-                        session.lineCount,
-                      ])
-                    : [["-", "Belum ada sesi final", "-"]]
-                }
-              />
+                <DataTable
+                  caption="Riwayat sesi"
+                  columns={["Tanggal", "Status", "Baris", "Aksi"]}
+                  rows={
+                    recentSessions.length
+                      ? recentSessions.map((session) => [
+                          formatDateLabel(session.opnameDate),
+                          session.status,
+                          session.lineCount,
+                          <Link key={session.id} href={`/cssd/stok-opname/${session.id}`} className="text-xs font-semibold text-blue-600 hover:underline">
+                            Detail
+                          </Link>
+                        ])
+                      : [["-", "Belum ada sesi final", "-", "-"]]
+                  }
+                />
             </CardContent>
           </Card>
 
@@ -382,10 +406,15 @@ export function StockOpnameView({
                       {draftSession.notes ? ` • ${draftSession.notes}` : ""}
                     </CardDescription>
                   </div>
-                  <Badge variant="info" dot>Draft Aktif</Badge>
+                  <Badge variant={draftSession.status === "PENDING_APPROVAL" ? "warning" : "info"} dot>
+                    {draftSession.status === "PENDING_APPROVAL" ? "Menunggu Review" : "Draft Aktif"}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                <p className="text-xs text-slate-500 mb-2">
+                  * Untuk mengubah hasil hitung, input kembali item dan posisi yang sama dengan jumlah yang baru.
+                </p>
                 <DataTable
                   caption="Baris tersimpan"
                   columns={[
@@ -410,25 +439,75 @@ export function StockOpnameView({
                   }
                 />
 
-                <form action={finalizeAction} className="grid gap-3 pt-2">
-                  <input type="hidden" name="sessionId" value={draftSession.id} />
-                  <FeedbackMessage
-                    error={finalizeState.error}
-                    message={finalizeState.message}
-                  />
-                  <Button
-                    type="submit"
-                    disabled={finalizePending || draftLines.length === 0}
-                    variant="default"
-                    size="lg"
-                    className="w-full"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>
-                      {finalizePending ? "Memfinalisasi..." : "Finalisasi hasil"}
-                    </span>
-                  </Button>
-                </form>
+                {draftSession.status === "DRAFT" ? (
+                  <form action={submitAction} className="grid gap-3 pt-2">
+                    <input type="hidden" name="sessionId" value={draftSession.id} />
+                    <FeedbackMessage
+                      error={submitState.error}
+                      message={submitState.message}
+                    />
+                    <Button
+                      type="submit"
+                      disabled={submitPending || draftLines.length === 0}
+                      variant="default"
+                      size="lg"
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    >
+                      <ClipboardCheck className="h-4 w-4" />
+                      <span>
+                        {submitPending ? "Mengajukan..." : "Ajukan Review"}
+                      </span>
+                    </Button>
+                  </form>
+                ) : draftSession.status === "PENDING_APPROVAL" ? (
+                  <div className="grid gap-3 pt-2">
+                    {isChecker ? (
+                      <div className="grid gap-3">
+                        <form action={finalizeAction} className="grid gap-3">
+                          <input type="hidden" name="sessionId" value={draftSession.id} />
+                          <FeedbackMessage
+                            error={finalizeState.error}
+                            message={finalizeState.message}
+                          />
+                          <Button
+                            type="submit"
+                            disabled={finalizePending}
+                            variant="default"
+                            size="lg"
+                            className="w-full bg-emerald-600 hover:bg-emerald-700"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span>
+                              {finalizePending ? "Memfinalisasi..." : "Setujui & Finalisasi"}
+                            </span>
+                          </Button>
+                        </form>
+                        <form action={rejectAction} className="grid gap-3">
+                          <input type="hidden" name="sessionId" value={draftSession.id} />
+                          <FeedbackMessage
+                            error={rejectState.error}
+                            message={rejectState.message}
+                          />
+                          <Button
+                            type="submit"
+                            disabled={rejectPending}
+                            variant="outline"
+                            size="lg"
+                            className="w-full border-rose-200 text-rose-700 hover:bg-rose-50"
+                          >
+                            <span>
+                              {rejectPending ? "Membatalkan..." : "Tolak / Kembalikan ke Draft"}
+                            </span>
+                          </Button>
+                        </form>
+                      </div>
+                    ) : (
+                      <p className="text-center text-sm font-medium text-slate-500 py-3">
+                        Hanya Supervisor yang dapat menyetujui sesi ini.
+                      </p>
+                    )}
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
           ) : null}

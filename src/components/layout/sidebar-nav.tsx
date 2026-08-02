@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   ChevronDown,
   Package,
-  Truck,
+  Send,
   RotateCcw,
   PackageMinus,
   ClipboardCheck,
@@ -35,7 +35,7 @@ function isPetugasRole(role: AppRole | undefined) {
 
 function getNavIcon(segmentOrHref: string) {
   if (segmentOrHref.includes("pemasukan")) return Package;
-  if (segmentOrHref.includes("distribusi")) return Truck;
+  if (segmentOrHref.includes("distribusi")) return Send;
   if (segmentOrHref.includes("pengembalian")) return RotateCcw;
   if (segmentOrHref.includes("pemakaian-internal")) return PackageMinus;
   if (segmentOrHref.includes("stok-opname")) return ClipboardCheck;

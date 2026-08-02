@@ -135,8 +135,8 @@ export function ModuleSwitcher({
           role="group"
           aria-label="Pilihan modul NCIS"
           className={cn(
-            "absolute z-30 mt-2 grid min-w-[16rem] gap-1.5 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95",
-            compact ? "right-0 w-[min(18rem,calc(100vw-2rem))]" : "left-0 w-full"
+            "absolute z-30 mt-2 grid gap-1.5 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95",
+            compact ? "right-0 min-w-[16rem] w-[min(18rem,calc(100vw-2rem))]" : "left-0 w-full"
           )}
         >
           {modules.map((module) => {

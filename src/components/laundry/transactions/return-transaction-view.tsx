@@ -1,26 +1,40 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { SearchableSelect } from "@/components/ui/searchable-select";
+import {
+  RotateCcw,
+  ArrowRight,
+  Flame,
+  CheckCircle2,
+  Package,
+} from "lucide-react";
 
-import {
-  processReusableAction,
-  saveReturnAction,
-} from "@/app/(protected)/laundry/pengembalian/actions";
-import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
-import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
-import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
-import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
-import {
-  RETURN_DESTINATION_POSITIONS,
-  STOCK_POSITION_LABELS,
-} from "@/lib/laundry/constants";
 import {
   initialReturnFormState,
   initialReusableProcessingFormState,
   type ReturnFormState,
   type ReusableProcessingFormState,
 } from "@/lib/laundry/forms/transactions";
+import {
+  processReusableAction,
+  saveReturnAction,
+} from "@/app/(protected)/laundry/pengembalian/actions";
+import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
+import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
+import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
+import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
+import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  RETURN_DESTINATION_POSITIONS,
+  STOCK_POSITION_LABELS,
+} from "@/lib/laundry/constants";
 import type {
   ReusableProcessingSummaryEntry,
   StockSummaryEntry,
@@ -79,298 +93,373 @@ export function ReturnTransactionView({
       item.item_type === "REUSABLE" &&
       (selectedUnitId ? itemsInSelectedUnit.has(item.id) : false)
   );
+
   const defaultDate = new Date().toISOString().slice(0, 10);
+  const readyToProcessCount = reusableProcessingSummary.reduce(
+    (total, row) => total + row.availableNonSterile + row.availableSterilizationArea,
+    0
+  );
 
   return (
-    <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
-      <div className="grid gap-6 h-full flex flex-col">
-        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7 flex-1 flex flex-col min-h-[400px]">
-          <div className="space-y-6 flex-1 flex flex-col">
-            <p className="mb-3 text-sm font-semibold text-slate-800">
-              Riwayat pengembalian
-            </p>
-            <div className="flex-1">
+    <TransactionPageShell
+      eyebrow="Laundry"
+      title="Pengembalian reusable"
+      description="Catat alat reusable yang kembali dari unit rumah sakit dan proses ke tahap pencucian."
+      summary={
+        <TransactionSummaryStrip
+          items={[
+            {
+              label: "Reusable siap diproses",
+              value: readyToProcessCount,
+              helper: "Di area kotor atau proses pencucian.",
+              accent: "emphasis",
+            },
+            {
+              label: "Riwayat terbaru",
+              value: recentTransactions.length,
+              helper: "Pengembalian baru tercatat.",
+            },
+            {
+              label: "Posisi stok reusable",
+              value: stockSummary.length,
+              helper: "Per posisi unit & area Laundry.",
+            },
+          ]}
+        />
+      }
+      formTitle="Catat pengembalian"
+      formDescription="Pilih item reusable, unit asal, dan posisi tujuan awal."
+      form={
+        <form action={returnAction} className="grid gap-4">
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="return-source-unit"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+            >
+              Unit Asal
+            </label>
+            <Select
+              id="return-source-unit"
+              name="sourceUnitId"
+              value={selectedUnitId}
+              onChange={(e) => setSelectedUnitId(e.target.value)}
+              disabled={returnPending}
+            >
+              <option value="">Pilih unit asal</option>
+              {hospitalUnits.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.name} ({unit.code})
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="return-item"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+            >
+              Item Reusable
+            </label>
+            <SearchableSelect
+              key={selectedUnitId}
+              id="return-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={returnPending || !selectedUnitId}
+              options={reusableItems.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Ketik untuk mencari item..."
+            />
+          </div>
+
+          <input type="hidden" name="itemType" value="REUSABLE" />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <label
+                htmlFor="return-date"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+              >
+                Tanggal Transaksi
+              </label>
+              <Input
+                id="return-date"
+                type="date"
+                name="transactionDate"
+                defaultValue={values.transactionDate ?? defaultDate}
+                disabled={returnPending}
+              />
+            </div>
+
+            <div className="grid gap-1.5">
+              <label
+                htmlFor="return-quantity"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+              >
+                Jumlah Kembali
+              </label>
+              <Input
+                id="return-quantity"
+                type="number"
+                min="1"
+                name="quantity"
+                placeholder="Jumlah unit"
+                defaultValue={values.quantity ?? ""}
+                disabled={returnPending}
+              />
+            </div>
+          </div>
+
+          <input type="hidden" name="destinationPosition" value="NON_STERILE" />
+
+          <TransactionFeedback
+            error={returnState.error}
+            message={returnState.message}
+            impact={returnState.impact}
+          />
+
+          <Button
+            type="submit"
+            disabled={returnPending}
+            variant="default"
+            size="lg"
+            className="w-full mt-2"
+          >
+            <RotateCcw className="h-4 w-4" />
+            <span>{returnPending ? "Menyimpan..." : "Simpan pengembalian"}</span>
+          </Button>
+        </form>
+      }
+      supportingContent={
+        <>
+          {/* Reusable Processing Board */}
+          <Card className="border-slate-200 bg-white">
+            <CardContent className="pt-6">
+              <TransactionFeedback
+                error={processingState.error}
+                message={processingState.message}
+                impact={processingState.impact}
+              />
+
+              <div className="mt-4 grid gap-4">
+                {reusableProcessingSummary.length ? (
+                  reusableProcessingSummary.map((row) => (
+                    <div
+                      key={row.itemId}
+                      className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 shadow-2xs"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-sky-600" />
+                          <p className="text-sm font-bold text-slate-900">
+                            {row.itemCode} - {row.itemName}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge variant="warning">
+                            Kotor: {row.availableNonSterile}
+                          </Badge>
+                          <Badge variant="info">
+                            Sterilisasi: {row.availableSterilizationArea}
+                          </Badge>
+                          {row.availableDamaged > 0 && (
+                            <Badge variant="destructive">
+                              Rusak: {row.availableDamaged}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        {/* Process from NON_STERILE */}
+                        <form
+                          action={processingAction}
+                          className="flex flex-col justify-between rounded-xl border border-amber-300 bg-amber-50/80 p-4"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-bold uppercase tracking-wider text-amber-950">
+                                Kotor
+                              </p>
+                              <Badge variant="warning">
+                                Stok: {row.availableNonSterile}
+                              </Badge>
+                            </div>
+                            <input type="hidden" name="itemId" value={row.itemId} />
+                            <input type="hidden" name="itemType" value="REUSABLE" />
+                            <input
+                              type="hidden"
+                              name="transactionDate"
+                              value={defaultDate}
+                            />
+                            <input
+                              type="hidden"
+                              name="fromPosition"
+                              value="NON_STERILE"
+                            />
+                            <input
+                              type="hidden"
+                              name="notes"
+                              value="Proses reusable dari Kotor"
+                            />
+                            <div className="grid gap-1.5">
+                              <label
+                                htmlFor={`process-non-sterile-${row.itemId}`}
+                                className="text-xs font-semibold uppercase text-slate-800"
+                              >
+                                Qty Proses
+                              </label>
+                              <Input
+                                id={`process-non-sterile-${row.itemId}`}
+                                type="number"
+                                min="1"
+                                name="quantity"
+                                defaultValue={row.availableNonSterile || ""}
+                                disabled={
+                                  processingPending || row.availableNonSterile === 0
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2 pt-2">
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="to-sterilization"
+                              disabled={
+                                processingPending || row.availableNonSterile === 0
+                              }
+                              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                            >
+                              <span>Kirim ke area pencucian</span>
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="mark-damaged-non-sterile"
+                              disabled={
+                                processingPending || row.availableNonSterile === 0
+                              }
+                              variant="destructive"
+                              size="sm"
+                            >
+                              <span>Tandai rusak</span>
+                            </Button>
+                          </div>
+                        </form>
+
+                        {/* Process from STERILIZATION_AREA */}
+                        <form
+                          action={processingAction}
+                          className="flex flex-col justify-between rounded-xl border border-sky-300 bg-sky-50/80 p-4"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-bold uppercase tracking-wider text-sky-950">
+                                Area Pencucian
+                              </p>
+                              <Badge variant="info">
+                                Stok: {row.availableSterilizationArea}
+                              </Badge>
+                            </div>
+                            <input type="hidden" name="itemId" value={row.itemId} />
+                            <input type="hidden" name="itemType" value="REUSABLE" />
+                            <input
+                              type="hidden"
+                              name="transactionDate"
+                              value={defaultDate}
+                            />
+                            <input
+                              type="hidden"
+                              name="fromPosition"
+                              value="STERILIZATION_AREA"
+                            />
+                            <input
+                              type="hidden"
+                              name="notes"
+                              value="Proses reusable dari Area Pencucian"
+                            />
+                            <div className="grid gap-1.5">
+                              <label
+                                htmlFor={`process-sterilization-${row.itemId}`}
+                                className="text-xs font-semibold uppercase text-slate-800"
+                              >
+                                Qty Proses
+                              </label>
+                              <Input
+                                id={`process-sterilization-${row.itemId}`}
+                                type="number"
+                                min="1"
+                                name="quantity"
+                                defaultValue={row.availableSterilizationArea || ""}
+                                disabled={
+                                  processingPending ||
+                                  row.availableSterilizationArea === 0
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-2 pt-2">
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="to-ready"
+                              disabled={
+                                processingPending ||
+                                row.availableSterilizationArea === 0
+                              }
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              <span>Tandai bersih</span>
+                            </Button>
+                            <Button
+                              type="submit"
+                              name="intent"
+                              value="mark-damaged-sterilization"
+                              disabled={
+                                processingPending ||
+                                row.availableSterilizationArea === 0
+                              }
+                              variant="destructive"
+                              size="sm"
+                            >
+                              <span>Tandai rusak</span>
+                            </Button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-xs font-semibold text-slate-700">
+                    Tidak ada reusable yang berada di area Kotor atau Area Pencucian saat ini.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Transactions & Stock Summary */}
+          <Card className="h-full flex flex-col min-h-[400px]">
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1">
               <TransactionHistoryTable
-                caption="Riwayat pengembalian"
+                caption="Riwayat terbaru"
                 rows={recentTransactions}
               />
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <form action={returnAction} className="mt-6 grid gap-4">
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-source-unit"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Unit Asal
-              </label>
-              <select
-                id="return-source-unit"
-                name="sourceUnitId"
-                value={selectedUnitId}
-                onChange={(e) => setSelectedUnitId(e.target.value)}
-                disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih unit asal</option>
-                {hospitalUnits.map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.name} ({unit.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-item"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Item Reusable
-              </label>
-              <SearchableSelect
-                key={selectedUnitId}
-                id="return-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
-                disabled={returnPending || !selectedUnitId}
-                options={reusableItems.map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
-                placeholder="Ketik untuk mencari item..."
-              />
-            </div>
-
-            <input type="hidden" name="itemType" value="REUSABLE" />
-
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="return-date"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Tanggal Transaksi
-                </label>
-                <input
-                  id="return-date"
-                  type="date"
-                  name="transactionDate"
-                  defaultValue={values.transactionDate ?? defaultDate}
-                  disabled={returnPending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label
-                  htmlFor="return-quantity"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Jumlah Kembali
-                </label>
-                <input
-                  id="return-quantity"
-                  type="number"
-                  min="1"
-                  name="quantity"
-                  defaultValue={values.quantity ?? ""}
-                  disabled={returnPending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-            </div>
-
-            <input type="hidden" name="destinationPosition" value="DIRT_DIRTY" />
-
-
-            <TransactionFeedback
-              error={returnState.error}
-              message={returnState.message}
-              impact={returnState.impact}
-            />
-
-            <button
-              type="submit"
-              disabled={returnPending}
-              className="rounded-xl bg-teal-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
-            >
-              {returnPending ? "Menyimpan..." : "Simpan Pengembalian"}
-            </button>
-          </form>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <div className="mt-5">
-            <TransactionFeedback
-              error={processingState.error}
-              message={processingState.message}
-              impact={processingState.impact}
-            />
-          </div>
-
-          <div className="mt-5 grid gap-4">
-            {reusableProcessingSummary.length ? (
-              reusableProcessingSummary.map((row) => (
-                <article
-                  key={row.itemId}
-                  className="rounded-[1.35rem] border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {row.itemCode} - {row.itemName}
-                      </p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">
-                        Kotor {row.availableNonSterile} | Area Pencucian{" "}
-                        {row.availableSterilizationArea} | Rusak {row.availableDamaged}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <form action={processingAction} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-semibold text-slate-800">
-                        Dari Kotor
-                      </p>
-                      <input type="hidden" name="itemId" value={row.itemId} />
-                      <input type="hidden" name="itemType" value="REUSABLE" />
-                      <input
-                        type="hidden"
-                        name="transactionDate"
-                        value={defaultDate}
-                      />
-                      <input
-                        type="hidden"
-                        name="fromPosition"
-                        value="NON_STERILE"
-                      />
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor={`process-non-sterile-${row.itemId}`}
-                          className="text-sm font-semibold text-slate-700"
-                        >
-                          Qty proses
-                        </label>
-                        <input
-                          id={`process-non-sterile-${row.itemId}`}
-                          type="number"
-                          min="1"
-                          name="quantity"
-                          defaultValue={row.availableNonSterile || ""}
-                          disabled={processingPending || row.availableNonSterile === 0}
-                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                        />
-                      </div>
-                      <input
-                        type="hidden"
-                        name="notes"
-                        value="Proses reusable dari Kotor"
-                      />
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="to-sterilization"
-                          disabled={processingPending || row.availableNonSterile === 0}
-                          className="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Kirim ke Area Pencucian
-                        </button>
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="mark-damaged-non-sterile"
-                          disabled={processingPending || row.availableNonSterile === 0}
-                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Tandai Rusak
-                        </button>
-                      </div>
-                    </form>
-
-                    <form action={processingAction} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-sm font-semibold text-slate-800">
-                        Dari Area Pencucian
-                      </p>
-                      <input type="hidden" name="itemId" value={row.itemId} />
-                      <input type="hidden" name="itemType" value="REUSABLE" />
-                      <input
-                        type="hidden"
-                        name="transactionDate"
-                        value={defaultDate}
-                      />
-                      <input
-                        type="hidden"
-                        name="fromPosition"
-                        value="STERILIZATION_AREA"
-                      />
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor={`process-sterilization-${row.itemId}`}
-                          className="text-sm font-semibold text-slate-700"
-                        >
-                          Qty proses
-                        </label>
-                        <input
-                          id={`process-sterilization-${row.itemId}`}
-                          type="number"
-                          min="1"
-                          name="quantity"
-                          defaultValue={row.availableSterilizationArea || ""}
-                          disabled={
-                            processingPending || row.availableSterilizationArea === 0
-                          }
-                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                        />
-                      </div>
-                      <input
-                        type="hidden"
-                        name="notes"
-                        value="Proses reusable dari Area Pencucian"
-                      />
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="to-ready"
-                          disabled={
-                            processingPending || row.availableSterilizationArea === 0
-                          }
-                          className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Tandai Bersih
-                        </button>
-                        <button
-                          type="submit"
-                          name="intent"
-                          value="mark-damaged-sterilization"
-                          disabled={
-                            processingPending || row.availableSterilizationArea === 0
-                          }
-                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Tandai Rusak
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </article>
-              ))
-            ) : (
-              <div className="rounded-[1.35rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-600">
-                Belum ada reusable di Kotor atau Area Pencucian.
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
-    </div>
+            </CardContent>
+          </Card>
+        </>
+      }
+    />
   );
 }
-

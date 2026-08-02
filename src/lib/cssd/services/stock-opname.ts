@@ -30,7 +30,7 @@ type JoinedHospitalUnitRow = {
 type StockOpnameSessionRow = {
   id: string;
   opname_date: string;
-  status: "DRAFT" | "FINALIZED";
+  status: "DRAFT" | "PENDING_APPROVAL" | "FINALIZED";
   notes: string | null;
   scope_type: "GLOBAL" | "INTERNAL" | "UNIT";
   hospital_unit_id: string | null;
@@ -56,7 +56,7 @@ export type StockOpnameScopeType = "GLOBAL" | "INTERNAL" | "UNIT";
 export type StockOpnameSessionSummary = {
   id: string;
   opnameDate: string;
-  status: "DRAFT" | "FINALIZED";
+  status: "DRAFT" | "PENDING_APPROVAL" | "FINALIZED";
   notes: string | null;
   scopeType: StockOpnameScopeType;
   hospitalUnitId: string | null;
@@ -206,6 +206,48 @@ export async function finalizeStockOpnameSession(
   );
 }
 
+export async function submitDraftStockOpnameSession(
+  client: CssdRpcClient,
+  sessionId: string
+): Promise<ServiceResult<{ id: string; status: "PENDING_APPROVAL" }>> {
+  const parsed = stockOpnameFinalizeSchema.safeParse({
+    sessionId,
+  });
+
+  if (!parsed.success) {
+    return validationFailure(parsed.error.issues);
+  }
+
+  return executeOpnameRpc<{ id: string; status: "PENDING_APPROVAL" }>(
+    client,
+    "cssd_submit_stock_opname_session",
+    {
+      p_session_id: parsed.data.sessionId,
+    }
+  );
+}
+
+export async function rejectPendingStockOpnameSession(
+  client: CssdRpcClient,
+  sessionId: string
+): Promise<ServiceResult<{ id: string; status: "DRAFT" }>> {
+  const parsed = stockOpnameFinalizeSchema.safeParse({
+    sessionId,
+  });
+
+  if (!parsed.success) {
+    return validationFailure(parsed.error.issues);
+  }
+
+  return executeOpnameRpc<{ id: string; status: "DRAFT" }>(
+    client,
+    "cssd_reject_stock_opname_session",
+    {
+      p_session_id: parsed.data.sessionId,
+    }
+  );
+}
+
 export async function getDraftStockOpnameSession(
   supabase: SupabaseClient
 ): Promise<StockOpnameSessionSummary | null> {
@@ -287,7 +329,8 @@ async function getCurrentBalance(
 
 export async function listStockOpnameLines(
   supabase: SupabaseClient,
-  sessionId: string
+  sessionId: string,
+  sessionStatus: "DRAFT" | "PENDING_APPROVAL" | "FINALIZED"
 ): Promise<StockOpnameLineSummary[]> {
   const { data, error } = await supabase
     .from("stock_opname_lines")
@@ -305,8 +348,10 @@ export async function listStockOpnameLines(
 
   return Promise.all(
     rows.map(async (row) => {
-      const item = row.items?.[0] ?? null;
-      const hospitalUnit = row.hospital_units?.[0] ?? null;
+      const itemRaw = row.items as any;
+      const item = Array.isArray(itemRaw) ? itemRaw[0] : itemRaw;
+      const hospitalUnitRaw = row.hospital_units as any;
+      const hospitalUnit = Array.isArray(hospitalUnitRaw) ? hospitalUnitRaw[0] : hospitalUnitRaw;
       const currentQuantity = await getCurrentBalance(
         supabase,
         row.item_id,

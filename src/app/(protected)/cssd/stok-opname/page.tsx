@@ -1,4 +1,5 @@
 import { StockOpnameView } from "@/components/cssd/transactions/stock-opname-view";
+import { getCurrentProfile } from "@/lib/auth/profile";
 import { listStockSummary } from "@/lib/cssd/services/transaction-read-models";
 import {
   getDraftStockOpnameSession,
@@ -27,8 +28,11 @@ async function StokOpnamePageContent() {
     ]);
 
   const draftLines = draftSession
-    ? await listStockOpnameLines(supabase, draftSession.id)
+    ? await listStockOpnameLines(supabase, draftSession.id, draftSession.status)
     : [];
+
+  const profile = await getCurrentProfile();
+  const isChecker = profile?.role === "ADMIN_CSSD" || profile?.role === "KEPALA_SEKSI";
 
   return (
     <StockOpnameView
@@ -38,6 +42,7 @@ async function StokOpnamePageContent() {
       draftLines={draftLines}
       recentSessions={recentSessions}
       stockSummary={stockSummary}
+      isChecker={isChecker}
     />
   );
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireLaundryAccess } from "@/lib/auth/guards";
+import { getCurrentProfile } from "@/lib/auth/profile";
 import type {
   StockOpnameDraftFormState,
   StockOpnameFinalizeFormState,
@@ -12,6 +13,8 @@ import {
   createDraftStockOpnameSession,
   finalizeStockOpnameSession,
   saveStockOpnameLine,
+  submitDraftStockOpnameSession,
+  rejectPendingStockOpnameSession,
 } from "@/lib/laundry/services/stock-opname";
 import { createSupabaseRpcClient } from "@/lib/laundry/services/stock";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -136,6 +139,19 @@ export async function finalizeStockOpnameSessionAction(
   const supabase = await createServerSupabaseClient({
     writeCookies: true,
   });
+  
+  const profile = await getCurrentProfile();
+  const isChecker = profile?.role === "ADMIN_LAUNDRY" || profile?.role === "KEPALA_SEKSI";
+  if (!isChecker) {
+    return {
+      error: "Hanya Supervisor yang dapat memfinalisasi",
+      message: null,
+      values: {
+        sessionId,
+      },
+    };
+  }
+
   const client = createSupabaseRpcClient(supabase);
   const result = await finalizeStockOpnameSession(client, sessionId);
 
@@ -154,6 +170,70 @@ export async function finalizeStockOpnameSessionAction(
   return {
     error: null,
     message: `Stok opname berhasil difinalisasi. ${result.data.adjusted_lines} baris menimbulkan penyesuaian stok.`,
+  };
+}
+
+export async function submitStockOpnameDraftAction(
+  _previousState: StockOpnameFinalizeFormState,
+  formData: FormData
+): Promise<StockOpnameFinalizeFormState> {
+  await requireLaundryAccess();
+
+  const sessionId = String(formData.get("sessionId") ?? "");
+
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
+  const client = createSupabaseRpcClient(supabase);
+  const result = await submitDraftStockOpnameSession(client, sessionId);
+
+  if (!result.success) {
+    return {
+      error: result.error,
+      message: null,
+      values: {
+        sessionId,
+      },
+    };
+  }
+
+  revalidateStockOpnameSurfaces();
+
+  return {
+    error: null,
+    message: "Draft stok opname berhasil diajukan untuk persetujuan.",
+  };
+}
+
+export async function rejectStockOpnamePendingAction(
+  _previousState: StockOpnameFinalizeFormState,
+  formData: FormData
+): Promise<StockOpnameFinalizeFormState> {
+  await requireLaundryAccess();
+
+  const sessionId = String(formData.get("sessionId") ?? "");
+
+  const supabase = await createServerSupabaseClient({
+    writeCookies: true,
+  });
+  const client = createSupabaseRpcClient(supabase);
+  const result = await rejectPendingStockOpnameSession(client, sessionId);
+
+  if (!result.success) {
+    return {
+      error: result.error,
+      message: null,
+      values: {
+        sessionId,
+      },
+    };
+  }
+
+  revalidateStockOpnameSurfaces();
+
+  return {
+    error: null,
+    message: "Stok opname dikembalikan ke DRAFT.",
   };
 }
 

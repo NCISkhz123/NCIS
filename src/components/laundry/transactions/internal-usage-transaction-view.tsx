@@ -1,17 +1,23 @@
 "use client";
 
 import { useActionState } from "react";
-import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Wrench } from "lucide-react";
 
-import { saveInternalUsageAction } from "@/app/(protected)/laundry/pemakaian-internal/actions";
-import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
-import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
-import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
-import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
 import {
   initialInternalUsageFormState,
   type InternalUsageFormState,
 } from "@/lib/laundry/forms/transactions";
+import { saveInternalUsageAction } from "@/app/(protected)/laundry/pemakaian-internal/actions";
+import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
+import { TransactionFeedback } from "@/components/laundry/transactions/transaction-feedback";
+import { TransactionHistoryTable } from "@/components/laundry/transactions/transaction-history-table";
+import { TransactionPageShell } from "@/components/transactions/transaction-page-shell";
+import { TransactionSummaryStrip } from "@/components/transactions/transaction-summary-strip";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Textarea } from "@/components/ui/textarea";
 import type {
   StockSummaryEntry,
   TransactionHistoryEntry,
@@ -41,106 +47,130 @@ export function InternalUsageTransactionView({
   const consumableItems = items.filter(
     (item) => item.item_type === "CONSUMABLE"
   );
+  const firstInternalItem = consumableItems[0]
+    ? `${consumableItems[0].code} - ${consumableItems[0].name}`
+    : "Belum ada item internal";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7 h-full flex flex-col min-h-[400px]">
-        <div className="space-y-6 flex-1 flex flex-col">
-
-          <p className="mb-3 text-sm font-semibold text-slate-800">
-            Riwayat pemakaian
-          </p>
-          <div className="flex-1">
-            <TransactionHistoryTable
-              caption="Riwayat pemakaian"
-              rows={recentTransactions}
+    <TransactionPageShell
+      eyebrow="Laundry"
+      title="Pemakaian internal"
+      description="Catat consumable yang dipakai di Laundry."
+      summary={
+        <TransactionSummaryStrip
+          items={[
+            {
+              label: "Item internal aktif",
+              value: consumableItems.length,
+              helper: firstInternalItem,
+            },
+            {
+              label: "Riwayat terbaru",
+              value: recentTransactions.length,
+              helper: "Pemakaian internal yang sudah tercatat.",
+            },
+            {
+              label: "Sisa stok",
+              value: stockSummary.length,
+              helper: "Cek stok sebelum dipakai.",
+              accent: "emphasis",
+            },
+          ]}
+        />
+      }
+      formTitle="Catat pemakaian"
+      formDescription="Pilih item, isi tanggal, jumlah pakai, lalu simpan."
+      form={
+        <form action={formAction} className="grid gap-4">
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="internal-item"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+            >
+              Item Konsumabel Internal
+            </label>
+            <SearchableSelect
+              id="internal-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={pending}
+              options={consumableItems.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Ketik untuk mencari item..."
             />
           </div>
-        </div>
-      </section>
 
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6">
+          <input type="hidden" name="itemType" value="CONSUMABLE" />
 
-
-          <form action={formAction} className="mt-6 grid gap-4">
-            <div className="grid gap-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
               <label
-                htmlFor="internal-item"
-                className="text-sm font-semibold text-slate-700"
+                htmlFor="internal-date"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Item Consumable Internal
+                Tanggal Transaksi
               </label>
-              <SearchableSelect
-                id="internal-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
+              <Input
+                id="internal-date"
+                type="date"
+                name="transactionDate"
+                defaultValue={values.transactionDate ?? defaultDate}
                 disabled={pending}
-                options={consumableItems.map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
-                placeholder="Ketik untuk mencari item..."
               />
             </div>
 
-            <input type="hidden" name="itemType" value="CONSUMABLE" />
-
-            <div className="grid gap-2 md:grid-cols-2">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="internal-date"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Tanggal Transaksi
-                </label>
-                <input
-                  id="internal-date"
-                  type="date"
-                  name="transactionDate"
-                  defaultValue={values.transactionDate ?? defaultDate}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <label
-                  htmlFor="internal-quantity"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Jumlah Pakai
-                </label>
-                <input
-                  id="internal-quantity"
-                  type="number"
-                  min="1"
-                  name="quantity"
-                  defaultValue={values.quantity ?? ""}
-                  disabled={pending}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
+            <div className="grid gap-1.5">
+              <label
+                htmlFor="internal-quantity"
+                className="text-xs font-semibold uppercase tracking-wider text-slate-700"
+              >
+                Jumlah Pakai
+              </label>
+              <Input
+                id="internal-quantity"
+                type="number"
+                min="1"
+                name="quantity"
+                placeholder="Jumlah unit"
+                defaultValue={values.quantity ?? ""}
+                disabled={pending}
+              />
             </div>
+          </div>
 
+          <TransactionFeedback
+            error={formState.error}
+            message={formState.message}
+            impact={formState.impact}
+          />
 
-            <TransactionFeedback
-              error={formState.error}
-              message={formState.message}
-              impact={formState.impact}
+          <Button
+            type="submit"
+            disabled={pending}
+            variant="default"
+            size="lg"
+            className="w-full mt-2"
+          >
+            <Wrench className="h-4 w-4" />
+            <span>{pending ? "Menyimpan..." : "Simpan Pemakaian Internal"}</span>
+          </Button>
+        </form>
+      }
+      supportingContent={
+        <Card className="h-full flex flex-col min-h-[400px]">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
             />
-
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-xl bg-teal-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer w-full sm:w-auto"
-            >
-              {pending ? "Menyimpan..." : "Simpan Pemakaian Internal"}
-            </button>
-          </form>
-        </section>
-      </div>
-    </div>
+          </CardContent>
+        </Card>
+      }
+    />
   );
 }
-
