@@ -19,30 +19,30 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-[100dvh] w-full flex-col lg:flex-row bg-slate-950 text-slate-100 overflow-x-hidden antialiased">
-      {/* LEFT HERO SECTION (60% Desktop Width / Top Banner Mobile) */}
-      <div className="relative flex min-h-[380px] lg:min-h-[100dvh] w-full lg:w-[58%] xl:w-[62%] flex-col items-center justify-center p-6 sm:p-10 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800/60">
-        {/* Background Aerial Photography */}
-        <Image
-          src="/bg-login.jpg"
-          alt="RSUD KHZ. Musthafa Tasikmalaya Aerial View"
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 62vw"
-          className="object-cover object-center filter brightness-[0.65] contrast-[1.1] scale-[1.02] transition-transform duration-1000"
-        />
+    <main className="relative flex min-h-[100dvh] w-full flex-col lg:flex-row bg-slate-950 text-slate-100 overflow-hidden antialiased">
+      {/* FULL SCREEN BACKGROUND AERIAL PHOTOGRAPHY */}
+      <Image
+        src="/bg-login.jpg"
+        alt="RSUD KHZ. Musthafa Tasikmalaya Aerial View"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center filter brightness-[0.55] contrast-[1.1] scale-[1.01] transition-transform duration-1000"
+      />
 
-        {/* Ambient Dark Overlay Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40" />
-        <div className="absolute inset-0 bg-radial from-transparent via-slate-950/40 to-slate-950" />
+      {/* FULL SCREEN DARK GRADIENT OVERLAYS */}
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/70" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60" />
 
-        {/* Decorative Glow Orbs */}
-        <div className="pointer-events-none absolute top-1/4 left-1/4 h-80 w-80 rounded-full bg-sky-500/20 blur-[100px]" />
-        <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-teal-500/15 blur-[100px]" />
+      {/* DECORATIVE GLOW ORBS */}
+      <div className="pointer-events-none absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-sky-500/15 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-teal-500/15 blur-[120px]" />
 
+      {/* LEFT BRANDING SECTION (~60% Width Desktop) */}
+      <div className="relative z-10 flex min-h-[380px] lg:min-h-[100dvh] w-full lg:w-[58%] xl:w-[62%] flex-col items-center justify-center p-6 sm:p-10">
         {/* CENTERED GLASSMORPHISM OVERLAY CARD */}
-        <div className="relative z-10 w-full max-w-xl text-center">
-          <div className="group relative rounded-3xl border border-slate-700/50 bg-slate-950/60 p-8 sm:p-10 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:border-sky-500/40">
+        <div className="w-full max-w-xl text-center">
+          <div className="group relative rounded-3xl border border-slate-700/50 bg-slate-950/70 p-8 sm:p-10 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:border-sky-500/40">
             {/* Top Chip / Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-4 py-1.5 text-xs font-extrabold tracking-widest text-sky-400 uppercase shadow-inner mb-6">
               <Activity className="h-4 w-4 animate-pulse text-sky-400" />
@@ -69,7 +69,7 @@ export default async function LoginPage() {
             </p>
 
             {/* Bottom Security Pill */}
-            <div className="mt-6 inline-flex items-center gap-2 text-[11px] font-mono text-slate-400 bg-slate-900/50 px-3 py-1 rounded-full border border-slate-800">
+            <div className="mt-6 inline-flex items-center gap-2 text-[11px] font-mono text-slate-400 bg-slate-900/60 px-3 py-1 rounded-full border border-slate-800">
               <ShieldCheck className="h-3.5 w-3.5 text-teal-400" />
               <span>Enkripsi Sesi End-to-End RSUD</span>
             </div>
@@ -77,11 +77,11 @@ export default async function LoginPage() {
         </div>
       </div>
 
-      {/* RIGHT LOGIN FORM SECTION (40% Desktop Width) */}
-      <div className="relative flex w-full lg:w-[42%] xl:w-[38%] flex-col items-center justify-center p-6 sm:p-12 bg-slate-950">
+      {/* RIGHT LOGIN FORM SECTION (~40% Width Desktop) */}
+      <div className="relative z-10 flex w-full lg:w-[42%] xl:w-[38%] flex-col items-center justify-center p-6 sm:p-12 lg:bg-slate-950/40 lg:backdrop-blur-md lg:border-l lg:border-slate-800/50">
         <div className="w-full max-w-md space-y-6">
           {/* Form Card */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-8 sm:p-10 shadow-2xl backdrop-blur-md">
+          <div className="rounded-3xl border border-slate-700/60 bg-slate-900/85 p-8 sm:p-10 shadow-2xl backdrop-blur-xl">
             <div className="mb-6 space-y-1">
               <h2 className="text-2xl font-black tracking-tight text-white">Selamat Datang Kembali</h2>
               <p className="text-xs sm:text-sm text-slate-400 font-medium">
@@ -93,7 +93,7 @@ export default async function LoginPage() {
           </div>
 
           {/* Demo Credentials Info Box */}
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 p-4 text-center backdrop-blur-sm">
+          <div className="rounded-2xl border border-slate-800/80 bg-slate-950/60 p-4 text-center backdrop-blur-md">
             <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
               Kredensial Demo Akun Lokal:
             </p>
