@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 import {
   processReusableAction,
@@ -59,80 +60,48 @@ export function ReturnTransactionView({
   );
 
   const values = returnState.values ?? {};
-  const reusableItems = items.filter((item) => item.item_type === "REUSABLE");
+  const [selectedUnitId, setSelectedUnitId] = useState<string>(
+    (values.sourceUnitId as string) ?? ""
+  );
+
+  const itemsInSelectedUnit = new Set(
+    stockSummary
+      .filter(
+        (stock) =>
+          stock.hospitalUnitId === selectedUnitId &&
+          stock.stockPosition === "IN_UNIT"
+      )
+      .map((stock) => stock.itemId)
+  );
+
+  const reusableItems = items.filter(
+    (item) =>
+      item.item_type === "REUSABLE" &&
+      (selectedUnitId ? itemsInSelectedUnit.has(item.id) : false)
+  );
   const defaultDate = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-          <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Laundry"
-              title="Pengembalian reusable"
-              description="Catat reusable yang kembali dari unit ke Laundry."
-              size="hero"
-            />
+      <div className="grid gap-6 h-full flex flex-col">
+        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7 flex-1 flex flex-col min-h-[400px]">
+          <div className="space-y-6 flex-1 flex flex-col">
             <p className="mb-3 text-sm font-semibold text-slate-800">
               Riwayat pengembalian
             </p>
-            <TransactionHistoryTable
-              caption="Riwayat pengembalian"
-              rows={recentTransactions}
-            />
-          </div>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Posisi stok"
-            title="Reusable saat ini"
-            description="Pantau reusable per posisi dan unit."
-          />
-
-          <div className="mt-5">
-            <StockSummaryTable
-              caption="Reusable saat ini"
-              rows={stockSummary}
-            />
+            <div className="flex-1">
+              <TransactionHistoryTable
+                caption="Riwayat pengembalian"
+                rows={recentTransactions}
+              />
+            </div>
           </div>
         </section>
       </div>
 
       <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title="Catat pengembalian"
-            description="Pilih item reusable, unit asal, lalu simpan."
-          />
-
           <form action={returnAction} className="mt-6 grid gap-4">
-            <div className="grid gap-2">
-              <label
-                htmlFor="return-item"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Item Reusable
-              </label>
-              <select
-                id="return-item"
-                name="itemId"
-                defaultValue={values.itemId ?? ""}
-                disabled={returnPending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item reusable</option>
-                {reusableItems.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <input type="hidden" name="itemType" value="REUSABLE" />
-
             <div className="grid gap-2">
               <label
                 htmlFor="return-source-unit"
@@ -143,7 +112,8 @@ export function ReturnTransactionView({
               <select
                 id="return-source-unit"
                 name="sourceUnitId"
-                defaultValue={values.sourceUnitId ?? ""}
+                value={selectedUnitId}
+                onChange={(e) => setSelectedUnitId(e.target.value)}
                 disabled={returnPending}
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               >
@@ -155,6 +125,29 @@ export function ReturnTransactionView({
                 ))}
               </select>
             </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="return-item"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Item Reusable
+              </label>
+              <SearchableSelect
+                key={selectedUnitId}
+                id="return-item"
+                name="itemId"
+                defaultValue={values.itemId ?? ""}
+                disabled={returnPending || !selectedUnitId}
+                options={reusableItems.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                placeholder="Ketik untuk mencari item..."
+              />
+            </div>
+
+            <input type="hidden" name="itemType" value="REUSABLE" />
 
             <div className="grid gap-2 md:grid-cols-2">
               <div className="grid gap-2">
@@ -215,19 +208,6 @@ export function ReturnTransactionView({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="return-notes" className="text-sm font-semibold text-slate-700">
-                Catatan
-              </label>
-              <textarea
-                id="return-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
-                disabled={returnPending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
 
             <TransactionFeedback
               error={returnState.error}
@@ -246,12 +226,6 @@ export function ReturnTransactionView({
         </section>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Proses reusable"
-            title="Lanjutkan proses"
-            description="Pindahkan reusable ke tahap berikutnya setelah diproses."
-          />
-
           <div className="mt-5">
             <TransactionFeedback
               error={processingState.error}

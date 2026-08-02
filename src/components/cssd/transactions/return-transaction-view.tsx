@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   RotateCcw,
   ArrowRight,
@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   RETURN_DESTINATION_POSITIONS,
@@ -73,7 +74,26 @@ export function ReturnTransactionView({
   );
 
   const values = returnState.values ?? {};
-  const reusableItems = items.filter((item) => item.item_type === "REUSABLE");
+  const [selectedUnitId, setSelectedUnitId] = useState<string>(
+    (values.sourceUnitId as string) ?? ""
+  );
+
+  const itemsInSelectedUnit = new Set(
+    stockSummary
+      .filter(
+        (stock) =>
+          stock.hospitalUnitId === selectedUnitId &&
+          stock.stockPosition === "IN_UNIT"
+      )
+      .map((stock) => stock.itemId)
+  );
+
+  const reusableItems = items.filter(
+    (item) =>
+      item.item_type === "REUSABLE" &&
+      (selectedUnitId ? itemsInSelectedUnit.has(item.id) : false)
+  );
+
   const defaultDate = new Date().toISOString().slice(0, 10);
   const readyToProcessCount = reusableProcessingSummary.reduce(
     (total, row) => total + row.availableNonSterile + row.availableSterilizationArea,
@@ -113,30 +133,6 @@ export function ReturnTransactionView({
         <form action={returnAction} className="grid gap-4">
           <div className="grid gap-1.5">
             <label
-              htmlFor="return-item"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
-            >
-              Item Reusable
-            </label>
-            <Select
-              id="return-item"
-              name="itemId"
-              defaultValue={values.itemId ?? ""}
-              disabled={returnPending}
-            >
-              <option value="">Pilih item reusable</option>
-              {reusableItems.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} - {item.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-
-          <input type="hidden" name="itemType" value="REUSABLE" />
-
-          <div className="grid gap-1.5">
-            <label
               htmlFor="return-source-unit"
               className="text-xs font-semibold uppercase tracking-wider text-slate-800"
             >
@@ -145,7 +141,8 @@ export function ReturnTransactionView({
             <Select
               id="return-source-unit"
               name="sourceUnitId"
-              defaultValue={values.sourceUnitId ?? ""}
+              value={selectedUnitId}
+              onChange={(e) => setSelectedUnitId(e.target.value)}
               disabled={returnPending}
             >
               <option value="">Pilih unit asal</option>
@@ -156,6 +153,29 @@ export function ReturnTransactionView({
               ))}
             </Select>
           </div>
+
+          <div className="grid gap-1.5">
+            <label
+              htmlFor="return-item"
+              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
+            >
+              Item Reusable
+            </label>
+            <SearchableSelect
+              key={selectedUnitId}
+              id="return-item"
+              name="itemId"
+              defaultValue={values.itemId ?? ""}
+              disabled={returnPending || !selectedUnitId}
+              options={reusableItems.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Ketik untuk mencari item..."
+            />
+          </div>
+
+          <input type="hidden" name="itemType" value="REUSABLE" />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
@@ -216,23 +236,6 @@ export function ReturnTransactionView({
             </Select>
           </div>
 
-          <div className="grid gap-1.5">
-            <label
-              htmlFor="return-notes"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-800"
-            >
-              Catatan Pengembalian
-            </label>
-            <Textarea
-              id="return-notes"
-              name="notes"
-              rows={3}
-              placeholder="Catatan kondisi barang atau info penyerahan..."
-              defaultValue={values.notes ?? ""}
-              disabled={returnPending}
-            />
-          </div>
-
           <TransactionFeedback
             error={returnState.error}
             message={returnState.message}
@@ -242,7 +245,7 @@ export function ReturnTransactionView({
           <Button
             type="submit"
             disabled={returnPending}
-            variant="primary"
+            variant="default"
             size="lg"
             className="w-full mt-2"
           >
@@ -255,23 +258,7 @@ export function ReturnTransactionView({
         <>
           {/* Reusable Processing Board */}
           <Card className="border-slate-200 bg-white">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-900">
-                    <Flame className="h-4 w-4 text-amber-600" />
-                    Lanjutkan reusable
-                  </CardTitle>
-                  <CardDescription className="text-xs text-slate-600 font-medium">
-                    Pindahkan alat reusable ke tahap sterilisasi atau tandai rusak.
-                  </CardDescription>
-                </div>
-                <Badge variant="warning" dot>
-                  {readyToProcessCount} Unit Menunggu
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <TransactionFeedback
                 error={processingState.error}
                 message={processingState.message}
@@ -316,7 +303,7 @@ export function ReturnTransactionView({
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <p className="text-xs font-bold uppercase tracking-wider text-amber-950">
-                                1. Dari Tidak Steril
+                                Tidak Steril
                               </p>
                               <Badge variant="warning">
                                 Stok: {row.availableNonSterile}
@@ -367,9 +354,7 @@ export function ReturnTransactionView({
                               disabled={
                                 processingPending || row.availableNonSterile === 0
                               }
-                              variant="amber"
-                              size="sm"
-                              className="flex-1"
+                              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
                             >
                               <span>Kirim ke area sterilisasi</span>
                               <ArrowRight className="h-3.5 w-3.5" />
@@ -397,7 +382,7 @@ export function ReturnTransactionView({
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <p className="text-xs font-bold uppercase tracking-wider text-sky-950">
-                                2. Dari Area Sterilisasi
+                                Area Sterilisasi
                               </p>
                               <Badge variant="info">
                                 Stok: {row.availableSterilizationArea}
@@ -450,9 +435,7 @@ export function ReturnTransactionView({
                                 processingPending ||
                                 row.availableSterilizationArea === 0
                               }
-                              variant="success"
-                              size="sm"
-                              className="flex-1"
+                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               <span>Tandai steril</span>
@@ -485,24 +468,15 @@ export function ReturnTransactionView({
           </Card>
 
           {/* Recent Transactions & Stock Summary */}
-          <Card>
+          <Card className="h-full flex flex-col min-h-[400px]">
             <CardHeader>
               <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
               <TransactionHistoryTable
                 caption="Riwayat terbaru"
                 rows={recentTransactions}
               />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Stok reusable saat ini</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StockSummaryTable caption="Stok reusable saat ini" rows={stockSummary} />
             </CardContent>
           </Card>
         </>

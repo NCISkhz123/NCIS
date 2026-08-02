@@ -28,7 +28,7 @@ function buildInternalUsageImpact(
 ): TransactionImpact {
   return {
     movementLabel:
-      "Pemakaian internal tersimpan dan stok konsumabel internal Laundry berkurang.",
+      "Pemakaian internal tersimpan dan stok consumable internal Laundry berkurang.",
     quantity: data.quantity,
     fromLabel: getStockPositionLabel(data.from_position),
     toLabel: getStockPositionLabel(data.to_position),
@@ -55,7 +55,7 @@ export async function saveInternalUsageAction(
 
   const result = await recordInternalUsage(client, {
     itemId,
-    itemType: "CONSUMABLE_INTERNAL",
+    itemType: "CONSUMABLE",
     transactionDate,
     quantity,
     notes,
@@ -68,7 +68,7 @@ export async function saveInternalUsageAction(
       impact: null,
       values: {
         itemId,
-        itemType: "CONSUMABLE_INTERNAL",
+        itemType: "CONSUMABLE",
         transactionDate,
         quantity,
         notes,

@@ -71,6 +71,8 @@ export interface Database {
           destination_lng: number;
           distance_km: number;
           total_cost: number;
+          status: string;
+          completed_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -80,6 +82,8 @@ export interface Database {
           destination_lng: number;
           distance_km: number;
           total_cost: number;
+          status?: string;
+          completed_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -89,6 +93,8 @@ export interface Database {
           destination_lng?: number;
           distance_km?: number;
           total_cost?: number;
+          status?: string;
+          completed_at?: string | null;
           created_at?: string;
         };
         Relationships: [

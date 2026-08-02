@@ -57,7 +57,7 @@ const distributionConsumableItem = {
   id: "33333333-3333-4333-8333-333333333333",
   code: "CD-0001",
   name: "Wrap CSSD",
-  item_type: "CONSUMABLE_DISTRIBUTION" as const,
+  item_type: "CONSUMABLE" as const,
   uom_id: "22222222-2222-4222-8222-222222222222",
   notes: null,
   is_active: true,
@@ -67,7 +67,7 @@ const internalConsumableItem = {
   id: "44444444-4444-4444-8444-444444444444",
   code: "CI-0001",
   name: "Chemical Sterilizer",
-  item_type: "CONSUMABLE_INTERNAL" as const,
+  item_type: "CONSUMABLE" as const,
   uom_id: "22222222-2222-4222-8222-222222222222",
   notes: null,
   is_active: true,
@@ -108,7 +108,7 @@ describe("CSSD transaction pages", () => {
             stockPosition: "READY",
             stockPositionLabel: "Steril",
             quantity: 5,
-            hospitalUnitName: null,
+            hospitalUnitId: "unit-1", hospitalUnitName: null,
           },
         ]}
       />
@@ -155,7 +155,7 @@ describe("CSSD transaction pages", () => {
             stockPosition: "READY",
             stockPositionLabel: "Steril",
             quantity: 8,
-            hospitalUnitName: null,
+            hospitalUnitId: "unit-1", hospitalUnitName: null,
           },
         ]}
       />
@@ -201,7 +201,7 @@ describe("CSSD transaction pages", () => {
             stockPosition: "NON_STERILE",
             stockPositionLabel: "Tidak Steril",
             quantity: 2,
-            hospitalUnitName: null,
+            hospitalUnitId: "unit-1", hospitalUnitName: null,
           },
         ]}
         reusableProcessingSummary={[

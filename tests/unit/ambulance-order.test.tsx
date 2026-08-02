@@ -24,13 +24,30 @@ vi.mock("sonner", () => ({
   }
 }));
 
+vi.mock("next/dynamic", () => ({
+  default: () => {
+    return function MockMapComponent({ onRouteCalculated }: any) {
+      return (
+        <div data-testid="mock-map">
+          <button 
+            onClick={() => onRouteCalculated(10.5, [-6.2, 106.8])}
+            data-testid="simulate-route"
+          >
+            Simulate Route
+          </button>
+        </div>
+      );
+    };
+  },
+}));
+
 vi.mock("@/components/ambulance/AmbulanceMap", () => {
   return {
     default: function MockMapComponent({ onRouteCalculated }: any) {
       return (
         <div data-testid="mock-map">
           <button 
-            onClick={() => onRouteCalculated(10.555, [-6.2, 106.8])}
+            onClick={() => onRouteCalculated(10.5, [-6.2, 106.8])}
             data-testid="simulate-route"
           >
             Simulate Route
@@ -65,7 +82,7 @@ describe("OrderWizard", () => {
 
   it("renders empty state when no ambulances available", () => {
     render(<OrderWizard ambulances={[]} hospitalCoords={mockHospitalCoords} />);
-    expect(screen.getByText("Tidak ada ambulans yang tersedia saat ini.")).toBeInTheDocument();
+    expect(screen.getByText("Tidak Ada Armada Siaga")).toBeInTheDocument();
   });
 
   it("renders list of ambulances when available", () => {
@@ -77,37 +94,38 @@ describe("OrderWizard", () => {
   it("changes to step 2 after selecting an ambulance", () => {
     render(<OrderWizard ambulances={mockAmbulances} hospitalCoords={mockHospitalCoords} />);
     
-    const selectButtons = screen.getAllByRole("button", { name: "Pilih" });
+    const selectButtons = screen.getAllByRole("button", { name: /Pilih Armada Ini/i });
     fireEvent.click(selectButtons[0]);
     
-    expect(screen.getByText("Tentukan Tujuan")).toBeInTheDocument();
-    expect(screen.getByText(/Ambulans Alpha/)).toBeInTheDocument();
-    expect(screen.getByText(/B 1234 CD/)).toBeInTheDocument();
+    expect(screen.getByText(/Klik lokasi di peta di bawah untuk menentukan titik tujuan ambulans/i)).toBeInTheDocument();
+    expect(screen.getByText("Ambulans Alpha")).toBeInTheDocument();
+    expect(screen.getByText("B 1234 CD")).toBeInTheDocument();
   });
 
   it("calculates route, shows summary and handles checkout correctly", async () => {
-    vi.mocked(createAmbulanceOrder).mockResolvedValueOnce({ success: true });
+    vi.mocked(createAmbulanceOrder).mockResolvedValueOnce({ success: true, id: "test-tx-123" });
     
     render(<OrderWizard ambulances={mockAmbulances} hospitalCoords={mockHospitalCoords} />);
     
     // Step 1: Select ambulance
-    const selectButtons = screen.getAllByRole("button", { name: "Pilih" });
+    const selectButtons = screen.getAllByRole("button", { name: /Pilih Armada Ini/i });
     fireEvent.click(selectButtons[0]);
     
-    // Step 2: Simulate map route calculation
+    // Step 2: Wait for async dynamic map component button
     const simulateBtn = screen.getByTestId("simulate-route");
     fireEvent.click(simulateBtn);
     
-    // Verify summary is rendered
-    expect(screen.getByText("Ringkasan Pesanan")).toBeInTheDocument();
+    // Wait for route calculated summary to render
+    await waitFor(() => {
+      expect(screen.getByText("Ringkasan Pesanan")).toBeInTheDocument();
+    });
     
-    // 10.555 gets rounded to 10.56 in display and calculation
-    expect(screen.getByText("10.56 km")).toBeInTheDocument();
-    // 10.56 * 15000 = 158400
-    expect(screen.getByText("Rp 158.400")).toBeInTheDocument();
+    expect(screen.getByText("10.50 km")).toBeInTheDocument();
+    // 10.5 * 15000 * 2 (PP) = 315000
+    expect(screen.getByText("Rp 315.000")).toBeInTheDocument();
     
     // Click checkout
-    const checkoutBtn = screen.getByRole("button", { name: "Konfirmasi & Pesan" });
+    const checkoutBtn = screen.getByRole("button", { name: /Konfirmasi & Disposisi/i });
     fireEvent.click(checkoutBtn);
     
     // Wait for the action and navigation
@@ -116,10 +134,10 @@ describe("OrderWizard", () => {
         ambulance_id: "1",
         destination_lat: -6.2,
         destination_lng: 106.8,
-        distance_km: 10.56,
+        distance_km: 10.5,
       });
-      expect(toast.success).toHaveBeenCalledWith("Pesanan berhasil dibuat!");
-      expect(mockPush).toHaveBeenCalledWith("/ambulance/history");
+      expect(toast.success).toHaveBeenCalledWith("Disposisi Ambulans Berhasil Dikirim!");
+      expect(mockPush).toHaveBeenCalledWith("/ambulance/tracking/test-tx-123");
     });
   });
 
@@ -128,9 +146,15 @@ describe("OrderWizard", () => {
     
     render(<OrderWizard ambulances={mockAmbulances} hospitalCoords={mockHospitalCoords} />);
     
-    fireEvent.click(screen.getByRole("button", { name: "Pilih" }));
-    fireEvent.click(screen.getByTestId("simulate-route"));
-    fireEvent.click(screen.getByRole("button", { name: "Konfirmasi & Pesan" }));
+    fireEvent.click(screen.getAllByRole("button", { name: /Pilih Armada Ini/i })[0]);
+    const simulateBtn = screen.getByTestId("simulate-route");
+    fireEvent.click(simulateBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Konfirmasi & Disposisi/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Konfirmasi & Disposisi/i }));
     
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Gagal membuat pesanan: Database error");

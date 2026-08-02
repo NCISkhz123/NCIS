@@ -10,7 +10,7 @@ import { MasterDataFeedback } from "@/components/cssd/master-data/master-data-fe
 import { StatusPill } from "@/components/cssd/master-data/status-pill";
 import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,15 +55,7 @@ export function ItemMasterDataView({
         {/* Left Table Section */}
         <div className="xl:col-span-7 space-y-4">
           <Card>
-            <CardHeader>
-              <ShellSectionHeading
-                eyebrow="Master Data CSSD"
-                title="Data Item & Katalog"
-                description="Katalog item sterilisasi, konsumabel, dan reusable yang aktif di sistem."
-                size="hero"
-              />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -72,12 +64,12 @@ export function ItemMasterDataView({
                 </div>
                 <DataTable
                   caption="Daftar Katalog Item"
-                  columns={["Kode", "Nama Item", "Jenis", "Satuan", "Status", "Aksi"]}
+                  columns={["Nama Item", "Kode", "Jenis", "Satuan", "Status", "Aksi"]}
                   rows={items.map((item) => [
+                    item.name,
                     <span key={`${item.id}-code`} className="font-mono text-xs font-bold text-slate-900">
                       {item.code}
                     </span>,
-                    item.name,
                     <Badge key={`${item.id}-type`} variant="info">
                       {ITEM_TYPE_LABELS[item.item_type]}
                     </Badge>,
@@ -101,14 +93,7 @@ export function ItemMasterDataView({
         {/* Right Sticky Form Section */}
         <div className="xl:col-span-5">
           <Card className="sticky top-24 border-slate-200 shadow-sm">
-            <CardHeader>
-              <ShellSectionHeading
-                eyebrow="Form Input"
-                title={editingRecord ? "Ubah Data Item" : "Tambah Item Baru"}
-                description="Isi rincian item lalu simpan ke database master."
-              />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <form action={formAction} className="grid gap-4">
                 <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
 
@@ -189,23 +174,6 @@ export function ItemMasterDataView({
                   </Select>
                 </div>
 
-                <div className="grid gap-1.5">
-                  <label
-                    htmlFor="item-notes"
-                    className="text-xs font-semibold uppercase tracking-wider text-slate-800"
-                  >
-                    Catatan
-                  </label>
-                  <Textarea
-                    id="item-notes"
-                    name="notes"
-                    rows={3}
-                    placeholder="Keterangan atau panduan penanganan..."
-                    defaultValue={values.notes ?? editingRecord?.notes ?? ""}
-                    disabled={pending}
-                  />
-                </div>
-
                 <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-800">
                   <input
                     type="checkbox"
@@ -232,7 +200,7 @@ export function ItemMasterDataView({
                   <Button
                     type="submit"
                     disabled={pending}
-                    variant="primary"
+                    variant="default"
                     size="lg"
                     className="flex-1"
                   >
@@ -240,12 +208,10 @@ export function ItemMasterDataView({
                     <span>{pending ? "Menyimpan..." : "Simpan item"}</span>
                   </Button>
                   {editingRecord ? (
-                    <Button asChild variant="outline" size="lg">
-                      <Link href="/cssd/master-data/items">
-                        <X className="h-4 w-4" />
-                        <span>Batal</span>
-                      </Link>
-                    </Button>
+                    <Link href="/cssd/master-data/items" className={buttonVariants({ variant: "outline", size: "lg" })}>
+                      <X className="h-4 w-4" />
+                      <span>Batal</span>
+                    </Link>
                   ) : null}
                 </div>
               </form>

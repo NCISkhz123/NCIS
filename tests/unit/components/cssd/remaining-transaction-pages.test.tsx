@@ -50,7 +50,7 @@ const internalItem = {
   id: "22222222-2222-4222-8222-222222222222",
   code: "CI-0001",
   name: "Chemical Sterilizer",
-  item_type: "CONSUMABLE_INTERNAL" as const,
+  item_type: "CONSUMABLE" as const,
   uom_id: "uom-1",
   notes: null,
   is_active: true,
@@ -91,7 +91,7 @@ describe("CSSD remaining transaction pages", () => {
             stockPosition: "READY",
             stockPositionLabel: "Steril",
             quantity: 6,
-            hospitalUnitName: null,
+            hospitalUnitId: "unit-1", hospitalUnitName: null,
           },
         ]}
       />
@@ -179,7 +179,7 @@ describe("CSSD remaining transaction pages", () => {
             stockPosition: "IN_UNIT",
             stockPositionLabel: "Di Unit",
             quantity: 2,
-            hospitalUnitName: unitIgd.name,
+            hospitalUnitId: "unit-1", hospitalUnitName: unitIgd.name,
           },
         ]}
       />

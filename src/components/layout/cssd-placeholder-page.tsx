@@ -6,7 +6,7 @@ import { CSSD_NAV_ITEMS } from "@/lib/cssd/constants";
 import { LAUNDRY_NAV_ITEMS } from "@/lib/laundry/constants";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 type CssdPlaceholderPageProps = {
   eyebrow?: string;
@@ -103,12 +103,14 @@ export function CssdPlaceholderPage({
               <CardContent>
                 <div className="flex flex-wrap gap-2 pt-1">
                   {section.links.map((link) => (
-                    <Button key={link.href} asChild variant="outline" size="sm">
-                      <Link href={link.href}>
-                        <span>{link.label}</span>
-                        <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
-                      </Link>
-                    </Button>
+                    <Link 
+                      key={link.href} 
+                      href={link.href}
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                    >
+                      <span>{link.label}</span>
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+                    </Link>
                   ))}
                 </div>
               </CardContent>

@@ -47,22 +47,17 @@ export function ItemMasterDataView({
       <section className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
         <div className="shell-surface rounded-[1.75rem] p-6 md:p-7">
           <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Master data"
-              title="Data item"
-              description="Item yang dipakai di transaksi Laundry."
-              size="hero"
-            />
+
             <div>
               <p className="mb-3 text-sm font-semibold text-slate-800">
                 Daftar item
               </p>
               <DataTable
                 caption="Daftar item"
-                columns={["Kode", "Nama", "Jenis", "Satuan", "Status", "Aksi"]}
+                columns={["Nama", "Kode", "Jenis", "Satuan", "Status", "Aksi"]}
                 rows={items.map((item) => [
-                  item.code,
                   item.name,
+                  item.code,
                   ITEM_TYPE_LABELS[item.item_type],
                   uomLabelMap.get(item.uom_id) ?? item.uom_id,
                   <StatusPill key={`${item.id}-status`} active={item.is_active} />,
@@ -80,11 +75,7 @@ export function ItemMasterDataView({
         </div>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title={editingRecord ? "Ubah item" : "Tambah item"}
-            description="Isi data item lalu simpan."
-          />
+
 
           <form action={formAction} className="mt-6 grid gap-4">
             <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
@@ -169,22 +160,6 @@ export function ItemMasterDataView({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="item-notes"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Catatan
-              </label>
-              <textarea
-                id="item-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? editingRecord?.notes ?? ""}
-                disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
 
             <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
               <input

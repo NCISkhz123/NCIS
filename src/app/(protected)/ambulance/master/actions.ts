@@ -10,7 +10,14 @@ export async function saveAmbulanceSettings(data: { id?: string, hospital_lat: n
   revalidatePath("/ambulance/master");
 }
 
-export async function saveAmbulance(data: { id?: string, name: string, plate_number: string, base_price_per_km: number, is_active: boolean }) {
+export async function saveAmbulance(data: { 
+  id?: string; 
+  name: string; 
+  plate_number: string; 
+  base_price_per_km: number; 
+  is_active: boolean;
+  image_url?: string | null;
+}) {
   const supabase = await createServerSupabaseClient();
   
   if (data.id) {
@@ -23,4 +30,5 @@ export async function saveAmbulance(data: { id?: string, name: string, plate_num
   }
   
   revalidatePath("/ambulance/master");
+  revalidatePath("/ambulance/order");
 }

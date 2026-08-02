@@ -20,7 +20,7 @@ export default async function AmbulanceHistoryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl p-4 md:p-8">
+    <div className="w-full">
       <AmbulanceHistoryView transactions={transactions as unknown as AmbulanceTransactionHistory[]} />
     </div>
   );

@@ -1,0 +1,27 @@
+pnpm local:quick
+
+Admin CSSD
+Email: admin.cssd@ncis.local
+Password: change-me-admin
+
+Petugas CSSD
+Email: petugas.cssd@ncis.local
+Password: change-me-petugas
+
+Admin Laundry
+Email: admin.laundry@ncis.local
+Password: change-me-admin
+
+Petugas Laundry
+Email: petugas.laundry@ncis.local
+Password: change-me-petugas
+
+Kepala Seksi
+Email: kepala.seksi@ncis.local
+Password: change-me-admin
+
+
+
+ Slow filesystem detected. The benchmark took 807ms. If E:\PROJEK TTEH\.next/dev is a network drive, consider moving it to a local folder.
+See more: https://nextjs.org/docs/app/guides/local-development
+○ Compiling middleware ...

@@ -16,7 +16,7 @@ import { TransactionSummaryStrip } from "@/components/transactions/transaction-s
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import type {
   StockSummaryEntry,
@@ -44,24 +44,24 @@ export function InternalUsageTransactionView({
 
   const values = formState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
-  const internalItems = items.filter(
-    (item) => item.item_type === "CONSUMABLE_INTERNAL"
+  const consumableItems = items.filter(
+    (item) => item.item_type === "CONSUMABLE"
   );
-  const firstInternalItem = internalItems[0]
-    ? `${internalItems[0].code} - ${internalItems[0].name}`
+  const firstInternalItem = consumableItems[0]
+    ? `${consumableItems[0].code} - ${consumableItems[0].name}`
     : "Belum ada item internal";
 
   return (
     <TransactionPageShell
       eyebrow="CSSD"
       title="Pemakaian internal"
-      description="Catat konsumabel yang dipakai di CSSD."
+      description="Catat consumable yang dipakai di CSSD."
       summary={
         <TransactionSummaryStrip
           items={[
             {
               label: "Item internal aktif",
-              value: internalItems.length,
+              value: consumableItems.length,
               helper: firstInternalItem,
             },
             {
@@ -87,24 +87,22 @@ export function InternalUsageTransactionView({
               htmlFor="internal-item"
               className="text-xs font-semibold uppercase tracking-wider text-slate-700"
             >
-              Item Konsumabel Internal
+              Item Consumable Internal
             </label>
-            <Select
+            <SearchableSelect
               id="internal-item"
               name="itemId"
               defaultValue={values.itemId ?? ""}
               disabled={pending}
-            >
-              <option value="">Pilih item</option>
-              {internalItems.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} - {item.name}
-                </option>
-              ))}
-            </Select>
+              options={consumableItems.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Ketik untuk mencari item..."
+            />
           </div>
 
-          <input type="hidden" name="itemType" value="CONSUMABLE_INTERNAL" />
+          <input type="hidden" name="itemType" value="CONSUMABLE" />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
@@ -142,23 +140,6 @@ export function InternalUsageTransactionView({
             </div>
           </div>
 
-          <div className="grid gap-1.5">
-            <label
-              htmlFor="internal-notes"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
-            >
-              Catatan
-            </label>
-            <Textarea
-              id="internal-notes"
-              name="notes"
-              rows={3}
-              placeholder="Catatan keperluan operasional atau nomor mesin..."
-              defaultValue={values.notes ?? ""}
-              disabled={pending}
-            />
-          </div>
-
           <TransactionFeedback
             error={formState.error}
             message={formState.message}
@@ -168,7 +149,7 @@ export function InternalUsageTransactionView({
           <Button
             type="submit"
             disabled={pending}
-            variant="primary"
+            variant="default"
             size="lg"
             className="w-full mt-2"
           >
@@ -178,28 +159,17 @@ export function InternalUsageTransactionView({
         </form>
       }
       supportingContent={
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TransactionHistoryTable
-                caption="Riwayat terbaru"
-                rows={recentTransactions}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Sisa stok</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StockSummaryTable caption="Sisa stok" rows={stockSummary} />
-            </CardContent>
-          </Card>
-        </>
+        <Card className="h-full flex flex-col min-h-[400px]">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
+            />
+          </CardContent>
+        </Card>
       }
     />
   );

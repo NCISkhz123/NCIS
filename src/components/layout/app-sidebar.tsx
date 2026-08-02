@@ -1,4 +1,5 @@
 import { Activity } from "lucide-react";
+import Image from "next/image";
 
 import { LogoutButton } from "@/components/layout/logout-button";
 import { ModuleSwitcher } from "@/components/layout/module-switcher";
@@ -41,19 +42,26 @@ export function AppSidebar({
       <div className="space-y-6 overflow-y-auto">
         {/* Brand & Module Header */}
         <div className="space-y-4">
-          <div className="flex items-center gap-3 px-1">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white shadow-md">
-              <Activity className="h-5 w-5" />
+          <div className="flex items-center gap-4 px-1">
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white shadow-lg p-1.5 overflow-hidden">
+              <Image 
+                src="/logo.png"
+                alt="Logo RSUD KHZ. Musthafa"
+                width={48}
+                height={48}
+                className="object-contain"
+                priority
+              />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-extrabold tracking-tight text-white text-base">
-                  NCIS HEALTH
+                <span className="font-extrabold tracking-tight text-white text-xl">
+                  NCIS
                 </span>
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
               </div>
-              <p className="text-xs text-slate-300 font-medium">
-                Integrated Hospital OS
+              <p className="text-sm text-slate-300 font-semibold mt-0.5">
+                RSUD KHZ. MUSTHAFA
               </p>
             </div>
           </div>
@@ -71,22 +79,6 @@ export function AppSidebar({
 
       {/* User Profile & Logout Bottom Card */}
       <div className="pt-4 border-t border-slate-800 space-y-3">
-        <div className="rounded-xl border border-slate-800 bg-slate-800/80 p-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-white truncate">
-              {currentName}
-            </p>
-            <span className="rounded-md bg-sky-500/20 px-2 py-0.5 text-[0.7rem] font-bold text-sky-300 border border-sky-500/30">
-              {currentRole && currentRole in roleLabels
-                ? roleLabels[currentRole as keyof typeof roleLabels]
-                : currentRole ?? "PETUGAS"}
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-slate-400 truncate font-mono">
-            {currentEmail}
-          </p>
-        </div>
-
         <LogoutButton logoutAction={logoutAction} />
       </div>
     </aside>

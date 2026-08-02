@@ -102,10 +102,15 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  let user = null;
+  let error: unknown = null;
+  try {
+    const res = await supabase.auth.getUser();
+    user = res.data.user;
+    error = res.error;
+  } catch (err) {
+    error = err;
+  }
 
   if (!user && isInvalidRefreshTokenError(error)) {
     for (const storageKey of getSupabaseAuthCookieNamesToClear(
@@ -118,6 +123,21 @@ export async function updateSession(request: NextRequest) {
         scopes: [{ path: "/" }],
       });
     }
+
+    // Explicitly force maxAge: 0 on all sb- or auth-token cookies to ensure the browser purges them
+    incomingCookies.forEach((c) => {
+      if (c.name.startsWith("sb-") || c.name.includes("auth-token")) {
+        supabaseResponse.cookies.set(c.name, "", {
+          maxAge: 0,
+          path: "/",
+        });
+        try {
+          request.cookies.delete(c.name);
+        } catch {
+          // Ignore request cookie deletion errors
+        }
+      }
+    });
   }
 
   const userId = user?.id ?? null;

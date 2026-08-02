@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Layanan pemesanan ambulans rumah sakit.",
 };
 
+const DEFAULT_HOSPITAL_COORDS: [number, number] = [-6.200000, 106.816666];
+
 export default async function AmbulanceOrderPage() {
   const supabase = await createServerSupabaseClient();
   
@@ -20,11 +22,31 @@ export default async function AmbulanceOrderPage() {
     console.error("Error fetching ambulances:", error);
     throw new Error("Gagal mengambil data ambulans.");
   }
+
+  // Fetch active transactions where status = 'IN_USE'
+  const { data: activeTransactions } = await supabase
+    .from("ambulance_transactions")
+    .select("id, ambulance_id")
+    .eq("status", "IN_USE");
+
+  const activeMap = new Map<string, string>();
+  if (activeTransactions) {
+    for (const tx of activeTransactions) {
+      activeMap.set(tx.ambulance_id, tx.id);
+    }
+  }
+
+  const ambulancesWithStatus = (ambulances || []).map((amb) => ({
+    ...amb,
+    is_in_use: activeMap.has(amb.id),
+    active_transaction_id: activeMap.get(amb.id) || null,
+  }));
   
   const { data: settings, error: settingsError } = await supabase
     .from("ambulance_settings")
     .select("*")
-    .single();
+    .limit(1)
+    .maybeSingle();
 
   if (settingsError && settingsError.code !== 'PGRST116') {
     console.error("Error fetching ambulance settings:", settingsError);
@@ -33,18 +55,11 @@ export default async function AmbulanceOrderPage() {
   // Default coordinates if not set: Jakarta
   const hospitalCoords: [number, number] = settings 
     ? [settings.hospital_lat, settings.hospital_lng]
-    : [-6.200000, 106.816666];
+    : DEFAULT_HOSPITAL_COORDS;
 
   return (
-    <div className="container mx-auto py-6 space-y-6 max-w-5xl">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Pesan Ambulans</h1>
-        <p className="text-muted-foreground">
-          Layanan pemesanan ambulans. Pilih armada dan tentukan lokasi tujuan.
-        </p>
-      </div>
-      
-      <OrderWizard ambulances={ambulances || []} hospitalCoords={hospitalCoords} />
+    <div className="w-full">
+      <OrderWizard ambulances={ambulancesWithStatus} hospitalCoords={hospitalCoords} />
     </div>
   );
 }

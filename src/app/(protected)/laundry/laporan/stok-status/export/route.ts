@@ -16,7 +16,8 @@ function getExportDate() {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const itemId = url.searchParams.get("stockItem") ?? undefined;
-  const unitId = url.searchParams.get("stockUnit") ?? undefined;
+  const rawUnitId = url.searchParams.get("stockUnit") ?? undefined;
+  const unitId = rawUnitId === "INTERNAL" ? null : rawUnitId;
 
   const supabase = await createServerSupabaseClient();
   const reportClient = createSupabaseReportClient(supabase);

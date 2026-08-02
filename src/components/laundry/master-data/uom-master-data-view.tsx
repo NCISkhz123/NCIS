@@ -37,22 +37,17 @@ export function UomMasterDataView({
       <section className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
         <div className="shell-surface rounded-[1.75rem] p-6 md:p-7">
           <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Master data"
-              title="Data satuan"
-              description="Satuan yang dipakai oleh item Laundry."
-              size="hero"
-            />
+
             <div>
               <p className="mb-3 text-sm font-semibold text-slate-800">
                 Daftar satuan
               </p>
               <DataTable
                 caption="Daftar satuan"
-                columns={["Kode", "Nama", "Status", "Aksi"]}
+                columns={["Nama", "Kode", "Status", "Aksi"]}
                 rows={records.map((record) => [
-                  record.code,
                   record.name,
+                  record.code,
                   <StatusPill key={`${record.id}-status`} active={record.is_active} />,
                   <Link
                     key={`${record.id}-edit`}
@@ -68,11 +63,7 @@ export function UomMasterDataView({
         </div>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title={editingRecord ? "Ubah satuan" : "Tambah satuan"}
-            description="Isi kode dan nama satuan."
-          />
+
 
           <form action={formAction} className="mt-6 grid gap-4">
             <input type="hidden" name="id" value={editingRecord?.id ?? ""} />

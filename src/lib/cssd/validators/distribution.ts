@@ -10,18 +10,6 @@ export const distributionSchema = z
     targetUnitId: z.string().uuid("Unit tujuan wajib dipilih"),
     transactionDate: z.coerce.date(),
     notes: z.string().trim().max(500).optional(),
-  })
-  .superRefine((value, ctx) => {
-    if (
-      value.itemType !== "REUSABLE" &&
-      value.itemType !== "CONSUMABLE_DISTRIBUTION"
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Distribusi hanya untuk reusable atau konsumabel distribusi",
-        path: ["itemType"],
-      });
-    }
   });
 
 export type DistributionValues = z.infer<typeof distributionSchema>;

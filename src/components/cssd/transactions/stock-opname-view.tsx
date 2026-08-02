@@ -24,6 +24,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import type { HospitalUnitRow, ItemRow } from "@/lib/cssd/services/master-data";
@@ -171,29 +172,12 @@ export function StockOpnameView({
         />
       </div>
 
-      <div className="grid gap-1.5">
-        <label
-          htmlFor="opname-notes"
-          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
-        >
-          Catatan
-        </label>
-        <Textarea
-          id="opname-notes"
-          name="notes"
-          rows={3}
-          placeholder="Catatan penugasan..."
-          defaultValue={draftValues.notes ?? ""}
-          disabled={draftPending}
-        />
-      </div>
-
       <FeedbackMessage error={draftState.error} message={draftState.message} />
 
       <Button
         type="submit"
         disabled={draftPending}
-        variant="primary"
+        variant="default"
         size="lg"
         className="w-full mt-2"
       >
@@ -212,19 +196,17 @@ export function StockOpnameView({
         >
           Item Stok
         </label>
-        <Select
+        <SearchableSelect
           id="opname-item"
           name="itemId"
           defaultValue={lineValues.itemId ?? ""}
           disabled={linePending}
-        >
-          <option value="">Pilih item</option>
-          {items.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.code} - {item.name} ({ITEM_TYPE_LABELS[item.item_type]})
-            </option>
-          ))}
-        </Select>
+          options={items.map((item) => ({
+            value: item.id,
+            label: `${item.name} (${ITEM_TYPE_LABELS[item.item_type]})`,
+          }))}
+          placeholder="Ketik untuk mencari item..."
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -290,29 +272,12 @@ export function StockOpnameView({
         />
       </div>
 
-      <div className="grid gap-1.5">
-        <label
-          htmlFor="opname-line-notes"
-          className="text-xs font-semibold uppercase tracking-wider text-slate-800"
-        >
-          Catatan
-        </label>
-        <Textarea
-          id="opname-line-notes"
-          name="notes"
-          rows={3}
-          placeholder="Catatan hasil hitung..."
-          defaultValue={lineValues.notes ?? ""}
-          disabled={linePending}
-        />
-      </div>
-
       <FeedbackMessage error={lineState.error} message={lineState.message} />
 
       <Button
         type="submit"
         disabled={linePending}
-        variant="primary"
+        variant="default"
         size="lg"
         className="w-full mt-2"
       >
@@ -336,32 +301,22 @@ export function StockOpnameView({
       form={formContent}
       supportingContent={
         <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Posisi stok</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StockSummaryTable caption="Posisi stok" rows={stockSummary} />
-            </CardContent>
-          </Card>
-
-          <Card>
+          <Card className="h-full flex flex-col min-h-[400px]">
             <CardHeader>
               <CardTitle className="text-base font-bold">Riwayat sesi</CardTitle>
             </CardHeader>
             <CardContent>
               <DataTable
                 caption="Riwayat sesi"
-                columns={["Tanggal", "Status", "Baris", "Catatan"]}
+                columns={["Tanggal", "Status", "Baris"]}
                 rows={
                   recentSessions.length
                     ? recentSessions.map((session) => [
                         formatDateLabel(session.opnameDate),
                         session.status,
                         session.lineCount,
-                        session.notes ?? "-",
                       ])
-                    : [["-", "Belum ada sesi final", "-", "-"]]
+                    : [["-", "Belum ada sesi final", "-"]]
                 }
               />
             </CardContent>
@@ -392,7 +347,6 @@ export function StockOpnameView({
                     "Unit",
                     "Qty Hitung",
                     "Qty Sistem",
-                    "Catatan",
                   ]}
                   rows={
                     draftLines.length
@@ -403,9 +357,8 @@ export function StockOpnameView({
                           line.hospitalUnitName ?? "-",
                           line.countedQuantity,
                           line.currentQuantity,
-                          line.notes ?? "-",
                         ])
-                      : [["-", "Belum ada baris", "-", "-", "-", "-", "-"]]
+                      : [["-", "Belum ada baris", "-", "-", "-", "-"]]
                   }
                 />
 
@@ -418,7 +371,7 @@ export function StockOpnameView({
                   <Button
                     type="submit"
                     disabled={finalizePending || draftLines.length === 0}
-                    variant="success"
+                    variant="default"
                     size="lg"
                     className="w-full"
                   >

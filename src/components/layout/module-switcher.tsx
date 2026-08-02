@@ -107,19 +107,19 @@ export function ModuleSwitcher({
         aria-controls={panelId}
         onClick={handleOpenToggle}
         className={cn(
-          "inline-flex w-full items-center justify-between gap-2.5 rounded-xl border text-xs font-semibold tracking-wide transition-all shadow-xs",
+          "inline-flex w-full items-center justify-between gap-2.5 rounded-xl transition-all",
           compact
-            ? "border-slate-200 bg-white px-3 py-2 text-slate-800 hover:border-slate-300"
-            : "border-white/12 bg-white/[0.07] px-3.5 py-2.5 text-slate-100 hover:bg-white/12"
+            ? "border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:border-slate-300 shadow-xs"
+            : "border border-white/5 bg-white/5 px-3 py-2.5 text-sm font-semibold tracking-wide text-slate-100 hover:bg-white/10"
         )}
       >
-        <div className="flex items-center gap-2 truncate">
+        <div className="flex items-center gap-2.5 truncate">
           {activeModuleKey === "LAUNDRY" ? (
-            <Shirt className="h-4 w-4 text-sky-400 shrink-0" />
+            <Shirt className="h-5 w-5 text-sky-400 shrink-0" />
           ) : (
-            <Layers className="h-4 w-4 text-sky-400 shrink-0" />
+            <Layers className="h-5 w-5 text-sky-400 shrink-0" />
           )}
-          <span className="truncate">{activeModule.label} Module</span>
+          <span className="truncate">{activeModule.label}</span>
         </div>
         <ChevronDown
           className={cn(

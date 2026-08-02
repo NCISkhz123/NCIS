@@ -16,16 +16,16 @@ async function DistribusiPageContent() {
   const [items, hospitalUnits, recentTransactions, stockSummary] =
     await Promise.all([
       listActiveItems(supabase, {
-        itemTypes: ["REUSABLE", "CONSUMABLE_DISTRIBUTION"],
+        itemTypes: ["REUSABLE", "CONSUMABLE"],
       }),
       listActiveHospitalUnits(supabase),
       listRecentTransactionHistory(supabase, {
         movementType: "DISTRIBUTION",
-        itemTypes: ["REUSABLE", "CONSUMABLE_DISTRIBUTION"],
+        itemTypes: ["REUSABLE", "CONSUMABLE"],
         limit: 8,
       }),
       listStockSummary(supabase, {
-        itemTypes: ["REUSABLE", "CONSUMABLE_DISTRIBUTION"],
+        itemTypes: ["REUSABLE", "CONSUMABLE"],
         positions: ["READY"],
         limit: 12,
       }),

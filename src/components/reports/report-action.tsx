@@ -1,5 +1,5 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
-import { Download, FileSpreadsheet } from "lucide-react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode, ElementType } from "react";
+import { Download, FileSpreadsheet, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ReportActionVariant = "export" | "neutral" | "disabled";
@@ -7,11 +7,13 @@ type ReportActionVariant = "export" | "neutral" | "disabled";
 type ReportActionLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   children: ReactNode;
   variant?: Exclude<ReportActionVariant, "disabled">;
+  icon?: ElementType;
 };
 
 type ReportActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   variant?: ReportActionVariant;
+  icon?: ElementType;
 };
 
 const actionBaseClass =
@@ -30,8 +32,12 @@ export function ReportActionLink({
   children,
   className,
   variant = "neutral",
+  icon,
   ...props
 }: ReportActionLinkProps) {
+  const DefaultIcon = children === "Reset" ? RotateCcw : Download;
+  const Icon = icon || DefaultIcon;
+
   return (
     <a
       className={cn(
@@ -41,7 +47,7 @@ export function ReportActionLink({
       )}
       {...props}
     >
-      <Download className="h-4 w-4 shrink-0" />
+      <Icon className="h-4 w-4 shrink-0" />
       <span>{children}</span>
     </a>
   );
@@ -52,8 +58,12 @@ export function ReportActionButton({
   className,
   type = "button",
   variant = "neutral",
+  icon,
   ...props
 }: ReportActionButtonProps) {
+  const DefaultIcon = children === "Reset" ? RotateCcw : FileSpreadsheet;
+  const Icon = icon || DefaultIcon;
+
   return (
     <button
       type={type}
@@ -65,7 +75,7 @@ export function ReportActionButton({
       )}
       {...props}
     >
-      <FileSpreadsheet className="h-4 w-4 shrink-0" />
+      <Icon className="h-4 w-4 shrink-0" />
       <span>{children}</span>
     </button>
   );

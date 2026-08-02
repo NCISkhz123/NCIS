@@ -10,7 +10,7 @@ import { MasterDataFeedback } from "@/components/cssd/master-data/master-data-fe
 import { StatusPill } from "@/components/cssd/master-data/status-pill";
 import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   initialHospitalUnitFormState,
@@ -42,23 +42,15 @@ export function UnitMasterDataView({
         {/* Left Table */}
         <div className="xl:col-span-7 space-y-4">
           <Card>
-            <CardHeader>
-              <ShellSectionHeading
-                eyebrow="Master Data CSSD"
-                title="Data Unit Rumah Sakit"
-                description="Daftar unit pelayanan, poliklinik, dan ruang perawatan yang terhubung ke CSSD."
-                size="hero"
-              />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <DataTable
                 caption="Daftar Unit Terdaftar"
-                columns={["Kode Unit", "Nama Unit Pelayanan", "Status", "Aksi"]}
+                columns={["Nama Unit Pelayanan", "Kode Unit", "Status", "Aksi"]}
                 rows={records.map((record) => [
+                  record.name,
                   <span key={`${record.id}-code`} className="font-mono text-xs font-bold text-slate-900">
                     {record.code}
                   </span>,
-                  record.name,
                   <StatusPill key={`${record.id}-status`} active={record.is_active} />,
                   <Link
                     key={`${record.id}-edit`}
@@ -77,14 +69,7 @@ export function UnitMasterDataView({
         {/* Right Form Card */}
         <div className="xl:col-span-5">
           <Card className="sticky top-24 border-slate-200 shadow-sm">
-            <CardHeader>
-              <ShellSectionHeading
-                eyebrow="Form Input"
-                title={editingRecord ? "Ubah Data Unit" : "Tambah Unit Baru"}
-                description="Isi kode dan nama unit rumah sakit."
-              />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <form action={formAction} className="grid gap-4">
                 <input type="hidden" name="id" value={editingRecord?.id ?? ""} />
 
@@ -146,7 +131,7 @@ export function UnitMasterDataView({
                   <Button
                     type="submit"
                     disabled={pending}
-                    variant="primary"
+                    variant="default"
                     size="lg"
                     className="flex-1"
                   >
@@ -154,12 +139,10 @@ export function UnitMasterDataView({
                     <span>{pending ? "Menyimpan..." : "Simpan Unit"}</span>
                   </Button>
                   {editingRecord ? (
-                    <Button asChild variant="outline" size="lg">
-                      <Link href="/cssd/master-data/unit">
-                        <X className="h-4 w-4" />
-                        <span>Batal</span>
-                      </Link>
-                    </Button>
+                    <Link href="/cssd/master-data/units" className={buttonVariants({ variant: "outline", size: "lg" })}>
+                      <X className="h-4 w-4" />
+                      <span>Batal</span>
+                    </Link>
                   ) : null}
                 </div>
               </form>

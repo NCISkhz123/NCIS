@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { forbidden, redirect } from "next/navigation";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
-import type { AppRole, CssdRole, LaundryRole } from "@/lib/auth/roles";
+import type { AppRole, CssdRole, LaundryRole, KepalaSeksiRole } from "@/lib/auth/roles";
 import { isModuleRole } from "@/lib/auth/guards";
 import {
   createManagedAccount,
@@ -114,7 +114,11 @@ export async function createAccountAction(
 ): Promise<SettingsActionState> {
   const profile = await requireSettingsProfile();
 
-  if (profile.role !== "ADMIN_CSSD" && profile.role !== "ADMIN_LAUNDRY") {
+  if (
+    profile.role !== "ADMIN_CSSD" &&
+    profile.role !== "ADMIN_LAUNDRY" &&
+    profile.role !== "KEPALA_SEKSI"
+  ) {
     forbidden();
   }
 
@@ -125,7 +129,7 @@ export async function createAccountAction(
       email: String(formData.get("email") ?? ""),
       fullName: String(formData.get("fullName") ?? ""),
       password: String(formData.get("password") ?? ""),
-      role: String(formData.get("role") ?? "") as CssdRole | LaundryRole,
+      role: String(formData.get("role") ?? "") as CssdRole | LaundryRole | KepalaSeksiRole,
     }
   );
 

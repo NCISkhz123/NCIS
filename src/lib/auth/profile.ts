@@ -38,20 +38,26 @@ export async function getProfileRoleForUser(
 
 export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> => {
   const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  
+  try {
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser();
 
-  if (!user) {
+    if (!user || error) {
+      return null;
+    }
+
+    const profile = await getProfileRecordForUser(supabase, user.id);
+
+    return {
+      email: profile?.email ?? user.email ?? null,
+      fullName: profile?.full_name ?? null,
+      role: normalizeRole(profile?.app_role ?? "USER"),
+      userId: user.id,
+    };
+  } catch (error: any) {
     return null;
   }
-
-  const profile = await getProfileRecordForUser(supabase, user.id);
-
-  return {
-    email: profile?.email ?? user.email ?? null,
-    fullName: profile?.full_name ?? null,
-    role: normalizeRole(profile?.app_role ?? "USER"),
-    userId: user.id,
-  };
 });

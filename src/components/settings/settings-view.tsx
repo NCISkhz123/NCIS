@@ -35,6 +35,7 @@ const roleLabels = {
   PETUGAS_CSSD: "Petugas CSSD",
   ADMIN_LAUNDRY: "Admin Laundry",
   PETUGAS_LAUNDRY: "Petugas Laundry",
+  KEPALA_SEKSI: "Kepala Seksi",
 } as const;
 
 function ActionFeedback({ state }: { state: SettingsActionState | null }) {
@@ -129,7 +130,7 @@ export function SettingsView({
                 <Button
                   type="submit"
                   disabled={namePending}
-                  variant="primary"
+                  variant="default"
                   size="default"
                 >
                   <span>{namePending ? "Menyimpan..." : "Simpan nama"}</span>
@@ -223,7 +224,7 @@ export function SettingsView({
               <Button
                 type="submit"
                 disabled={passwordPending}
-                variant="primary"
+                variant="default"
                 size="default"
               >
                 <span>{passwordPending ? "Menyimpan..." : "Simpan password"}</span>
@@ -320,7 +321,7 @@ export function SettingsView({
                 <Button
                   type="submit"
                   disabled={accountPending}
-                  variant="primary"
+                  variant="default"
                   size="lg"
                 >
                   <UserPlus className="h-4 w-4" />

@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { AppRole, CssdRole, LaundryRole } from "@/lib/auth/roles";
+import type { AppRole, CssdRole, LaundryRole, KepalaSeksiRole } from "@/lib/auth/roles";
 
-type CreatableRole = CssdRole | LaundryRole;
+type CreatableRole = CssdRole | LaundryRole | KepalaSeksiRole;
 
 type Result =
   | {
@@ -48,6 +48,10 @@ type AccountCreator = {
 };
 
 export function getCreatableRolesForAdmin(role: AppRole): readonly CreatableRole[] {
+  if (role === "KEPALA_SEKSI") {
+    return ["ADMIN_CSSD", "PETUGAS_CSSD", "ADMIN_LAUNDRY", "PETUGAS_LAUNDRY", "KEPALA_SEKSI"];
+  }
+
   if (role === "ADMIN_CSSD") {
     return ["ADMIN_CSSD", "PETUGAS_CSSD"];
   }

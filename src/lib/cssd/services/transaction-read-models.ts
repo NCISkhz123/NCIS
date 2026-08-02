@@ -61,6 +61,7 @@ export type TransactionHistoryEntry = {
   notes: string | null;
   targetUnitName: string | null;
   destinationLabel: string | null;
+  movementTypeLabel?: string;
 };
 
 export type StockSummaryEntry = {
@@ -71,6 +72,7 @@ export type StockSummaryEntry = {
   stockPosition: keyof typeof STOCK_POSITION_LABELS;
   stockPositionLabel: string;
   quantity: number;
+  hospitalUnitId: string | null;
   hospitalUnitName: string | null;
 };
 
@@ -181,7 +183,7 @@ export async function listRecentTransactionHistory(
       itemType: item?.item_type ?? "REUSABLE",
       quantity: row.quantity,
       notes: row.notes,
-      targetUnitName: hospitalUnit?.name ?? null,
+      targetUnitName: hospitalUnit?.name ?? (row.movement_type === "RECEIPT" || row.movement_type === "RETURN" ? "CSSD" : null),
       destinationLabel: row.to_position
         ? STOCK_POSITION_LABELS[row.to_position]
         : row.movement_type === "DISTRIBUTION"
@@ -244,6 +246,7 @@ export async function listStockSummary(
       stockPosition: row.stock_position,
       stockPositionLabel: STOCK_POSITION_LABELS[row.stock_position],
       quantity: row.quantity,
+      hospitalUnitId: row.hospital_unit_id,
       hospitalUnitName: hospitalUnit?.name ?? null,
     }));
 }

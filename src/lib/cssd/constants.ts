@@ -25,20 +25,17 @@ export type SidebarNavItem =
 
 export const ITEM_TYPES = [
   "REUSABLE",
-  "CONSUMABLE_DISTRIBUTION",
-  "CONSUMABLE_INTERNAL",
+  "CONSUMABLE",
 ] as const;
 
 export const ITEM_TYPE_LABELS = {
   REUSABLE: "Reusable",
-  CONSUMABLE_DISTRIBUTION: "Konsumabel Distribusi",
-  CONSUMABLE_INTERNAL: "Konsumabel Internal",
+  CONSUMABLE: "Consumable",
 } as const;
 
 export const ITEM_CODE_PREFIXES = {
   REUSABLE: "R",
-  CONSUMABLE_DISTRIBUTION: "CD",
-  CONSUMABLE_INTERNAL: "CI",
+  CONSUMABLE: "C",
 } as const;
 
 export const REUSABLE_STOCK_POSITIONS = [
@@ -64,13 +61,12 @@ export const RETURN_DESTINATION_POSITIONS = [
 
 export const DISTRIBUTABLE_ITEM_TYPES = [
   "REUSABLE",
-  "CONSUMABLE_DISTRIBUTION",
+  "CONSUMABLE",
 ] as const;
 
 export const RETURNABLE_ITEM_TYPES = ["REUSABLE"] as const;
 
-export const INTERNAL_USAGE_ITEM_TYPES = ["CONSUMABLE_INTERNAL"] as const;
-
+export const INTERNAL_USAGE_ITEM_TYPES = ["CONSUMABLE"] as const;
 export const NCIS_MODULES = [
   {
     key: "CSSD",
@@ -87,8 +83,8 @@ export const NCIS_MODULES = [
   {
     key: "AMBULANCE",
     label: "Ambulance",
-    description: "Belum aktif",
-    href: "#",
+    description: "Layanan pengantaran pasien",
+    href: "/ambulance/order",
   },
 ] as const;
 
@@ -163,11 +159,6 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
     label: "Setting",
     href: "/cssd/setting",
   },
-  {
-    type: "link",
-    label: "Review Tryout",
-    href: "/tryout/review",
-  },
 ] as const;
 
 export const CSSD_ROUTE_META: RouteMetaMap = {
@@ -201,7 +192,7 @@ export const CSSD_ROUTE_META: RouteMetaMap = {
   },
   "/cssd/pemakaian-internal": {
     title: "Pemakaian Internal",
-    description: "Catat konsumabel yang dipakai di CSSD.",
+    description: "Catat consumable yang dipakai di CSSD.",
   },
   "/cssd/stok-opname": {
     title: "Stok Opname",

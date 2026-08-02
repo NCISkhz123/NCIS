@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Truck } from "lucide-react";
 
 import {
@@ -17,6 +17,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import type { HospitalUnitRow, ItemRow } from "@/lib/cssd/services/master-data";
 import type {
@@ -50,11 +51,13 @@ export function DistributionTransactionView({
     ? `${hospitalUnits[0]?.name} (${hospitalUnits[0]?.code})`
     : "Belum ada unit";
 
+  const [selectedItemType, setSelectedItemType] = useState<string>(values.itemType ?? "");
+
   return (
     <TransactionPageShell
       eyebrow="CSSD"
       title="Distribusi"
-      description="Kirim barang steril atau konsumabel ke unit rumah sakit."
+      description="Kirim barang steril atau consumable ke unit rumah sakit."
       summary={
         <TransactionSummaryStrip
           items={[
@@ -81,6 +84,8 @@ export function DistributionTransactionView({
       formDescription="Pilih item, unit tujuan, tanggal, dan jumlah pengiriman."
       form={
         <form action={formAction} className="grid gap-4">
+          <input type="hidden" name="itemType" value={selectedItemType} />
+          
           <div className="grid gap-1.5">
             <label
               htmlFor="distribution-item"
@@ -88,19 +93,21 @@ export function DistributionTransactionView({
             >
               Item CSSD
             </label>
-            <Select
+            <SearchableSelect
               id="distribution-item"
               name="itemId"
               defaultValue={values.itemId ?? ""}
               disabled={pending}
-            >
-              <option value="">Pilih item</option>
-              {items.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} - {item.name}
-                </option>
-              ))}
-            </Select>
+              options={items.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Ketik untuk mencari item..."
+              onChange={(val) => {
+                const selected = items.find((i) => i.id === val);
+                setSelectedItemType(selected?.item_type ?? "");
+              }}
+            />
           </div>
 
           <div className="grid gap-1.5">
@@ -161,23 +168,6 @@ export function DistributionTransactionView({
             </div>
           </div>
 
-          <div className="grid gap-1.5">
-            <label
-              htmlFor="distribution-notes"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
-            >
-              Catatan
-            </label>
-            <Textarea
-              id="distribution-notes"
-              name="notes"
-              rows={3}
-              placeholder="Catatan pengiriman atau penanggung jawab unit..."
-              defaultValue={values.notes ?? ""}
-              disabled={pending}
-            />
-          </div>
-
           <TransactionFeedback
             error={formState.error}
             message={formState.message}
@@ -187,7 +177,7 @@ export function DistributionTransactionView({
           <Button
             type="submit"
             disabled={pending}
-            variant="primary"
+            variant="default"
             size="lg"
             className="w-full mt-2"
           >
@@ -197,28 +187,17 @@ export function DistributionTransactionView({
         </form>
       }
       supportingContent={
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TransactionHistoryTable
-                caption="Riwayat terbaru"
-                rows={recentTransactions}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Stok siap kirim</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StockSummaryTable caption="Stok siap kirim" rows={stockSummary} />
-            </CardContent>
-          </Card>
-        </>
+        <Card className="h-full flex flex-col min-h-[400px]">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
+            />
+          </CardContent>
+        </Card>
       }
     />
   );

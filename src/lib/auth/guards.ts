@@ -1,7 +1,7 @@
 import { forbidden, redirect } from "next/navigation";
 
 import { getCurrentProfile } from "./profile";
-import type { AppRole, CssdRole, LaundryRole } from "./roles";
+import type { AppRole, CssdRole, LaundryRole, AmbulanceRole, KepalaSeksiRole } from "./roles";
 
 type ModuleAccessInput = {
   pathname: string;
@@ -68,6 +68,10 @@ function isMasterDataRoute(pathname: string, basePath: string) {
   return pathname === masterDataPath || pathname.startsWith(`${masterDataPath}/`);
 }
 
+export function isKepalaSeksi(role: AppRole): role is KepalaSeksiRole {
+  return role === "KEPALA_SEKSI";
+}
+
 export function isCssdRole(role: AppRole): role is CssdRole {
   return role === "ADMIN_CSSD" || role === "PETUGAS_CSSD";
 }
@@ -84,20 +88,32 @@ export function isLaundryAdminRole(role: AppRole): role is "ADMIN_LAUNDRY" {
   return role === "ADMIN_LAUNDRY";
 }
 
-export function isModuleRole(role: AppRole): role is CssdRole | LaundryRole {
-  return isCssdRole(role) || isLaundryRole(role);
+export function isAmbulanceRole(role: AppRole): role is AmbulanceRole {
+  return role === "ADMIN_AMBULANCE" || role === "PETUGAS_AMBULANCE";
+}
+
+export function isAmbulanceAdminRole(role: AppRole): role is "ADMIN_AMBULANCE" {
+  return role === "ADMIN_AMBULANCE";
+}
+
+export function isModuleRole(role: AppRole): role is CssdRole | LaundryRole | AmbulanceRole | KepalaSeksiRole {
+  return isCssdRole(role) || isLaundryRole(role) || isAmbulanceRole(role) || isKepalaSeksi(role);
 }
 
 export function getDefaultModulePath(role: AppRole) {
-  if (isCssdRole(role)) {
-    return "/cssd";
+  if (isKepalaSeksi(role)) {
+    return "/cssd/pemasukan";
   }
-
+  if (isCssdRole(role)) {
+    return "/cssd/pemasukan";
+  }
   if (isLaundryRole(role)) {
     return "/laundry";
   }
-
-  return null;
+  if (isAmbulanceRole(role)) {
+    return "/ambulance/order";
+  }
+  return "/login";
 }
 
 export function decideCssdRouteAccess({
@@ -110,8 +126,8 @@ export function decideCssdRouteAccess({
     role,
     userId,
     basePath: "/cssd",
-    hasModuleRole: isCssdRole,
-    hasMasterDataAccess: isCssdAdminRole,
+    hasModuleRole: (r) => isCssdRole(r) || isKepalaSeksi(r),
+    hasMasterDataAccess: (r) => isCssdAdminRole(r) || isKepalaSeksi(r),
   });
 }
 
@@ -125,8 +141,23 @@ export function decideLaundryRouteAccess({
     role,
     userId,
     basePath: "/laundry",
-    hasModuleRole: isLaundryRole,
-    hasMasterDataAccess: isLaundryAdminRole,
+    hasModuleRole: (r) => isLaundryRole(r) || isKepalaSeksi(r),
+    hasMasterDataAccess: (r) => isLaundryAdminRole(r) || isKepalaSeksi(r),
+  });
+}
+
+export function decideAmbulanceRouteAccess({
+  pathname,
+  role,
+  userId,
+}: ModuleAccessInput): ModuleAccessDecision {
+  return decideModuleRouteAccess({
+    pathname,
+    role,
+    userId,
+    basePath: "/ambulance",
+    hasModuleRole: (r) => isAmbulanceRole(r) || isKepalaSeksi(r),
+    hasMasterDataAccess: (r) => isAmbulanceAdminRole(r) || isKepalaSeksi(r),
   });
 }
 
@@ -184,4 +215,32 @@ export async function requireLaundryAccess(pathname = "/laundry") {
 
 export async function requireLaundryAdminAccess() {
   return requireLaundryAccess("/laundry/master-data");
+}
+
+export async function requireAmbulanceAccess(pathname = "/ambulance") {
+  const profile = await getCurrentProfile();
+
+  const decision = decideAmbulanceRouteAccess({
+    pathname,
+    role: profile?.role ?? null,
+    userId: profile?.userId ?? null,
+  });
+
+  if (decision.allowed) {
+    if (!profile) {
+      redirect("/login");
+    }
+
+    return profile;
+  }
+
+  if (decision.reason === "unauthenticated") {
+    redirect(decision.redirectTo);
+  }
+
+  forbidden();
+}
+
+export async function requireAmbulanceAdminAccess() {
+  return requireAmbulanceAccess("/ambulance/master");
 }

@@ -20,7 +20,7 @@ type OrderBy = {
 
 type QueryFilter = {
   column: string;
-  operator: "eq" | "gte" | "lte";
+  operator: "eq" | "gte" | "lte" | "in";
   value: unknown;
 };
 
@@ -234,7 +234,7 @@ export function createSupabaseReportClient(
       let query = supabase.from(view).select("*");
 
       for (const filter of options?.filters ?? []) {
-        if (filter.value === undefined) {
+        if (filter.value === undefined || filter.value === "") {
           continue;
         }
 
@@ -251,6 +251,10 @@ export function createSupabaseReportClient(
 
         if (filter.operator === "lte") {
           query = query.lte(filter.column, filter.value);
+        }
+
+        if (filter.operator === "in" && Array.isArray(filter.value)) {
+          query = query.in(filter.column, filter.value);
         }
       }
 
@@ -319,29 +323,36 @@ export async function listCurrentStockReport(
   client: ReportQueryClient,
   options?: {
     itemId?: string;
-    unitId?: string;
+    unitId?: string | null;
     limit?: number;
   }
-): Promise<CurrentStockReportEntry[]> {
+) {
+  const filters: QueryFilter[] = [
+    {
+      column: "item_id",
+      operator: "eq",
+      value: options?.itemId,
+    },
+    {
+      column: "hospital_unit_id",
+      operator: "eq",
+      value: options?.unitId,
+    },
+  ];
+
+  if (options?.unitId === null) {
+    filters.push({
+      column: "stock_position",
+      operator: "in",
+      value: Array.from(LAUNDRY_INTERNAL_POSITIONS),
+    });
+  }
+
   const { data, error } = await client.findMany<CurrentStockReportRow>(
     "laundry_current_stock_report_v",
     {
-      filters: [
-        {
-          column: "item_id",
-          operator: "eq",
-          value: options?.itemId,
-        },
-        {
-          column: "hospital_unit_id",
-          operator: "eq",
-          value: options?.unitId,
-        },
-      ],
-      orderBy: {
-        column: "updated_at",
-        ascending: false,
-      },
+      filters,
+      orderBy: { column: "updated_at", ascending: false },
       limit: options?.limit,
     }
   );
@@ -357,7 +368,8 @@ export async function listTransactionHistoryReport(
   client: ReportQueryClient,
   options?: {
     itemId?: string;
-    unitId?: string;
+    unitId?: string | null;
+    movementType?: string;
     dateFrom?: string;
     dateTo?: string;
     limit?: number;
@@ -376,6 +388,11 @@ export async function listTransactionHistoryReport(
           column: "hospital_unit_id",
           operator: "eq",
           value: options?.unitId,
+        },
+        {
+          column: "movement_type",
+          operator: "eq",
+          value: options?.movementType,
         },
         {
           column: "occurred_at",
@@ -407,7 +424,7 @@ export async function listItemStockCardReport(
   client: ReportQueryClient,
   options: {
     itemId?: string;
-    unitId?: string;
+    unitId?: string | null;
     dateFrom?: string;
     dateTo?: string;
     limit?: number;

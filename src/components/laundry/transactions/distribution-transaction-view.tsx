@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 import { saveDistributionAction } from "@/app/(protected)/laundry/distribusi/actions";
 import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
@@ -40,36 +41,30 @@ export function DistributionTransactionView({
     initialState
   );
 
+
   const values = formState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-        <div className="space-y-6">
-          <ShellSectionHeading
-            eyebrow="Laundry"
-            title="Distribusi"
-            description="Catat barang keluar dari Laundry ke unit."
-            size="hero"
-          />
+      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7 h-full flex flex-col min-h-[400px]">
+        <div className="space-y-6 flex-1 flex flex-col">
+
           <p className="mb-3 text-sm font-semibold text-slate-800">
             Riwayat distribusi
           </p>
-          <TransactionHistoryTable
-            caption="Riwayat distribusi"
-            rows={recentTransactions}
-          />
+          <div className="flex-1">
+            <TransactionHistoryTable
+              caption="Riwayat distribusi"
+              rows={recentTransactions}
+            />
+          </div>
         </div>
       </section>
 
       <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title="Catat distribusi"
-            description="Pilih item, unit tujuan, lalu simpan."
-          />
+
 
           <form action={formAction} className="mt-6 grid gap-4">
             <div className="grid gap-2">
@@ -79,20 +74,17 @@ export function DistributionTransactionView({
               >
                 Item Laundry
               </label>
-              <select
+              <SearchableSelect
                 id="distribution-item"
                 name="itemId"
                 defaultValue={values.itemId ?? ""}
                 disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item</option>
-                {items.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
+                options={items.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                placeholder="Ketik untuk mencari item..."
+              />
             </div>
 
             <div className="grid gap-2">
@@ -110,9 +102,7 @@ export function DistributionTransactionView({
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
               >
                 <option value="REUSABLE">Reusable</option>
-                <option value="CONSUMABLE_DISTRIBUTION">
-                  Konsumabel Distribusi
-                </option>
+                <option value="CONSUMABLE">Consumable</option>
               </select>
             </div>
 
@@ -176,22 +166,6 @@ export function DistributionTransactionView({
               </div>
             </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="distribution-notes"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Catatan
-              </label>
-              <textarea
-                id="distribution-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
-                disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
 
             <TransactionFeedback
               error={formState.error}
@@ -207,20 +181,6 @@ export function DistributionTransactionView({
               {pending ? "Menyimpan..." : "Simpan Distribusi"}
             </button>
           </form>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Posisi stok"
-            title="Stok untuk distribusi"
-            description="Gunakan sebagai acuan sebelum barang dikirim."
-          />
-          <div className="mt-5">
-            <StockSummaryTable
-              caption="Stok untuk distribusi"
-              rows={stockSummary}
-            />
-          </div>
         </section>
       </div>
     </div>

@@ -14,15 +14,15 @@ async function PemakaianInternalPageContent() {
   const supabase = await createServerSupabaseClient();
   const [items, recentTransactions, stockSummary] = await Promise.all([
     listActiveItems(supabase, {
-      itemTypes: ["CONSUMABLE_INTERNAL"],
+      itemTypes: ["CONSUMABLE"],
     }),
     listRecentTransactionHistory(supabase, {
       movementType: "INTERNAL_USAGE",
-      itemTypes: ["CONSUMABLE_INTERNAL"],
+      itemTypes: ["CONSUMABLE"],
       limit: 8,
     }),
     listStockSummary(supabase, {
-      itemTypes: ["CONSUMABLE_INTERNAL"],
+      itemTypes: ["CONSUMABLE"],
       positions: ["READY"],
       limit: 12,
     }),

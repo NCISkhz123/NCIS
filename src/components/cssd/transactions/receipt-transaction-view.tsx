@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { PackagePlus } from "lucide-react";
 
 import {
@@ -16,7 +16,7 @@ import { TransactionSummaryStrip } from "@/components/transactions/transaction-s
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import type {
   StockSummaryEntry,
@@ -47,6 +47,8 @@ export function ReceiptTransactionView({
   const activeItemLabel = items.length
     ? `${items[0]?.code} - ${items[0]?.name}`
     : "Belum ada item";
+
+  const [selectedItemType, setSelectedItemType] = useState<string>(values.itemType ?? "");
 
   return (
     <TransactionPageShell
@@ -79,6 +81,8 @@ export function ReceiptTransactionView({
       formDescription="Pilih item, jenis, tanggal, dan jumlah yang diterima."
       form={
         <form action={formAction} className="grid gap-4">
+          <input type="hidden" name="itemType" value={selectedItemType} />
+          
           <div className="grid gap-1.5">
             <label
               htmlFor="receipt-item"
@@ -86,41 +90,24 @@ export function ReceiptTransactionView({
             >
               Item CSSD
             </label>
-            <Select
+            <SearchableSelect
               id="receipt-item"
               name="itemId"
               defaultValue={values.itemId ?? ""}
               disabled={pending}
-            >
-              <option value="">Pilih item</option>
-              {items.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} - {item.name}
-                </option>
-              ))}
-            </Select>
+              options={items.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Ketik untuk mencari item..."
+              onChange={(val) => {
+                const selected = items.find((i) => i.id === val);
+                setSelectedItemType(selected?.item_type ?? "");
+              }}
+            />
           </div>
 
-          <div className="grid gap-1.5">
-            <label
-              htmlFor="receipt-item-type"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
-            >
-              Jenis Item
-            </label>
-            <Select
-              id="receipt-item-type"
-              name="itemType"
-              defaultValue={values.itemType ?? "REUSABLE"}
-              disabled={pending}
-            >
-              <option value="REUSABLE">Reusable</option>
-              <option value="CONSUMABLE_DISTRIBUTION">
-                Konsumabel Distribusi
-              </option>
-              <option value="CONSUMABLE_INTERNAL">Konsumabel Internal</option>
-            </Select>
-          </div>
+
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
@@ -158,23 +145,6 @@ export function ReceiptTransactionView({
             </div>
           </div>
 
-          <div className="grid gap-1.5">
-            <label
-              htmlFor="receipt-notes"
-              className="text-xs font-semibold uppercase tracking-wider text-slate-700"
-            >
-              Catatan
-            </label>
-            <Textarea
-              id="receipt-notes"
-              name="notes"
-              rows={3}
-              placeholder="Nomor batch, supplier, atau catatan penerimaan..."
-              defaultValue={values.notes ?? ""}
-              disabled={pending}
-            />
-          </div>
-
           <TransactionFeedback
             error={formState.error}
             message={formState.message}
@@ -184,7 +154,7 @@ export function ReceiptTransactionView({
           <Button
             type="submit"
             disabled={pending}
-            variant="primary"
+            variant="default"
             size="lg"
             className="w-full mt-2"
           >
@@ -194,28 +164,17 @@ export function ReceiptTransactionView({
         </form>
       }
       supportingContent={
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TransactionHistoryTable
-                caption="Riwayat terbaru"
-                rows={recentTransactions}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Stok saat ini</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
-            </CardContent>
-          </Card>
-        </>
+        <Card className="h-full flex flex-col min-h-[400px]">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Riwayat terbaru</CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1">
+            <TransactionHistoryTable
+              caption="Riwayat terbaru"
+              rows={recentTransactions}
+            />
+          </CardContent>
+        </Card>
       }
     />
   );

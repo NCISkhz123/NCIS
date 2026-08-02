@@ -13,6 +13,8 @@ export async function createServerSupabaseClient(
 ) {
   const env = getPublicEnv();
   const cookieStore = await cookies();
+  // writeCookies is kept for backwards compatibility but we now always provide setAll
+  // with a try-catch as recommended by Supabase to suppress Server Component warnings.
   const { writeCookies = false } = options;
 
   return createServerClient(
@@ -24,19 +26,16 @@ export async function createServerSupabaseClient(
         getAll() {
           return cookieStore.getAll();
         },
-        ...(writeCookies
-          ? {
-              setAll(cookiesToSet: {
-                name: string;
-                value: string;
-                options?: Parameters<typeof cookieStore.set>[2];
-              }[]) {
-                cookiesToSet.forEach(({ name, value, options }) => {
-                  cookieStore.set(name, value, options);
-                });
-              },
-            }
-          : {}),
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing user sessions.
+          }
+        },
       },
     }
   );

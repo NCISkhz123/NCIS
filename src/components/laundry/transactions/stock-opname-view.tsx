@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 import {
   createStockOpnameDraftAction,
@@ -102,44 +103,28 @@ export function StockOpnameView({
 
   return (
     <div className="grid gap-6 2xl:grid-cols-[1.08fr_.92fr]">
-      <div className="grid gap-6">
-        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-          <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Laundry"
-              title="Stok opname"
-              description="Cocokkan stok sistem dengan hitungan fisik."
-              size="hero"
-            />
+      <div className="grid gap-6 h-full flex flex-col">
+        <section className="shell-surface rounded-[1.75rem] p-6 md:p-7 flex-1 flex flex-col min-h-[400px]">
+          <div className="space-y-6 flex-1 flex flex-col">
+
             <p className="mb-3 text-sm font-semibold text-slate-800">
-              Posisi stok
+              Riwayat sesi
             </p>
-            <StockSummaryTable caption="Posisi stok" rows={stockSummary} />
-          </div>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Sesi"
-            title="Riwayat sesi"
-            description="Lihat sesi opname yang sudah selesai."
-          />
-
-          <div className="mt-5">
-            <DataTable
-              caption="Riwayat sesi"
-              columns={["Tanggal", "Status", "Baris", "Catatan"]}
-              rows={
-                recentSessions.length
-                  ? recentSessions.map((session) => [
-                      formatDateLabel(session.opnameDate),
-                      session.status,
-                      session.lineCount,
-                      session.notes ?? "-",
-                    ])
-                  : [["-", "Belum ada sesi final", "-", "-"]]
-              }
-            />
+            <div className="flex-1">
+              <DataTable
+                caption="Riwayat sesi"
+                columns={["Tanggal", "Status", "Baris"]}
+                rows={
+                  recentSessions.length
+                    ? recentSessions.map((session) => [
+                        formatDateLabel(session.opnameDate),
+                        session.status,
+                        session.lineCount.toString(),
+                      ])
+                    : []
+                }
+              />
+            </div>
           </div>
         </section>
       </div>
@@ -147,11 +132,7 @@ export function StockOpnameView({
       <div className="grid gap-6">
         {!draftSession ? (
           <section className="shell-surface rounded-[1.75rem] p-6">
-            <ShellSectionHeading
-              eyebrow="Draft"
-              title="Mulai sesi baru"
-              description="Satu draft aktif dalam satu waktu."
-            />
+
 
             <form action={draftAction} className="mt-6 grid gap-4">
               <div className="grid gap-2">
@@ -171,22 +152,6 @@ export function StockOpnameView({
                 />
               </div>
 
-              <div className="grid gap-2">
-                <label
-                  htmlFor="opname-notes"
-                  className="text-sm font-semibold text-slate-700"
-                >
-                  Catatan
-                </label>
-                <textarea
-                  id="opname-notes"
-                  name="notes"
-                  rows={4}
-                  defaultValue={draftValues.notes ?? ""}
-                  disabled={draftPending}
-                  className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                />
-              </div>
 
               <FeedbackMessage error={draftState.error} message={draftState.message} />
 
@@ -202,7 +167,7 @@ export function StockOpnameView({
         ) : (
           <>
             <section className="shell-surface rounded-[1.75rem] p-6">
-              <ShellSectionHeading eyebrow="Draft aktif" title="Sesi berjalan" />
+
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Tanggal {formatDateLabel(draftSession.opnameDate)} | {draftSession.lineCount} baris
               </p>
@@ -212,11 +177,7 @@ export function StockOpnameView({
             </section>
 
             <section className="shell-surface rounded-[1.75rem] p-6">
-              <ShellSectionHeading
-                eyebrow="Hitung item"
-                title="Input hasil hitung"
-                description="Pilih item dan posisi stok, lalu isi qty fisik."
-              />
+
 
               <form action={lineAction} className="mt-6 grid gap-4">
                 <input type="hidden" name="sessionId" value={draftSession.id} />
@@ -228,20 +189,17 @@ export function StockOpnameView({
                   >
                     Item Stok
                   </label>
-                  <select
+                  <SearchableSelect
                     id="opname-item"
                     name="itemId"
                     defaultValue={lineValues.itemId ?? ""}
                     disabled={linePending}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                  >
-                    <option value="">Pilih item</option>
-                    {items.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.code} - {item.name} ({ITEM_TYPE_LABELS[item.item_type]})
-                      </option>
-                    ))}
-                  </select>
+                    options={items.map((item) => ({
+                      value: item.id,
+                      label: `${item.name} (${ITEM_TYPE_LABELS[item.item_type]})`,
+                    }))}
+                    placeholder="Ketik untuk mencari item..."
+                  />
                 </div>
 
                 <div className="grid gap-2 md:grid-cols-2">
@@ -309,22 +267,6 @@ export function StockOpnameView({
                   />
                 </div>
 
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="opname-line-notes"
-                    className="text-sm font-semibold text-slate-700"
-                  >
-                    Catatan
-                  </label>
-                  <textarea
-                    id="opname-line-notes"
-                    name="notes"
-                    rows={3}
-                    defaultValue={lineValues.notes ?? ""}
-                    disabled={linePending}
-                    className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-                  />
-                </div>
 
                 <FeedbackMessage error={lineState.error} message={lineState.message} />
 
@@ -339,16 +281,12 @@ export function StockOpnameView({
             </section>
 
             <section className="shell-surface rounded-[1.75rem] p-6">
-              <ShellSectionHeading
-                eyebrow="Item draft"
-                title="Hasil tersimpan"
-                description="Periksa hasil hitung sebelum finalisasi."
-              />
+
 
               <div className="mt-5">
                 <DataTable
                   caption="Hasil tersimpan"
-                  columns={["Item", "Jenis", "Posisi", "Unit", "Qty Hitung", "Qty Sistem", "Catatan"]}
+                  columns={["Item", "Jenis", "Posisi", "Unit", "Qty Hitung", "Qty Sistem"]}
                   rows={
                     draftLines.length
                       ? draftLines.map((line) => [
@@ -358,9 +296,8 @@ export function StockOpnameView({
                           line.hospitalUnitName ?? "-",
                           line.countedQuantity,
                           line.currentQuantity,
-                          line.notes ?? "-",
                         ])
-                      : [["-", "Belum ada baris", "-", "-", "-", "-", "-"]]
+                      : [["-", "Belum ada baris", "-", "-", "-", "-"]]
                   }
                 />
               </div>

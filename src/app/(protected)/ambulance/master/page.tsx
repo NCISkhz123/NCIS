@@ -18,7 +18,7 @@ export default async function AmbulanceMasterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl p-4 md:p-8">
+    <div className="w-full">
       <AmbulanceMasterView 
         initialAmbulances={ambulancesResult.data || []} 
         initialSettings={settingsResult.data || null} 

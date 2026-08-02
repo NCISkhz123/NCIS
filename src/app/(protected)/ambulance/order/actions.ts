@@ -11,6 +11,18 @@ export async function createAmbulanceOrder(data: {
 }) {
   const supabase = await createServerSupabaseClient();
   
+  // Check if ambulance is already in use
+  const { data: activeOrder } = await supabase
+    .from('ambulance_transactions')
+    .select('id')
+    .eq('ambulance_id', data.ambulance_id)
+    .eq('status', 'IN_USE')
+    .maybeSingle();
+
+  if (activeOrder) {
+    return { error: "Ambulans ini sedang bertugas dan belum menyelesaikan pesanan." };
+  }
+
   // Fetch ambulance base_price_per_km
   const { data: ambulance, error: ambulanceError } = await supabase
     .from('ambulances')
@@ -22,21 +34,48 @@ export async function createAmbulanceOrder(data: {
     return { error: "Ambulans tidak ditemukan" };
   }
 
-  // Calculate total_cost server-side
-  const total_cost = data.distance_km * ambulance.base_price_per_km;
+  // Calculate total_cost server-side with round trip (Pulang-Pergi / 2x distance)
+  const total_cost = data.distance_km * ambulance.base_price_per_km * 2;
 
-  const { error } = await supabase.from('ambulance_transactions').insert({
-    ambulance_id: data.ambulance_id,
-    destination_lat: data.destination_lat,
-    destination_lng: data.destination_lng,
-    distance_km: data.distance_km,
-    total_cost: total_cost,
-  });
+  const { data: transaction, error } = await supabase
+    .from('ambulance_transactions')
+    .insert({
+      ambulance_id: data.ambulance_id,
+      destination_lat: data.destination_lat,
+      destination_lng: data.destination_lng,
+      distance_km: data.distance_km,
+      total_cost: total_cost,
+      status: 'IN_USE',
+    })
+    .select('id')
+    .single();
+
+  if (error || !transaction) {
+    return { error: error?.message || "Gagal membuat transaksi" };
+  }
+
+  revalidatePath('/ambulance/history');
+  revalidatePath('/ambulance/order');
+  return { success: true, id: transaction.id };
+}
+
+export async function completeAmbulanceOrder(transactionId: string) {
+  const supabase = await createServerSupabaseClient();
+
+  const { error } = await supabase
+    .from('ambulance_transactions')
+    .update({
+      status: 'COMPLETED',
+      completed_at: new Date().toISOString(),
+    })
+    .eq('id', transactionId);
 
   if (error) {
     return { error: error.message };
   }
 
   revalidatePath('/ambulance/history');
+  revalidatePath('/ambulance/order');
+  revalidatePath(`/ambulance/tracking/${transactionId}`);
   return { success: true };
 }

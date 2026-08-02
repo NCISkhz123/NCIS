@@ -58,37 +58,34 @@ export function buildTransactionHistoryCsvTable(
   return {
     headers: [
       "Tanggal",
+      "Transaksi",
       "Kode Item",
       "Nama Item",
       "Jenis",
       "Qty",
       "Unit",
-      "Tujuan",
-      "Catatan",
     ],
     rows: rows.map((row) => [
       formatDateLabel(row.transactionDate),
+      row.movementTypeLabel,
       row.itemCode,
       row.itemName,
       ITEM_TYPE_LABELS[row.itemType],
       row.quantity,
       fallbackCell(row.hospitalUnitName),
-      row.flowLabel,
-      fallbackCell(row.notes),
     ]),
   };
 }
 
 export function buildStockCardCsvTable(rows: ItemStockCardEntry[]): CsvTable {
   return {
-    headers: ["Tanggal", "Transaksi", "Alur", "Unit", "Qty", "Catatan"],
+    headers: ["Tanggal", "Transaksi", "Alur", "Unit", "Qty"],
     rows: rows.map((row) => [
       formatDateLabel(row.transactionDate),
       row.movementTypeLabel,
       row.flowLabel,
       fallbackCell(row.hospitalUnitName),
       row.quantity,
-      fallbackCell(row.notes),
     ]),
   };
 }

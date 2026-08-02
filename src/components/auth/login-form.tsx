@@ -69,7 +69,7 @@ export function LoginForm({ action }: LoginFormProps) {
       <Button
         type="submit"
         disabled={pending}
-        variant="primary"
+        variant="default"
         size="lg"
         className="w-full mt-2"
       >

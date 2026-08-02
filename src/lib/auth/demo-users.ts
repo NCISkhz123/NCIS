@@ -1,13 +1,13 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
-import type { CssdRole, LaundryRole } from "./roles";
+import type { CssdRole, LaundryRole, KepalaSeksiRole } from "./roles";
 
 type DemoPasswordKey = "admin" | "petugas";
 
 type DemoUserDefinition = {
   email: string;
   fullName: string;
-  role: CssdRole | LaundryRole;
+  role: CssdRole | LaundryRole | KepalaSeksiRole;
   passwordKey: DemoPasswordKey;
 };
 
@@ -42,7 +42,7 @@ type EnsureDemoUsersDeps = {
       userId: string;
       email: string;
       fullName: string;
-      role: CssdRole | LaundryRole;
+      role: CssdRole | LaundryRole | KepalaSeksiRole;
     }): Promise<void>;
   };
   passwords: Record<DemoPasswordKey, string>;
@@ -72,6 +72,12 @@ const DEMO_USERS: DemoUserDefinition[] = [
     fullName: "Petugas Laundry",
     role: "PETUGAS_LAUNDRY",
     passwordKey: "petugas",
+  },
+  {
+    email: "kepala.seksi@ncis.local",
+    fullName: "Kepala Seksi",
+    role: "KEPALA_SEKSI",
+    passwordKey: "admin",
   },
 ];
 
@@ -180,7 +186,7 @@ export function createSupabaseProfilesAdapter(supabase: SupabaseClient) {
       userId: string;
       email: string;
       fullName: string;
-      role: CssdRole | LaundryRole;
+      role: CssdRole | LaundryRole | KepalaSeksiRole;
     }) {
       const { error } = await supabase.from("profiles").upsert(
         {

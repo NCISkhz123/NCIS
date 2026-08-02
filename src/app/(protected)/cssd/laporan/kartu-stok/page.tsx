@@ -1,5 +1,6 @@
 import { DataTable } from "@/components/data/data-table";
 import { FilterField } from "@/components/cssd/reports/filter-field";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { SectionHeader } from "@/components/cssd/reports/section-header";
 import {
   ReportActionButton,
@@ -103,7 +104,7 @@ export default async function KartuStokPage({
     listActiveHospitalUnits(supabase),
     listItemStockCardReport(reportClient, {
       itemId: cardItem,
-      unitId: cardUnit,
+      unitId: cardUnit === "INTERNAL" ? null : cardUnit,
       dateFrom: cardFrom,
       dateTo: cardTo,
       limit: 100,
@@ -179,19 +180,16 @@ export default async function KartuStokPage({
 
         <form className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_0.9fr_0.9fr_auto]">
           <FilterField label="Item" htmlFor="card-item">
-            <select
+            <SearchableSelect
               id="card-item"
               name="cardItem"
               defaultValue={cardItem ?? ""}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-            >
-              <option value="">Pilih item untuk kartu stok</option>
-              {items.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.code} - {item.name}
-                </option>
-              ))}
-            </select>
+              options={items.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+              placeholder="Pilih item untuk kartu stok"
+            />
           </FilterField>
 
           <FilterField label="Unit" htmlFor="card-unit">
@@ -202,6 +200,7 @@ export default async function KartuStokPage({
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
             >
               <option value="">Semua unit terkait</option>
+              <option value="INTERNAL">CSSD</option>
               {hospitalUnits.map((unit) => (
                 <option key={unit.id} value={unit.id}>
                   {unit.name} ({unit.code})
@@ -268,7 +267,7 @@ export default async function KartuStokPage({
               ? `Kartu stok ${selectedCardItem.code} - ${selectedCardItem.name}`
               : "Pilih item untuk melihat pergerakan"
           }
-          columns={["Tanggal", "Transaksi", "Alur", "Unit", "Qty", "Catatan"]}
+          columns={["Tanggal", "Transaksi", "Alur", "Unit", "Qty"]}
           rows={
             stockCard.length
               ? stockCard.map((row) => [
@@ -282,12 +281,10 @@ export default async function KartuStokPage({
                   >
                     {row.quantity}
                   </span>,
-                  row.notes ?? "-",
                 ])
               : [[
                   "-",
                   selectedCardItem ? "Belum ada pergerakan" : "Pilih item",
-                  "-",
                   "-",
                   "-",
                   "-",

@@ -16,7 +16,8 @@ function getExportDate() {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const itemId = url.searchParams.get("cardItem") ?? undefined;
-  const unitId = url.searchParams.get("cardUnit") ?? undefined;
+  const rawUnitId = url.searchParams.get("cardUnit") ?? undefined;
+  const unitId = rawUnitId === "INTERNAL" ? null : rawUnitId;
   const dateFrom = url.searchParams.get("cardFrom") ?? undefined;
   const dateTo = url.searchParams.get("cardTo") ?? undefined;
 

@@ -11,10 +11,10 @@ export const internalUsageSchema = z
     notes: z.string().trim().max(500).optional(),
   })
   .superRefine((value, ctx) => {
-    if (value.itemType !== "CONSUMABLE_INTERNAL") {
+    if (value.itemType !== "CONSUMABLE") {
       ctx.addIssue({
         code: "custom",
-        message: "Pemakaian internal hanya untuk konsumabel internal",
+        message: "Pemakaian internal hanya untuk consumable",
         path: ["itemType"],
       });
     }

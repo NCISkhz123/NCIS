@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 import { saveReceiptAction } from "@/app/(protected)/laundry/pemasukan/actions";
 import { ShellSectionHeading } from "@/components/layout/shell-section-heading";
@@ -37,76 +38,52 @@ export function ReceiptTransactionView({
 
   const values = formState.values ?? {};
   const defaultDate = new Date().toISOString().slice(0, 10);
+  const [selectedItemType, setSelectedItemType] = useState<string>(values.itemType ?? "");
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7">
-        <div className="space-y-6">
-          <ShellSectionHeading
-            eyebrow="Laundry"
-            title="Pemasukan"
-            description="Catat barang masuk ke stok Laundry."
-            size="hero"
-          />
+      <section className="shell-surface rounded-[1.75rem] p-6 md:p-7 h-full flex flex-col min-h-[400px]">
+        <div className="space-y-6 flex-1 flex flex-col">
+
           <p className="mb-3 text-sm font-semibold text-slate-800">
             Riwayat pemasukan
           </p>
-          <TransactionHistoryTable
-            caption="Riwayat pemasukan"
-            rows={recentTransactions}
-          />
+          <div className="flex-1">
+            <TransactionHistoryTable
+              caption="Riwayat pemasukan"
+              rows={recentTransactions}
+            />
+          </div>
         </div>
       </section>
 
       <div className="grid gap-6">
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title="Tambah stok masuk"
-            description="Pilih item, isi tanggal, lalu simpan."
-          />
+
           <form action={formAction} className="mt-6 grid gap-4">
+            <input type="hidden" name="itemType" value={selectedItemType} />
             <div className="grid gap-2">
               <label htmlFor="receipt-item" className="text-sm font-semibold text-slate-700">
                 Item Laundry
               </label>
-              <select
+              <SearchableSelect
                 id="receipt-item"
                 name="itemId"
                 defaultValue={values.itemId ?? ""}
                 disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="">Pilih item</option>
-                {items.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </option>
-                ))}
-              </select>
+                options={items.map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                placeholder="Ketik untuk mencari item..."
+                onChange={(val) => {
+                  const selected = items.find((i) => i.id === val);
+                  setSelectedItemType(selected?.item_type ?? "");
+                }}
+              />
             </div>
 
-            <div className="grid gap-2">
-              <label
-                htmlFor="receipt-item-type"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Jenis Item
-              </label>
-              <select
-                id="receipt-item-type"
-                name="itemType"
-                defaultValue={values.itemType ?? "REUSABLE"}
-                disabled={pending}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              >
-                <option value="REUSABLE">Reusable</option>
-                <option value="CONSUMABLE_DISTRIBUTION">
-                  Konsumabel Distribusi
-                </option>
-                <option value="CONSUMABLE_INTERNAL">Konsumabel Internal</option>
-              </select>
-            </div>
+
 
             <div className="grid gap-2 md:grid-cols-2">
               <div className="grid gap-2">
@@ -145,19 +122,6 @@ export function ReceiptTransactionView({
               </div>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="receipt-notes" className="text-sm font-semibold text-slate-700">
-                Catatan
-              </label>
-              <textarea
-                id="receipt-notes"
-                name="notes"
-                rows={4}
-                defaultValue={values.notes ?? ""}
-                disabled={pending}
-                className="rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
-              />
-            </div>
 
             <TransactionFeedback
               error={formState.error}
@@ -173,17 +137,6 @@ export function ReceiptTransactionView({
               {pending ? "Menyimpan..." : "Simpan Pemasukan"}
             </button>
           </form>
-        </section>
-
-        <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Posisi stok"
-            title="Stok saat ini"
-            description="Pantau stok berdasarkan posisi dan unit."
-          />
-          <div className="mt-5">
-            <StockSummaryTable caption="Stok saat ini" rows={stockSummary} />
-          </div>
         </section>
       </div>
     </div>

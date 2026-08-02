@@ -31,7 +31,7 @@ function buildDistributionImpact(
   return {
     movementLabel: isReusableFlow
       ? "Distribusi reusable tersimpan dan stok unit tujuan bertambah."
-      : "Distribusi konsumabel tersimpan dan stok siap pakai Laundry berkurang.",
+      : "Distribusi consumable tersimpan dan stok siap pakai Laundry berkurang.",
     quantity: data.quantity,
     fromLabel: getStockPositionLabel(data.from_position),
     toLabel: getStockPositionLabel(data.to_position),

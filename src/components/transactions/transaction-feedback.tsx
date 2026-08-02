@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { FeedbackBanner } from "@/components/feedback/feedback-banner";
 
 type TransactionImpact = {
@@ -15,19 +18,38 @@ type TransactionFeedbackProps = {
   impact?: TransactionImpact | null;
 };
 
-function buildImpactMessage(impact: TransactionImpact) {
-  return `Jumlah ${impact.quantity}${
-    impact.fromLabel ? ` dari ${impact.fromLabel}` : ""
-  }${impact.toLabel ? ` ke ${impact.toLabel}` : ""}. ${
-    impact.resultingBalanceLabel
-  } sekarang ${impact.resultingBalance}.`;
-}
-
 export function TransactionFeedback({
   error,
   message,
   impact,
 }: TransactionFeedbackProps) {
+  const [visible, setVisible] = useState(true);
+  const [fadingOut, setFadingOut] = useState(false);
+
+  useEffect(() => {
+    setVisible(true);
+    setFadingOut(false);
+
+    if (!error && message) {
+      const fadeTimer = setTimeout(() => {
+        setFadingOut(true);
+      }, 4000);
+
+      const hideTimer = setTimeout(() => {
+        setVisible(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [error, message, impact]);
+
+  if (!visible) {
+    return null;
+  }
+
   if (error) {
     return (
       <FeedbackBanner tone="error" label="Perlu dicek">
@@ -36,22 +58,19 @@ export function TransactionFeedback({
     );
   }
 
-  if (!message && !impact) {
+  if (!message) {
     return null;
   }
 
   return (
-    <div className="grid gap-3">
-      {message ? (
-        <FeedbackBanner tone="success" label="Transaksi tersimpan">
-          {message}
-        </FeedbackBanner>
-      ) : null}
-      {impact ? (
-        <FeedbackBanner tone="info" label={impact.movementLabel}>
-          {buildImpactMessage(impact)}
-        </FeedbackBanner>
-      ) : null}
+    <div
+      className={`grid gap-3 transition-opacity duration-1000 ease-in-out ${
+        fadingOut ? "opacity-0" : "opacity-100"
+      }`}
+    >
+      <FeedbackBanner tone="success" label="Transaksi tersimpan">
+        {message}
+      </FeedbackBanner>
     </div>
   );
 }

@@ -37,22 +37,17 @@ export function UnitMasterDataView({
       <section className="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
         <div className="shell-surface rounded-[1.75rem] p-6 md:p-7">
           <div className="space-y-6">
-            <ShellSectionHeading
-              eyebrow="Master data"
-              title="Data unit"
-              description="Unit yang terhubung dengan Laundry."
-              size="hero"
-            />
+
             <div>
               <p className="mb-3 text-sm font-semibold text-slate-800">
                 Daftar unit
               </p>
               <DataTable
                 caption="Daftar unit"
-                columns={["Kode", "Nama", "Status", "Aksi"]}
+                columns={["Nama", "Kode", "Status", "Aksi"]}
                 rows={records.map((record) => [
-                  record.code,
                   record.name,
+                  record.code,
                   <StatusPill key={`${record.id}-status`} active={record.is_active} />,
                   <Link
                     key={`${record.id}-edit`}
@@ -68,11 +63,7 @@ export function UnitMasterDataView({
         </div>
 
         <section className="shell-surface rounded-[1.75rem] p-6">
-          <ShellSectionHeading
-            eyebrow="Input"
-            title={editingRecord ? "Ubah unit" : "Tambah unit"}
-            description="Isi kode dan nama unit."
-          />
+
 
           <form action={formAction} className="mt-6 grid gap-4">
             <input type="hidden" name="id" value={editingRecord?.id ?? ""} />

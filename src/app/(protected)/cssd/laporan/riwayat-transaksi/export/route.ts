@@ -16,7 +16,9 @@ function getExportDate() {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const itemId = url.searchParams.get("historyItem") ?? undefined;
-  const unitId = url.searchParams.get("historyUnit") ?? undefined;
+  const rawUnitId = url.searchParams.get("historyUnit") ?? undefined;
+  const unitId = rawUnitId === "INTERNAL" ? null : rawUnitId;
+  const historyType = url.searchParams.get("historyType") ?? undefined;
   const dateFrom = url.searchParams.get("historyFrom") ?? undefined;
   const dateTo = url.searchParams.get("historyTo") ?? undefined;
 
@@ -25,6 +27,7 @@ export async function GET(request: Request) {
   const rows = await listTransactionHistoryReport(reportClient, {
     itemId,
     unitId,
+    movementType: historyType,
     dateFrom,
     dateTo,
     limit: 100,

@@ -24,17 +24,7 @@ export function TransactionPageShell({
       {/* Left Column: Form Card (Sticky Desktop) */}
       <div className="xl:col-span-5">
         <Card className="sticky top-24 border-slate-200 shadow-sm">
-          <CardHeader>
-            <ShellSectionHeading
-              eyebrow="Form Input"
-              title={formTitle ?? "Catat Transaksi"}
-              description={
-                formDescription ??
-                "Isi data transaksi secara lengkap lalu simpan."
-              }
-            />
-          </CardHeader>
-          <CardContent>{form}</CardContent>
+          <CardContent className="pt-6">{form}</CardContent>
         </Card>
       </div>
 
