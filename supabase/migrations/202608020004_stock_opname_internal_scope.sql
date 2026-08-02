@@ -153,3 +153,17 @@ begin
   );
 end;
 $$;
+
+-- Drop old signatures from 0003
+drop function if exists public.cssd_create_stock_opname_session(date, text, uuid, uuid);
+drop function if exists public.laundry_create_stock_opname_session(date, text, uuid, uuid);
+
+-- Grants & Permissions for new 5-argument signatures
+revoke all on function public.cssd_create_stock_opname_session(date, text, uuid, text, uuid) from public;
+grant execute on function public.cssd_create_stock_opname_session(date, text, uuid, text, uuid) to authenticated;
+grant execute on function public.cssd_create_stock_opname_session(date, text, uuid, text, uuid) to service_role;
+
+revoke all on function public.laundry_create_stock_opname_session(date, text, uuid, text, uuid) from public;
+grant execute on function public.laundry_create_stock_opname_session(date, text, uuid, text, uuid) to authenticated;
+grant execute on function public.laundry_create_stock_opname_session(date, text, uuid, text, uuid) to service_role;
+
