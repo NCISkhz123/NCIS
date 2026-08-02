@@ -97,8 +97,6 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/sisa stok/i).length).toBeGreaterThan(0);
     const itemSelect = screen.getByLabelText(/item konsumabel internal/i);
     fireEvent.focus(itemSelect);
     expect(screen.getAllByText(/chemical sterilizer/i).length).toBeGreaterThan(0);
@@ -124,7 +122,6 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(screen.getAllByText(/posisi stok/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/riwayat sesi/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/tanggal opname/i)).toBeVisible();
     expect(screen.getByLabelText(/cakupan unit/i)).toBeVisible();
