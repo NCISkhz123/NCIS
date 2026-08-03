@@ -291,7 +291,7 @@ export function AmbulanceMasterView({ initialAmbulances, initialSettings }: Prop
 
           <Form {...settingsForm}>
             <form onSubmit={settingsForm.handleSubmit(onSettingsSubmit as any)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="hidden">
                 <FormField
                   control={settingsForm.control as any}
                   name="hospital_lat"

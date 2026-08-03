@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import MapSearchField from '../MapSearchField';
 
 const icon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -56,6 +57,7 @@ export default function HospitalMapPickerInner({ lat, lng, onChange }: Props) {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" 
           maxZoom={19}
         />
+        <MapSearchField onLocationFound={(l, g) => onChange(l, g)} />
         <Marker position={position} icon={icon} />
         <MapClickHandler setPos={onChange} />
       </MapContainer>
