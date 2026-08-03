@@ -28,7 +28,8 @@ export async function deleteAmbulanceTransactionAction(
     return { error: error.message };
   }
 
-  revalidatePath("/(protected)/ambulance", "layout");
+  revalidatePath("/ambulance", "layout");
 
   return { success: true };
 }
+

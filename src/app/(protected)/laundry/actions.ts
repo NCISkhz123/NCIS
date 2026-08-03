@@ -28,7 +28,8 @@ export async function deleteLaundryTransactionAction(
     return { error: error.message };
   }
 
-  revalidatePath("/(protected)/laundry", "layout");
+  revalidatePath("/laundry", "layout");
 
   return { success: true };
 }
+

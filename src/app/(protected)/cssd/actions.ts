@@ -28,7 +28,8 @@ export async function deleteCssdTransactionAction(
     return { error: error.message };
   }
 
-  revalidatePath("/(protected)/cssd", "layout");
+  revalidatePath("/cssd", "layout");
 
   return { success: true };
 }
+
