@@ -53,6 +53,8 @@ type ReturnTransactionViewProps = {
   recentTransactions: TransactionHistoryEntry[];
   stockSummary: StockSummaryEntry[];
   reusableProcessingSummary: ReusableProcessingSummaryEntry[];
+  isAdmin?: boolean;
+  onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 };
 
 export function ReturnTransactionView({
@@ -61,6 +63,8 @@ export function ReturnTransactionView({
   items,
   hospitalUnits,
   recentTransactions,
+  isAdmin,
+  onDelete,
   stockSummary,
   reusableProcessingSummary,
 }: ReturnTransactionViewProps) {
@@ -455,6 +459,8 @@ export function ReturnTransactionView({
               <TransactionHistoryTable
                 caption="Riwayat terbaru"
                 rows={recentTransactions}
+              isAdmin={isAdmin}
+              onDelete={onDelete}
               />
             </CardContent>
           </Card>
@@ -463,3 +469,4 @@ export function ReturnTransactionView({
     />
   );
 }
+

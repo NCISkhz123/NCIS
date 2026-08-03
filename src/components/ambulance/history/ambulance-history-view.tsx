@@ -45,9 +45,11 @@ export type AmbulanceTransactionHistory = {
 
 interface AmbulanceHistoryViewProps {
   transactions: AmbulanceTransactionHistory[];
+  isAdmin?: boolean;
+  onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 }
 
-export function AmbulanceHistoryView({ transactions }: AmbulanceHistoryViewProps) {
+export function AmbulanceHistoryView({ transactions, isAdmin, onDelete }: AmbulanceHistoryViewProps) {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [startDate, setStartDate] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
@@ -219,6 +221,12 @@ export function AmbulanceHistoryView({ transactions }: AmbulanceHistoryViewProps
                           <Printer className="h-3.5 w-3.5 mr-1 text-slate-500" /> Nota PDF
                         </Button>
                       </Link>
+                      {isAdmin && onDelete && (
+                        (() => {
+                          const DeleteTransactionButton = require("@/components/transactions/delete-transaction-button").DeleteTransactionButton;
+                          return <DeleteTransactionButton id={tx.id} onDelete={onDelete} />;
+                        })()
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

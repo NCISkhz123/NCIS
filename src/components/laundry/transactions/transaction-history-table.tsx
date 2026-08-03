@@ -6,6 +6,8 @@ type TransactionHistoryTableProps = {
   caption: string;
   rows: TransactionHistoryEntry[];
   showTransactionType?: boolean;
+  isAdmin?: boolean;
+  onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 };
 
 function formatDateLabel(value: string) {
@@ -26,12 +28,18 @@ export function TransactionHistoryTable({
   caption,
   rows,
   showTransactionType,
+  isAdmin,
+  onDelete,
 }: TransactionHistoryTableProps) {
   const columns = ["Tanggal"];
   if (showTransactionType) {
     columns.push("Transaksi");
   }
   columns.push("Nama Item", "Kode Item", "Jenis", "Qty", "Unit");
+  
+  if (isAdmin && onDelete) {
+    columns.push("Aksi");
+  }
 
   return (
     <DataTable
@@ -46,7 +54,7 @@ export function TransactionHistoryTable({
               if (showTransactionType) {
                 baseRow.push(row.movementTypeLabel ?? "-");
               }
-              return [
+              const rowContent = [
                 ...baseRow,
                 row.itemName,
                 row.itemCode,
@@ -56,6 +64,13 @@ export function TransactionHistoryTable({
                 </span>,
                 row.targetUnitName ?? "-",
               ];
+              if (isAdmin && onDelete) {
+                const DeleteTransactionButton = require("@/components/transactions/delete-transaction-button").DeleteTransactionButton;
+                rowContent.push(
+                  <DeleteTransactionButton key={`${row.id}-del`} id={row.id} onDelete={onDelete} />
+                );
+              }
+              return rowContent;
             })
           : [Array(columns.length).fill("-").map((_, i) => i === 1 ? "Belum ada transaksi" : "-")]
       }

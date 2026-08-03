@@ -48,10 +48,36 @@ function getNavIcon(segmentOrHref: string) {
 }
 
 function getNavItems(pathname: string, role?: AppRole) {
-  if (pathname.startsWith("/ambulance")) return AMBULANCE_NAV_ITEMS;
-  const navItems = pathname.startsWith("/laundry")
-    ? LAUNDRY_NAV_ITEMS
-    : CSSD_NAV_ITEMS;
+  let navItems = pathname.startsWith("/ambulance")
+    ? [...AMBULANCE_NAV_ITEMS]
+    : pathname.startsWith("/laundry")
+    ? [...LAUNDRY_NAV_ITEMS]
+    : [...CSSD_NAV_ITEMS];
+
+  if (role === "KEPALA_SEKSI") {
+    navItems = navItems.map((item) => {
+      if (item.type === "group" && item.label === "Laporan") {
+        return {
+          ...item,
+          children: [
+            ...item.children,
+            {
+              label: "Log Sensitif",
+              href: `${pathname.startsWith("/laundry") ? "/laundry" : "/cssd"}/laporan/log-sensitif`,
+            },
+          ],
+        };
+      }
+      return item;
+    });
+    if (pathname.startsWith("/ambulance")) {
+      navItems.push({
+        type: "link",
+        label: "Log Sensitif",
+        href: "/ambulance/log-sensitif",
+      });
+    }
+  }
 
   if (!isPetugasRole(role)) {
     return navItems;

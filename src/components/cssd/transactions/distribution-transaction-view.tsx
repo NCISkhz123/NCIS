@@ -31,6 +31,8 @@ type DistributionTransactionViewProps = {
   hospitalUnits: HospitalUnitRow[];
   recentTransactions: TransactionHistoryEntry[];
   stockSummary: StockSummaryEntry[];
+  isAdmin?: boolean;
+  onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 };
 
 export function DistributionTransactionView({
@@ -38,6 +40,8 @@ export function DistributionTransactionView({
   items,
   hospitalUnits,
   recentTransactions,
+  isAdmin,
+  onDelete,
   stockSummary,
 }: DistributionTransactionViewProps) {
   const [formState, formAction, pending] = useActionState(
@@ -195,6 +199,8 @@ export function DistributionTransactionView({
             <TransactionHistoryTable
               caption="Riwayat terbaru"
               rows={recentTransactions}
+              isAdmin={isAdmin}
+              onDelete={onDelete}
             />
           </CardContent>
         </Card>
@@ -202,3 +208,4 @@ export function DistributionTransactionView({
     />
   );
 }
+

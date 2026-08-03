@@ -29,6 +29,8 @@ type ReceiptTransactionViewProps = {
   items: ItemRow[];
   recentTransactions: TransactionHistoryEntry[];
   stockSummary: StockSummaryEntry[];
+  isAdmin?: boolean;
+  onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 };
 
 export function ReceiptTransactionView({
@@ -36,6 +38,8 @@ export function ReceiptTransactionView({
   items,
   recentTransactions,
   stockSummary,
+  isAdmin,
+  onDelete,
 }: ReceiptTransactionViewProps) {
   const [formState, formAction, pending] = useActionState(
     saveReceiptAction,
@@ -172,6 +176,8 @@ export function ReceiptTransactionView({
             <TransactionHistoryTable
               caption="Riwayat terbaru"
               rows={recentTransactions}
+              isAdmin={isAdmin}
+              onDelete={onDelete}
             />
           </CardContent>
         </Card>

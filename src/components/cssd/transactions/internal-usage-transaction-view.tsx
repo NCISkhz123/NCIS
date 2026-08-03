@@ -29,12 +29,16 @@ type InternalUsageTransactionViewProps = {
   items: ItemRow[];
   recentTransactions: TransactionHistoryEntry[];
   stockSummary: StockSummaryEntry[];
+  isAdmin?: boolean;
+  onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 };
 
 export function InternalUsageTransactionView({
   initialState = initialInternalUsageFormState,
   items,
   recentTransactions,
+  isAdmin,
+  onDelete,
   stockSummary,
 }: InternalUsageTransactionViewProps) {
   const [formState, formAction, pending] = useActionState(
@@ -167,6 +171,8 @@ export function InternalUsageTransactionView({
             <TransactionHistoryTable
               caption="Riwayat terbaru"
               rows={recentTransactions}
+              isAdmin={isAdmin}
+              onDelete={onDelete}
             />
           </CardContent>
         </Card>
@@ -174,3 +180,4 @@ export function InternalUsageTransactionView({
     />
   );
 }
+
