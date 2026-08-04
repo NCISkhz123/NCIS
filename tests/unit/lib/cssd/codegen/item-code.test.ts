@@ -12,6 +12,6 @@ describe("generateItemCode", () => {
   it("uses a different prefix for consumable internal items", () => {
     expect(
       generateItemCode({ itemType: "CONSUMABLE", sequence: 27 })
-    ).toBe("CSSD-CI-0027");
+    ).toBe("CSSD-C-0027");
   });
 });

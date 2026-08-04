@@ -4,6 +4,8 @@ import { config } from "../../../middleware";
 
 describe("root middleware config", () => {
   it("only matches protected module routes", () => {
-    expect(config.matcher).toEqual(["/cssd/:path*", "/laundry/:path*"]);
+    expect(config.matcher).toEqual([
+      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    ]);
   });
 });

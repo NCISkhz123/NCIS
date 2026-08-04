@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { getDefaultModulePath, isModuleRole } from "@/lib/auth/guards";
+import { getDefaultModulePath } from "@/lib/auth/guards";
+import { isModuleRole } from "@/lib/auth/roles";
 import { getProfileRoleForUser } from "@/lib/auth/profile";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 

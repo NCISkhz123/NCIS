@@ -6,16 +6,18 @@ export function getAvailableModuleKeys(role: AppRole): readonly ModuleKey[] {
     return ["CSSD", "LAUNDRY", "AMBULANCE"];
   }
 
-  if (role === "ADMIN_CSSD" || role === "PETUGAS_CSSD") {
-    return ["CSSD"];
-  }
-
-  if (role === "ADMIN_LAUNDRY" || role === "PETUGAS_LAUNDRY") {
-    return ["LAUNDRY"];
-  }
-
   if (role === "ADMIN_AMBULANCE" || role === "PETUGAS_AMBULANCE") {
     return ["AMBULANCE"];
+  }
+
+  if (
+    role === "ADMIN_CSSD" ||
+    role === "PETUGAS_CSSD" ||
+    role === "ADMIN_LAUNDRY" ||
+    role === "PETUGAS_LAUNDRY" ||
+    role === "USER"
+  ) {
+    return ["CSSD", "LAUNDRY"];
   }
 
   return [];

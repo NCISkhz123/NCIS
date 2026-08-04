@@ -5,10 +5,11 @@ const createSupabaseReportClientMock = vi.fn();
 const listCurrentStockReportMock = vi.fn();
 const listTransactionHistoryReportMock = vi.fn();
 const listItemStockCardReportMock = vi.fn();
-const buildStockStatusCsvTableMock = vi.fn();
-const buildTransactionHistoryCsvTableMock = vi.fn();
-const buildStockCardCsvTableMock = vi.fn();
-const buildReportCsvFilenameMock = vi.fn();
+const buildStockStatusExcelTableMock = vi.fn();
+const buildTransactionHistoryExcelTableMock = vi.fn();
+const buildStockCardExcelTableMock = vi.fn();
+const buildReportExcelFilenameMock = vi.fn();
+const buildExcelBufferMock = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
   createServerSupabaseClient: createServerSupabaseClientMock,
@@ -21,11 +22,15 @@ vi.mock("@/lib/cssd/services/reports", () => ({
   listItemStockCardReport: listItemStockCardReportMock,
 }));
 
-vi.mock("@/lib/cssd/reports/csv-export", () => ({
-  buildStockStatusCsvTable: buildStockStatusCsvTableMock,
-  buildTransactionHistoryCsvTable: buildTransactionHistoryCsvTableMock,
-  buildStockCardCsvTable: buildStockCardCsvTableMock,
-  buildReportCsvFilename: buildReportCsvFilenameMock,
+vi.mock("@/lib/cssd/reports/excel-export", () => ({
+  buildStockStatusExcelTable: buildStockStatusExcelTableMock,
+  buildTransactionHistoryExcelTable: buildTransactionHistoryExcelTableMock,
+  buildStockCardExcelTable: buildStockCardExcelTableMock,
+  buildReportExcelFilename: buildReportExcelFilenameMock,
+}));
+
+vi.mock("@/lib/excel", () => ({
+  buildExcelBuffer: buildExcelBufferMock,
 }));
 
 describe("cssd report export routes", () => {
@@ -35,15 +40,14 @@ describe("cssd report export routes", () => {
 
     createServerSupabaseClientMock.mockResolvedValue({ kind: "supabase" });
     createSupabaseReportClientMock.mockReturnValue({ kind: "report-client" });
-    buildReportCsvFilenameMock.mockReturnValue("report.csv");
+    buildReportExcelFilenameMock.mockReturnValue("report.xlsx");
+    buildExcelBufferMock.mockResolvedValue(Buffer.from("dummy-excel"));
   });
 
   it("exports stock status csv using the active filters", async () => {
     listCurrentStockReportMock.mockResolvedValue([{ itemId: "item-1" }]);
-    buildStockStatusCsvTableMock.mockReturnValue({
-      headers: ["Kode Item", "Qty"],
-      rows: [["R-0001", 6]],
-    });
+    const mockTable = { headers: ["A"], rows: [["B"]] };
+    buildStockStatusExcelTableMock.mockReturnValue(mockTable);
 
     const { GET } = await import(
       "@/app/(protected)/cssd/laporan/stok-status/export/route"
@@ -63,17 +67,15 @@ describe("cssd report export routes", () => {
       }
     );
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/csv");
-    expect(response.headers.get("content-disposition")).toContain("report.csv");
-    expect(await response.text()).toBe("Kode Item,Qty\r\nR-0001,6\r\n");
+    expect(response.headers.get("content-type")).toContain("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    expect(response.headers.get("content-disposition")).toContain("report.xlsx");
+    expect(buildExcelBufferMock).toHaveBeenCalledWith(mockTable);
   });
 
   it("exports transaction history csv using the active filters", async () => {
     listTransactionHistoryReportMock.mockResolvedValue([{ movementId: "move-1" }]);
-    buildTransactionHistoryCsvTableMock.mockReturnValue({
-      headers: ["Tanggal", "Qty"],
-      rows: [["01 Jul 2026", 2]],
-    });
+    const mockTable = { headers: ["A"], rows: [["B"]] };
+    buildTransactionHistoryExcelTableMock.mockReturnValue(mockTable);
 
     const { GET } = await import(
       "@/app/(protected)/cssd/laporan/riwayat-transaksi/export/route"
@@ -95,17 +97,15 @@ describe("cssd report export routes", () => {
       }
     );
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/csv");
-    expect(response.headers.get("content-disposition")).toContain("report.csv");
-    expect(await response.text()).toBe("Tanggal,Qty\r\n01 Jul 2026,2\r\n");
+    expect(response.headers.get("content-type")).toContain("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    expect(response.headers.get("content-disposition")).toContain("report.xlsx");
+    expect(buildExcelBufferMock).toHaveBeenCalledWith(mockTable);
   });
 
   it("exports stock card csv with a fallback filename and header-only body when no item is selected", async () => {
     listItemStockCardReportMock.mockResolvedValue([]);
-    buildStockCardCsvTableMock.mockReturnValue({
-      headers: ["Tanggal", "Unit"],
-      rows: [],
-    });
+    const mockTable = { headers: ["A"], rows: [] };
+    buildStockCardExcelTableMock.mockReturnValue(mockTable);
 
     const { GET } = await import(
       "@/app/(protected)/cssd/laporan/kartu-stok/export/route"
@@ -114,13 +114,14 @@ describe("cssd report export routes", () => {
       new Request("http://localhost/cssd/laporan/kartu-stok/export")
     );
 
-    expect(buildReportCsvFilenameMock).toHaveBeenCalledWith("stock-card", {
+    expect(buildReportExcelFilenameMock).toHaveBeenCalledWith("stock-card", {
       date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       itemCode: undefined,
     });
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain("text/csv");
-    expect(response.headers.get("content-disposition")).toContain("report.csv");
-    expect(await response.text()).toBe("Tanggal,Unit\r\n");
+    expect(response.headers.get("content-type")).toContain("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    expect(response.headers.get("content-disposition")).toContain("report.xlsx");
+    expect(buildExcelBufferMock).toHaveBeenCalledWith(mockTable);
   });
 });
+

@@ -51,12 +51,7 @@ describe("CSSD master data pages", () => {
       />
     );
 
-    expect(
-      screen.getByRole("heading", { name: /data item/i })
-    ).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: /tambah item/i })
-    ).toBeVisible();
+    expect(screen.getByText(/katalog item/i)).toBeVisible();
     expect(screen.getByLabelText(/kode item/i)).toBeVisible();
     expect(screen.getByLabelText(/nama item/i)).toBeVisible();
     expect(screen.getByLabelText(/jenis item/i)).toBeVisible();
@@ -69,12 +64,7 @@ describe("CSSD master data pages", () => {
   it("renders the satuan page with the unit of measure form", () => {
     render(<UomMasterDataView records={[]} editingRecord={null} />);
 
-    expect(
-      screen.getByRole("heading", { name: /data satuan/i })
-    ).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: /tambah satuan/i })
-    ).toBeVisible();
+    expect(screen.getByText(/daftar satuan terdaftar/i)).toBeVisible();
     expect(screen.getByLabelText(/kode satuan/i)).toBeVisible();
     expect(screen.getByLabelText(/nama satuan/i)).toBeVisible();
     expect(
@@ -85,12 +75,7 @@ describe("CSSD master data pages", () => {
   it("renders the unit page with the hospital unit form", () => {
     render(<UnitMasterDataView records={[]} editingRecord={null} />);
 
-    expect(
-      screen.getByRole("heading", { name: /data unit/i })
-    ).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: /tambah unit/i })
-    ).toBeVisible();
+    expect(screen.getByText(/daftar unit terdaftar/i)).toBeVisible();
     expect(screen.getByLabelText(/kode unit/i)).toBeVisible();
     expect(screen.getByLabelText(/nama unit/i)).toBeVisible();
     expect(screen.getByRole("button", { name: /simpan unit/i })).toBeVisible();

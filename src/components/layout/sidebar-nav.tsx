@@ -22,6 +22,7 @@ import { CSSD_NAV_ITEMS } from "@/lib/cssd/constants";
 import { LAUNDRY_NAV_ITEMS } from "@/lib/laundry/constants";
 import { AMBULANCE_NAV_ITEMS } from "@/lib/ambulance/constants";
 import type { AppRole } from "@/lib/auth/roles";
+import { isCssdRole, isLaundryRole, isAmbulanceRole, isKepalaSeksi } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 
 type SidebarNavProps = {
@@ -77,6 +78,23 @@ function getNavItems(pathname: string, role?: AppRole) {
         href: "/ambulance/log-sensitif",
       });
     }
+  }
+
+  const isCssdModule = pathname.startsWith("/cssd");
+  const isLaundryModule = pathname.startsWith("/laundry");
+  const isAmbulanceModule = pathname.startsWith("/ambulance");
+
+  const currentRole = role ?? null;
+
+  const hasFullAccess = 
+    (isCssdModule && (isCssdRole(currentRole) || isKepalaSeksi(currentRole))) ||
+    (isLaundryModule && (isLaundryRole(currentRole) || isKepalaSeksi(currentRole))) ||
+    (isAmbulanceModule && (isAmbulanceRole(currentRole) || isKepalaSeksi(currentRole)));
+
+  if (!hasFullAccess) {
+    return navItems.filter(
+      (item) => item.type === "group" && item.segment.endsWith("/laporan")
+    );
   }
 
   if (!isPetugasRole(role)) {

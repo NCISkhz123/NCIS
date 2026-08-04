@@ -8,7 +8,7 @@ import { SidebarNav } from "@/components/layout/sidebar-nav";
 
 describe("SidebarNav for Laundry", () => {
   it("auto-expands Master Data for Laundry routes", () => {
-    render(<SidebarNav pathname="/laundry/master-data/items" />);
+    render(<SidebarNav pathname="/laundry/master-data/items" role="ADMIN_LAUNDRY" />);
 
     expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
     expect(
@@ -20,7 +20,7 @@ describe("SidebarNav for Laundry", () => {
   });
 
   it("auto-expands Laporan for Laundry routes", () => {
-    render(<SidebarNav pathname="/laundry/laporan/kartu-stok" />);
+    render(<SidebarNav pathname="/laundry/laporan/kartu-stok" role="ADMIN_LAUNDRY" />);
 
     expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
     expect(

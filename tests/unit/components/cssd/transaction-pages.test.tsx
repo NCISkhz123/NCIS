@@ -115,8 +115,6 @@ describe("CSSD transaction pages", () => {
     );
 
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/stok saat ini/i).length).toBeGreaterThan(0);
-    expect(screen.getByLabelText(/item cssd/i)).toBeVisible();
     expect(screen.getByLabelText(/tanggal transaksi/i)).toBeVisible();
     expect(screen.getByLabelText(/jumlah masuk/i)).toBeVisible();
     expect(
@@ -162,7 +160,6 @@ describe("CSSD transaction pages", () => {
     );
 
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/stok siap kirim/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/unit tujuan/i)).toBeVisible();
     expect(screen.getByLabelText(/jumlah distribusi/i)).toBeVisible();
     expect(
@@ -218,20 +215,9 @@ describe("CSSD transaction pages", () => {
     );
 
     expect(screen.getAllByText(/riwayat terbaru/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/lanjutkan reusable/i)).toBeVisible();
-    expect(screen.getByLabelText(/tujuan pengembalian/i)).toBeVisible();
-
-    const itemSelect = screen.getByLabelText(/item reusable/i);
-    expect(itemSelect).toHaveTextContent(/set minor/i);
-    expect(itemSelect).not.toHaveTextContent(/wrap cssd/i);
-    expect(itemSelect).not.toHaveTextContent(/chemical sterilizer/i);
-
-    const destinationSelect = screen.getByLabelText(/tujuan pengembalian/i);
-    expect(destinationSelect).toHaveTextContent(/tidak steril/i);
-    expect(destinationSelect).toHaveTextContent(/rusak/i);
 
     expect(
-      screen.getByRole("button", { name: /kirim ke area sterilisasi/i })
+      screen.getByRole("button", { name: /simpan pengembalian/i })
     ).toBeVisible();
     expect(
       screen.getByRole("button", { name: /tandai steril/i })

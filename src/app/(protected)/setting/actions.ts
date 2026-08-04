@@ -5,7 +5,7 @@ import { forbidden, redirect } from "next/navigation";
 
 import { getCurrentProfile } from "@/lib/auth/profile";
 import type { AppRole, CssdRole, LaundryRole, KepalaSeksiRole } from "@/lib/auth/roles";
-import { isModuleRole } from "@/lib/auth/guards";
+import { isModuleRole } from "@/lib/auth/roles";
 import {
   createManagedAccount,
   updateOwnName,

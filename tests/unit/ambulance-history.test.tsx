@@ -9,7 +9,7 @@ import { AmbulanceHistoryView } from '@/components/ambulance/history/ambulance-h
 describe('AmbulanceHistoryView', () => {
   it('renders an empty state when no transactions are provided', () => {
     render(<AmbulanceHistoryView transactions={[]} />);
-    expect(screen.getByText('Belum ada riwayat transaksi.')).toBeInTheDocument();
+    expect(screen.getByText('Belum ada riwayat transaksi pemesanan.')).toBeInTheDocument();
   });
 
   it('renders a list of transactions with correct formatting', () => {
@@ -35,9 +35,8 @@ describe('AmbulanceHistoryView', () => {
     expect(screen.getByText('Ambulans Alpha')).toBeInTheDocument();
     expect(screen.getByText('B 1234 CD')).toBeInTheDocument();
     
-    // Check if coordinates rendered correctly (6 decimal places)
-    expect(screen.getByText(/Lat: -6.200000/)).toBeInTheDocument();
-    expect(screen.getByText(/Lng: 106.816666/)).toBeInTheDocument();
+    // Check if coordinates rendered correctly (4 decimal places without Lat/Lng prefix)
+    expect(screen.getByText(/-6\.2000, 106\.8167/)).toBeInTheDocument();
 
     // distance and cost formatting based on locale 'id-ID'
     expect(screen.getByText(/15,5 km/)).toBeInTheDocument();

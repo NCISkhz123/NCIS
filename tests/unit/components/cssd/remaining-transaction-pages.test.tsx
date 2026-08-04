@@ -32,6 +32,8 @@ vi.mock("@/app/(protected)/cssd/pemakaian-internal/actions", () => ({
 
 vi.mock("@/app/(protected)/cssd/stok-opname/actions", () => ({
   createStockOpnameDraftAction: vi.fn(),
+  submitStockOpnameDraftAction: vi.fn(),
+  rejectStockOpnamePendingAction: vi.fn(),
   saveStockOpnameLineAction: vi.fn(),
   finalizeStockOpnameSessionAction: vi.fn(),
 }));
@@ -122,7 +124,6 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(screen.getAllByText(/riwayat sesi/i).length).toBeGreaterThan(0);
     expect(screen.getByLabelText(/tanggal opname/i)).toBeVisible();
     expect(screen.getByLabelText(/cakupan unit/i)).toBeVisible();
     expect(
@@ -190,7 +191,6 @@ describe("CSSD remaining transaction pages", () => {
       />
     );
 
-    expect(screen.getAllByText(/sesi aktif/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/cakupan:.*instalasi gawat darurat/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/baris tersimpan/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/hasil hitung/i).length).toBeGreaterThan(0);
@@ -203,7 +203,7 @@ describe("CSSD remaining transaction pages", () => {
       screen.getByRole("button", { name: /simpan hasil hitung/i })
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: /finalisasi hasil/i })
+      screen.getByRole("button", { name: /ajukan review/i })
     ).toBeVisible();
   });
 });

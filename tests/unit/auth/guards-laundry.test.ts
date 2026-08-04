@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   decideCssdRouteAccess,
   decideLaundryRouteAccess,
-  isLaundryRole,
-} from "../../../src/lib/auth/guards";
+} from "@/lib/auth/guards";
+import { isLaundryRole } from "@/lib/auth/roles";
 
 describe("isLaundryRole", () => {
   it("accepts admin and petugas Laundry roles", () => {

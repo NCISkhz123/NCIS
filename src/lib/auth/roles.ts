@@ -25,3 +25,35 @@ export function normalizeRole(value: unknown): AppRole {
 
   return null;
 }
+
+export function isKepalaSeksi(role: AppRole): role is KepalaSeksiRole {
+  return role === "KEPALA_SEKSI";
+}
+
+export function isCssdRole(role: AppRole): role is CssdRole {
+  return role === "ADMIN_CSSD" || role === "PETUGAS_CSSD";
+}
+
+export function isCssdAdminRole(role: AppRole): role is "ADMIN_CSSD" {
+  return role === "ADMIN_CSSD";
+}
+
+export function isLaundryRole(role: AppRole): role is LaundryRole {
+  return role === "ADMIN_LAUNDRY" || role === "PETUGAS_LAUNDRY";
+}
+
+export function isLaundryAdminRole(role: AppRole): role is "ADMIN_LAUNDRY" {
+  return role === "ADMIN_LAUNDRY";
+}
+
+export function isAmbulanceRole(role: AppRole): role is AmbulanceRole {
+  return role === "ADMIN_AMBULANCE" || role === "PETUGAS_AMBULANCE";
+}
+
+export function isAmbulanceAdminRole(role: AppRole): role is "ADMIN_AMBULANCE" {
+  return role === "ADMIN_AMBULANCE";
+}
+
+export function isModuleRole(role: AppRole): role is CssdRole | LaundryRole | AmbulanceRole | KepalaSeksiRole | "USER" {
+  return isCssdRole(role) || isLaundryRole(role) || isAmbulanceRole(role) || isKepalaSeksi(role) || role === "USER";
+}

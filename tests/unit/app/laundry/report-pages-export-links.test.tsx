@@ -32,7 +32,10 @@ describe("laundry report page export links", () => {
     vi.resetModules();
     vi.clearAllMocks();
 
-    createServerSupabaseClientMock.mockResolvedValue({ kind: "supabase" });
+    createServerSupabaseClientMock.mockResolvedValue({
+      kind: "supabase",
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) }
+    });
     createSupabaseReportClientMock.mockReturnValue({ kind: "report-client" });
     listActiveItemsMock.mockResolvedValue([
       {
@@ -72,7 +75,7 @@ describe("laundry report page export links", () => {
       })
     );
 
-    const exportLink = screen.getByRole("link", { name: /ekspor csv/i });
+    const exportLink = screen.getByRole("link", { name: /ekspor excel/i });
     expect(exportLink.getAttribute("href")).toBe(
       "/laundry/laporan/stok-status/export?stockItem=item-1&stockUnit=unit-1"
     );
@@ -101,7 +104,7 @@ describe("laundry report page export links", () => {
       })
     );
 
-    const exportLink = screen.getByRole("link", { name: /ekspor csv/i });
+    const exportLink = screen.getByRole("link", { name: /ekspor excel/i });
     expect(exportLink.getAttribute("href")).toBe(
       "/laundry/laporan/riwayat-transaksi/export?historyItem=item-1&historyUnit=unit-1&historyFrom=2026-07-01&historyTo=2026-07-03"
     );
@@ -128,7 +131,7 @@ describe("laundry report page export links", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: /ekspor csv/i })
+      screen.getByRole("button", { name: /ekspor excel/i })
     ).toBeDisabled();
   });
 
@@ -148,7 +151,7 @@ describe("laundry report page export links", () => {
       })
     );
 
-    const exportLink = screen.getByRole("link", { name: /ekspor csv/i });
+    const exportLink = screen.getByRole("link", { name: /ekspor excel/i });
     expect(exportLink.getAttribute("href")).toBe(
       "/laundry/laporan/kartu-stok/export?cardItem=item-1&cardUnit=unit-1&cardFrom=2026-07-01&cardTo=2026-07-03"
     );

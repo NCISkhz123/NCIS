@@ -103,6 +103,7 @@ export function ModuleSwitcher({
       <button
         ref={triggerRef}
         type="button"
+        aria-label={`${activeModule.label} module`}
         aria-expanded={isOpen}
         aria-controls={panelId}
         onClick={handleOpenToggle}

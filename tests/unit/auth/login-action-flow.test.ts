@@ -93,7 +93,7 @@ describe("loginAction", () => {
           eq: vi.fn().mockReturnValue({
             maybeSingle: vi.fn().mockResolvedValue({
               data: {
-                app_role: "USER",
+                app_role: "UNKNOWN",
               },
               error: null,
             }),

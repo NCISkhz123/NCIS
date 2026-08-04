@@ -117,6 +117,11 @@ export function ModuleHeader({
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
               {routeMeta?.title || "Judul Halaman"}
             </h1>
+            {routeMeta?.description && (
+              <p className="max-w-2xl text-sm leading-relaxed text-slate-500">
+                {routeMeta.description}
+              </p>
+            )}
           </div>
         </div>
       </div>

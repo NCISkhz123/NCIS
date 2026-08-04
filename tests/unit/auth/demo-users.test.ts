@@ -18,6 +18,9 @@ describe("ensureDemoUsers", () => {
       })
       .mockResolvedValueOnce({
         id: "44444444-4444-4444-4444-444444444444",
+      })
+      .mockResolvedValueOnce({
+        id: "55555555-5555-5555-5555-555555555555",
       });
     const updateUser = vi.fn().mockResolvedValue(undefined);
     const upsertProfile = vi.fn().mockResolvedValue(undefined);
@@ -65,8 +68,15 @@ describe("ensureDemoUsers", () => {
         password: "secret-petugas",
       })
     );
+    expect(createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "kepala.seksi@ncis.local",
+        email_confirm: true,
+        password: "secret-admin",
+      })
+    );
     expect(updateUser).not.toHaveBeenCalled();
-    expect(upsertProfile).toHaveBeenCalledTimes(4);
+    expect(upsertProfile).toHaveBeenCalledTimes(5);
   });
 
   it("reuses existing auth users when they are already present", async () => {
@@ -83,6 +93,9 @@ describe("ensureDemoUsers", () => {
       })
       .mockResolvedValueOnce({
         id: "44444444-4444-4444-4444-444444444444",
+      })
+      .mockResolvedValueOnce({
+        id: "55555555-5555-5555-5555-555555555555",
       });
     const createUser = vi.fn();
     const updateUser = vi.fn().mockResolvedValue(undefined);
@@ -104,8 +117,8 @@ describe("ensureDemoUsers", () => {
     });
 
     expect(createUser).not.toHaveBeenCalled();
-    expect(updateUser).toHaveBeenCalledTimes(4);
-    expect(upsertProfile).toHaveBeenCalledTimes(4);
+    expect(updateUser).toHaveBeenCalledTimes(5);
+    expect(upsertProfile).toHaveBeenCalledTimes(5);
   });
 
   it("repairs existing demo auth users so bootstrap stays idempotent", async () => {
@@ -122,6 +135,9 @@ describe("ensureDemoUsers", () => {
       })
       .mockResolvedValueOnce({
         id: "44444444-4444-4444-4444-444444444444",
+      })
+      .mockResolvedValueOnce({
+        id: "55555555-5555-5555-5555-555555555555",
       });
     const createUser = vi.fn();
     const updateUser = vi.fn().mockResolvedValue(undefined);
@@ -180,6 +196,16 @@ describe("ensureDemoUsers", () => {
         password: "secret-petugas",
         user_metadata: {
           full_name: "Petugas Laundry",
+        },
+      })
+    );
+    expect(updateUser).toHaveBeenCalledWith(
+      "55555555-5555-5555-5555-555555555555",
+      expect.objectContaining({
+        email_confirm: true,
+        password: "secret-admin",
+        user_metadata: {
+          full_name: "Kepala Seksi",
         },
       })
     );

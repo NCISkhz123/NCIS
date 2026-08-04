@@ -67,16 +67,15 @@ describe("cssd report excel export", () => {
 
     expect(table.headers).toEqual([
       "Tanggal",
+      "Transaksi",
       "Kode Item",
       "Nama Item",
       "Jenis",
       "Qty",
       "Unit",
-      "Tujuan",
-      "Catatan",
     ]);
     expect(table.rows).toEqual([
-      ["01 Jul 2026", "R-0001", "Set Minor", "Reusable", 2, "ICU", "ICU -> Tidak Steril", "Kembali dari ICU"],
+      ["01 Jul 2026", "Pengembalian", "R-0001", "Set Minor", "Reusable", 2, "ICU"],
     ]);
   });
 
@@ -110,7 +109,6 @@ describe("cssd report excel export", () => {
       "Alur",
       "Unit",
       "Qty",
-      "Catatan",
     ]);
     expect(table.rows).toEqual([
       [
@@ -119,7 +117,6 @@ describe("cssd report excel export", () => {
         "Tidak Steril -> Area Sterilisasi",
         "CSSD",
         1,
-        "Masuk area sterilisasi",
       ],
     ]);
   });

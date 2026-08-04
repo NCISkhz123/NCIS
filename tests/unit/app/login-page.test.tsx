@@ -32,7 +32,7 @@ describe("LoginPage", () => {
     getCurrentProfileMock.mockResolvedValue({
       email: "user@ncis.local",
       fullName: "User NCIS",
-      role: "USER",
+      role: "UNKNOWN" as any,
       userId: "33333333-3333-3333-3333-333333333333",
     });
 

@@ -27,7 +27,7 @@ describe("createServerSupabaseClient", () => {
     vi.clearAllMocks();
   });
 
-  it("does not register cookie writes for read-only server rendering", async () => {
+  it("registers a suppressed setAll cookie write for read-only server rendering", async () => {
     const cookieStore = {
       getAll: vi.fn().mockReturnValue([]),
       set: vi.fn(),
@@ -41,7 +41,7 @@ describe("createServerSupabaseClient", () => {
     const options = createServerClientMock.mock.calls[0]?.[2];
 
     expect(options.cookies.getAll()).toEqual([]);
-    expect(options.cookies.setAll).toBeUndefined();
+    expect(options.cookies.setAll).toBeTypeOf("function");
   });
 
   it("uses an app-specific auth cookie name instead of the localhost default", async () => {

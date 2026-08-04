@@ -8,7 +8,7 @@ import { SidebarNav } from "@/components/layout/sidebar-nav";
 
 describe("SidebarNav", () => {
   it("auto-expands Master Data when the active route is inside the section", () => {
-    render(<SidebarNav pathname="/cssd/master-data/items" />);
+    render(<SidebarNav pathname="/cssd/master-data/items" role="ADMIN_CSSD" />);
 
     expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
     expect(
@@ -23,7 +23,7 @@ describe("SidebarNav", () => {
 
   it("toggles the Master Data submenu when clicked", async () => {
     const user = userEvent.setup();
-    render(<SidebarNav pathname="/cssd/pemasukan" />);
+    render(<SidebarNav pathname="/cssd/pemasukan" role="ADMIN_CSSD" />);
 
     expect(screen.queryByText("Item")).not.toBeInTheDocument();
 
@@ -47,7 +47,7 @@ describe("SidebarNav", () => {
   });
 
   it("auto-expands Laporan when the active route is inside the section", () => {
-    render(<SidebarNav pathname="/cssd/laporan/stok-status" />);
+    render(<SidebarNav pathname="/cssd/laporan/stok-status" role="ADMIN_CSSD" />);
 
     expect(screen.queryByText(/3 menu/i)).not.toBeInTheDocument();
     expect(
@@ -60,7 +60,7 @@ describe("SidebarNav", () => {
 
   it("toggles the Laporan submenu when clicked", async () => {
     const user = userEvent.setup();
-    render(<SidebarNav pathname="/cssd/pemasukan" />);
+    render(<SidebarNav pathname="/cssd/pemasukan" role="ADMIN_CSSD" />);
 
     expect(screen.queryByText("Riwayat Transaksi")).not.toBeInTheDocument();
 

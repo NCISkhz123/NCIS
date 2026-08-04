@@ -13,7 +13,7 @@ export default async function LoginPage() {
   const profile = await getCurrentProfile();
   const defaultModulePath = profile ? getDefaultModulePath(profile.role) : null;
 
-  if (defaultModulePath) {
+  if (defaultModulePath && defaultModulePath !== "/login") {
     redirect(defaultModulePath);
   }
 

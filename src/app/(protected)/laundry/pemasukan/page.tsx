@@ -5,7 +5,7 @@ import {
   listStockSummary,
 } from "@/lib/laundry/services/transaction-read-models";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { isLaundryRole } from "@/lib/auth/guards";
+import { isLaundryRole } from "@/lib/auth/roles";
 import { deleteLaundryTransactionAction } from "@/app/(protected)/laundry/actions";
 
 export default function PemasukanPage() {

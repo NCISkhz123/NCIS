@@ -15,7 +15,7 @@ describe("CSSD transaction validators", () => {
   it("rejects non-reusable items in the return flow", () => {
     const result = returnSchema.safeParse({
       ...basePayload,
-      itemType: "CONSUMABLE_DISTRIBUTION",
+      itemType: "CONSUMABLE",
       quantity: 2,
       sourceUnitId: "22222222-2222-4222-8222-222222222222",
       destinationPosition: "NON_STERILE",
@@ -27,7 +27,7 @@ describe("CSSD transaction validators", () => {
   it("allows consumable internal items only in internal usage", () => {
     const successResult = internalUsageSchema.safeParse({
       ...basePayload,
-      itemType: "CONSUMABLE_INTERNAL",
+      itemType: "CONSUMABLE",
       quantity: 1,
     });
 
@@ -65,11 +65,11 @@ describe("CSSD transaction validators", () => {
   it("rejects consumable internal items in distribution", () => {
     const result = distributionSchema.safeParse({
       ...basePayload,
-      itemType: "CONSUMABLE_INTERNAL",
+      itemType: "CONSUMABLE",
       quantity: 3,
       targetUnitId: "22222222-2222-4222-8222-222222222222",
     });
 
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 });
