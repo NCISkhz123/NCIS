@@ -12,6 +12,9 @@ export default async function AmbulanceHistoryPage() {
       ambulances (
         name,
         plate_number
+      ),
+      profiles (
+        full_name
       )
     `)
     .order("created_at", { ascending: false });

@@ -35,7 +35,7 @@ export function TransactionHistoryTable({
   if (showTransactionType) {
     columns.push("Transaksi");
   }
-  columns.push("Nama Item", "Kode Item", "Jenis", "Qty", "Unit");
+  columns.push("Petugas", "Nama Item", "Kode Item", "Jenis", "Qty", "Unit");
   
   if (isAdmin && onDelete) {
     columns.push("Aksi");
@@ -56,6 +56,7 @@ export function TransactionHistoryTable({
               }
               const rowContent = [
                 ...baseRow,
+                row.actorName ?? "-",
                 row.itemName,
                 row.itemCode,
                 ITEM_TYPE_LABELS[row.itemType],

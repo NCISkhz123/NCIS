@@ -41,6 +41,9 @@ export type AmbulanceTransactionHistory = {
     name: string;
     plate_number: string;
   } | null;
+  profiles: {
+    full_name: string | null;
+  } | null;
 };
 
 interface AmbulanceHistoryViewProps {
@@ -139,6 +142,7 @@ export function AmbulanceHistoryView({ transactions, isAdmin, onDelete }: Ambula
               <TableHead className="font-bold text-slate-700 text-xs uppercase tracking-wider">Waktu Pemesanan</TableHead>
               <TableHead className="font-bold text-slate-700 text-xs uppercase tracking-wider">Armada Ambulans</TableHead>
               <TableHead className="font-bold text-slate-700 text-xs uppercase tracking-wider">Status Disposisi</TableHead>
+              <TableHead className="font-bold text-slate-700 text-xs uppercase tracking-wider">Petugas</TableHead>
               <TableHead className="font-bold text-slate-700 text-xs uppercase tracking-wider">Koordinat Tujuan</TableHead>
               <TableHead className="font-bold text-slate-700 text-xs uppercase tracking-wider">Jarak Tempuh</TableHead>
               <TableHead className="text-right font-bold text-slate-700 text-xs uppercase tracking-wider">Total Biaya</TableHead>
@@ -192,6 +196,11 @@ export function AmbulanceHistoryView({ transactions, isAdmin, onDelete }: Ambula
                         <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
                       </Badge>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium text-slate-700 text-sm">
+                      {tx.profiles?.full_name || '-'}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono">

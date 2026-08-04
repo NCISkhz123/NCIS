@@ -39,6 +39,7 @@ type StockMovementJoinedRow = {
   occurred_at: string;
   items: JoinedItemRow | JoinedItemRow[] | null;
   hospital_units: JoinedHospitalUnitRow | JoinedHospitalUnitRow[] | null;
+  profiles: { full_name: string | null } | { full_name: string | null }[] | null;
 };
 
 type StockBalanceJoinedRow = {
@@ -62,6 +63,7 @@ export type TransactionHistoryEntry = {
   targetUnitName: string | null;
   destinationLabel: string | null;
   movementTypeLabel?: string;
+  actorName?: string;
 };
 
 export type StockSummaryEntry = {
@@ -145,7 +147,7 @@ export async function listRecentTransactionHistory(
   const { data, error } = await supabase
     .from("stock_movements")
     .select(
-      "id, movement_type, from_position, to_position, hospital_unit_id, quantity, notes, occurred_at, items!inner(id, code, name, item_type, is_active), hospital_units(name)"
+      "id, movement_type, from_position, to_position, hospital_unit_id, quantity, notes, occurred_at, items!inner(id, code, name, item_type, is_active), hospital_units(name), profiles(full_name)"
     )
     .eq("movement_type", options.movementType)
     .order("occurred_at", { ascending: false })
@@ -161,20 +163,21 @@ export async function listRecentTransactionHistory(
     .map((row) => {
       const item = normalizeJoinedRecord(row.items);
       const hospitalUnit = normalizeJoinedRecord(row.hospital_units);
+      const profile = normalizeJoinedRecord(row.profiles);
 
       return {
         row,
         item,
         hospitalUnit,
+        profile,
       };
     })
     .filter(
       ({ item }) =>
         item &&
-        item.is_active &&
         (!options.itemTypes?.length || options.itemTypes.includes(item.item_type))
     )
-    .map(({ row, item, hospitalUnit }) => ({
+    .map(({ row, item, hospitalUnit, profile }) => ({
       id: row.id,
       referenceNo: null,
       transactionDate: row.occurred_at,
@@ -189,6 +192,7 @@ export async function listRecentTransactionHistory(
         : row.movement_type === "DISTRIBUTION"
           ? "Keluar ke Unit"
           : null,
+      actorName: profile?.full_name ?? "-",
     }));
 }
 
