@@ -153,7 +153,12 @@ export async function listRecentTransactionHistory(
     .order("occurred_at", { ascending: false })
     .limit(options.limit ?? 8);
 
-  if (error || !data) {
+  if (error) {
+    console.error("Failed to fetch Laundry transaction history:", error);
+    return [];
+  }
+
+  if (!data) {
     return [];
   }
 
@@ -219,7 +224,12 @@ export async function listStockSummary(
 
   const { data, error } = await query;
 
-  if (error || !data) {
+  if (error) {
+    console.error("Failed to fetch Laundry stock summary:", error);
+    return [];
+  }
+
+  if (!data) {
     return [];
   }
 
