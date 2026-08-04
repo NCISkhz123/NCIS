@@ -33,31 +33,31 @@ using (public.current_app_role() = 'USER');
 
 -- Laundry Tables
 create policy "laundry_items_select_user"
-on laundry.items
+on public.laundry_items
 for select
 to authenticated
 using (public.current_app_role() = 'USER');
 
 create policy "laundry_stock_balances_select_user"
-on laundry.stock_balances
+on public.laundry_stock_balances
 for select
 to authenticated
 using (public.current_app_role() = 'USER');
 
 create policy "laundry_stock_movements_select_user"
-on laundry.stock_movements
+on public.laundry_stock_movements
 for select
 to authenticated
 using (public.current_app_role() = 'USER');
 
 create policy "laundry_units_of_measure_select_user"
-on laundry.units_of_measure
+on public.laundry_units_of_measure
 for select
 to authenticated
 using (public.current_app_role() = 'USER');
 
 create policy "laundry_hospital_units_select_user"
-on laundry.hospital_units
+on public.laundry_hospital_units
 for select
 to authenticated
 using (public.current_app_role() = 'USER');
