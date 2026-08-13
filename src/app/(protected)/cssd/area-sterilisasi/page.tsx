@@ -30,14 +30,7 @@ export default async function AreaSterilisasiPage(
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Area Sterilisasi
-        </h1>
-        <p className="text-slate-500 mt-2">
-          Daftar pengembalian reusable dari unit. Klik untuk memproses item ke area sterilisasi atau menandai steril/rusak.
-        </p>
-      </div>
+
 
       <Card>
         <CardHeader className="bg-slate-50/50 border-b border-slate-100">
