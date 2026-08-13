@@ -6,8 +6,9 @@ import { id as localeId } from "date-fns/locale";
 
 import { getReturnTransactionSessionDetail } from "@/lib/laundry/services/return-processing-read-models";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ReturnProcessingBoard } from "./return-processing-board";
+import { cn } from "@/lib/utils";
 
 export default async function AreaPembersihanDetailPage(
   props: {
@@ -27,11 +28,12 @@ export default async function AreaPembersihanDetailPage(
   return (
     <div className="container mx-auto py-8 max-w-5xl space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild className="rounded-full">
-          <Link href="/laundry/area-pembersihan">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link 
+          href="/laundry/area-pembersihan"
+          className={cn(buttonVariants({ variant: "outline", size: "icon" }), "rounded-full")}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Proses Pengembalian
