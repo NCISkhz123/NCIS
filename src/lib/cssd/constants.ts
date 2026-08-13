@@ -121,6 +121,11 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
   },
   {
     type: "link",
+    label: "Area Sterilisasi",
+    href: "/cssd/area-sterilisasi",
+  },
+  {
+    type: "link",
     label: "Pengembalian",
     href: "/cssd/pengembalian",
   },
@@ -185,6 +190,10 @@ export const CSSD_ROUTE_META: RouteMetaMap = {
   "/cssd/distribusi": {
     title: "Distribusi",
     description: "Catat barang keluar ke unit.",
+  },
+  "/cssd/area-sterilisasi": {
+    title: "Area Sterilisasi",
+    description: "Proses item reusable dari area kotor hingga menjadi steril.",
   },
   "/cssd/pengembalian": {
     title: "Pengembalian",

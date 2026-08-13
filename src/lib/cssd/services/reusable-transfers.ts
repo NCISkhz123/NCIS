@@ -26,5 +26,6 @@ export async function transferReusableStock(
     p_to_position: parsed.data.toPosition,
     p_occurred_at: formatDateForRpc(parsed.data.transactionDate),
     p_notes: parsed.data.notes ?? null,
+    p_return_line_id: parsed.data.returnLineId ?? null,
   });
 }

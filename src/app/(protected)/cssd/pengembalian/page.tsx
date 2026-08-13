@@ -3,11 +3,10 @@ import {
   listActiveHospitalUnits,
   listActiveItems,
   listRecentTransactionHistory,
-  listReusableProcessingSummary,
   listStockSummary,
 } from "@/lib/cssd/services/transaction-read-models";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { deleteCssdTransactionAction } from "@/app/(protected)/cssd/actions";
+import { deleteTransactionAction } from "@/app/(protected)/cssd/actions";
 
 export default function PengembalianPage() {
   return <PengembalianPageContent />;
@@ -20,7 +19,6 @@ async function PengembalianPageContent() {
     hospitalUnits,
     recentTransactions,
     stockSummary,
-    reusableProcessingSummary,
   ] = await Promise.all([
     listActiveItems(supabase, {
       itemTypes: ["REUSABLE"],
@@ -36,7 +34,6 @@ async function PengembalianPageContent() {
       positions: ["IN_UNIT", "NON_STERILE", "STERILIZATION_AREA", "DAMAGED"],
       limit: 16,
     }),
-    listReusableProcessingSummary(supabase),
   ]);
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -49,10 +46,8 @@ async function PengembalianPageContent() {
       hospitalUnits={hospitalUnits}
       recentTransactions={recentTransactions}
       stockSummary={stockSummary}
-      reusableProcessingSummary={reusableProcessingSummary}
       isAdmin={isAdmin}
-      onDelete={deleteCssdTransactionAction}
+      onDelete={deleteTransactionAction}
     />
   );
 }
-

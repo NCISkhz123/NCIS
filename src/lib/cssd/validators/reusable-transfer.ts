@@ -11,6 +11,7 @@ export const reusableTransferSchema = z
     toPosition: z.enum(REUSABLE_STOCK_POSITIONS),
     transactionDate: z.coerce.date(),
     notes: z.string().trim().max(500).optional(),
+    returnLineId: z.string().uuid().optional(),
   })
   .superRefine((value, ctx) => {
     const isValidFlow =

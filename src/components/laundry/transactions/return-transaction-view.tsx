@@ -3,20 +3,13 @@
 import { useActionState, useState } from "react";
 import {
   RotateCcw,
-  ArrowRight,
-  Flame,
-  CheckCircle2,
-  Package,
 } from "lucide-react";
 
 import {
   initialReturnFormState,
-  initialReusableProcessingFormState,
   type ReturnFormState,
-  type ReusableProcessingFormState,
 } from "@/lib/laundry/forms/transactions";
 import {
-  processReusableAction,
   saveReturnAction,
 } from "@/app/(protected)/laundry/pengembalian/actions";
 import { StockSummaryTable } from "@/components/laundry/transactions/stock-summary-table";
@@ -30,13 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { SearchableSelect } from "@/components/ui/searchable-select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  RETURN_DESTINATION_POSITIONS,
-  STOCK_POSITION_LABELS,
-} from "@/lib/laundry/constants";
 import type {
-  ReusableProcessingSummaryEntry,
   StockSummaryEntry,
   TransactionHistoryEntry,
 } from "@/lib/laundry/services/transaction-read-models";
@@ -47,34 +34,26 @@ import type {
 
 type ReturnTransactionViewProps = {
   initialState?: ReturnFormState;
-  initialProcessingState?: ReusableProcessingFormState;
   items: ItemRow[];
   hospitalUnits: HospitalUnitRow[];
   recentTransactions: TransactionHistoryEntry[];
   stockSummary: StockSummaryEntry[];
-  reusableProcessingSummary: ReusableProcessingSummaryEntry[];
   isAdmin?: boolean;
   onDelete?: (id: string, reason: string) => Promise<{ error?: string; success?: boolean }>;
 };
 
 export function ReturnTransactionView({
   initialState = initialReturnFormState,
-  initialProcessingState = initialReusableProcessingFormState,
   items,
   hospitalUnits,
   recentTransactions,
   isAdmin,
   onDelete,
   stockSummary,
-  reusableProcessingSummary,
 }: ReturnTransactionViewProps) {
   const [returnState, returnAction, returnPending] = useActionState(
     saveReturnAction,
     initialState
-  );
-  const [processingState, processingAction, processingPending] = useActionState(
-    processReusableAction,
-    initialProcessingState
   );
 
   const values = returnState.values ?? {};
@@ -239,216 +218,7 @@ export function ReturnTransactionView({
       }
       supportingContent={
         <>
-          {/* Reusable Processing Board */}
-          <Card className="border-slate-200 bg-white">
-            <CardContent className="pt-6">
-              <TransactionFeedback
-                error={processingState.error}
-                message={processingState.message}
-                impact={processingState.impact}
-              />
 
-              <div className="mt-4 grid gap-4">
-                {reusableProcessingSummary.length ? (
-                  reusableProcessingSummary.map((row) => (
-                    <div
-                      key={row.itemId}
-                      className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 shadow-2xs"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
-                        <div className="flex items-center gap-2">
-                          <Package className="h-4 w-4 text-sky-600" />
-                          <p className="text-sm font-bold text-slate-900">
-                            {row.itemCode} - {row.itemName}
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <Badge variant="warning">
-                            Kotor: {row.availableNonSterile}
-                          </Badge>
-                          <Badge variant="info">
-                            Sterilisasi: {row.availableSterilizationArea}
-                          </Badge>
-                          {row.availableDamaged > 0 && (
-                            <Badge variant="destructive">
-                              Rusak: {row.availableDamaged}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid gap-4 md:grid-cols-2">
-                        {/* Process from NON_STERILE */}
-                        <form
-                          action={processingAction}
-                          className="flex flex-col justify-between rounded-xl border border-amber-300 bg-amber-50/80 p-4"
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs font-bold uppercase tracking-wider text-amber-950">
-                                Kotor
-                              </p>
-                              <Badge variant="warning">
-                                Stok: {row.availableNonSterile}
-                              </Badge>
-                            </div>
-                            <input type="hidden" name="itemId" value={row.itemId} />
-                            <input type="hidden" name="itemType" value="REUSABLE" />
-                            <input
-                              type="hidden"
-                              name="transactionDate"
-                              value={defaultDate}
-                            />
-                            <input
-                              type="hidden"
-                              name="fromPosition"
-                              value="NON_STERILE"
-                            />
-                            <input
-                              type="hidden"
-                              name="notes"
-                              value="Proses reusable dari Kotor"
-                            />
-                            <div className="grid gap-1.5">
-                              <label
-                                htmlFor={`process-non-sterile-${row.itemId}`}
-                                className="text-xs font-semibold uppercase text-slate-800"
-                              >
-                                Qty Proses
-                              </label>
-                              <Input
-                                id={`process-non-sterile-${row.itemId}`}
-                                type="number"
-                                min="1"
-                                name="quantity"
-                                defaultValue={row.availableNonSterile || ""}
-                                disabled={
-                                  processingPending || row.availableNonSterile === 0
-                                }
-                              />
-                            </div>
-                          </div>
-
-                          <div className="mt-4 flex flex-wrap gap-2 pt-2">
-                            <Button
-                              type="submit"
-                              name="intent"
-                              value="to-sterilization"
-                              disabled={
-                                processingPending || row.availableNonSterile === 0
-                              }
-                              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
-                            >
-                              <span>Kirim ke area pencucian</span>
-                              <ArrowRight className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              type="submit"
-                              name="intent"
-                              value="mark-damaged-non-sterile"
-                              disabled={
-                                processingPending || row.availableNonSterile === 0
-                              }
-                              variant="destructive"
-                              size="sm"
-                            >
-                              <span>Tandai rusak</span>
-                            </Button>
-                          </div>
-                        </form>
-
-                        {/* Process from STERILIZATION_AREA */}
-                        <form
-                          action={processingAction}
-                          className="flex flex-col justify-between rounded-xl border border-sky-300 bg-sky-50/80 p-4"
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs font-bold uppercase tracking-wider text-sky-950">
-                                Area Pencucian
-                              </p>
-                              <Badge variant="info">
-                                Stok: {row.availableSterilizationArea}
-                              </Badge>
-                            </div>
-                            <input type="hidden" name="itemId" value={row.itemId} />
-                            <input type="hidden" name="itemType" value="REUSABLE" />
-                            <input
-                              type="hidden"
-                              name="transactionDate"
-                              value={defaultDate}
-                            />
-                            <input
-                              type="hidden"
-                              name="fromPosition"
-                              value="STERILIZATION_AREA"
-                            />
-                            <input
-                              type="hidden"
-                              name="notes"
-                              value="Proses reusable dari Area Pencucian"
-                            />
-                            <div className="grid gap-1.5">
-                              <label
-                                htmlFor={`process-sterilization-${row.itemId}`}
-                                className="text-xs font-semibold uppercase text-slate-800"
-                              >
-                                Qty Proses
-                              </label>
-                              <Input
-                                id={`process-sterilization-${row.itemId}`}
-                                type="number"
-                                min="1"
-                                name="quantity"
-                                defaultValue={row.availableSterilizationArea || ""}
-                                disabled={
-                                  processingPending ||
-                                  row.availableSterilizationArea === 0
-                                }
-                              />
-                            </div>
-                          </div>
-
-                          <div className="mt-4 flex flex-wrap gap-2 pt-2">
-                            <Button
-                              type="submit"
-                              name="intent"
-                              value="to-ready"
-                              disabled={
-                                processingPending ||
-                                row.availableSterilizationArea === 0
-                              }
-                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                              <span>Tandai bersih</span>
-                            </Button>
-                            <Button
-                              type="submit"
-                              name="intent"
-                              value="mark-damaged-sterilization"
-                              disabled={
-                                processingPending ||
-                                row.availableSterilizationArea === 0
-                              }
-                              variant="destructive"
-                              size="sm"
-                            >
-                              <span>Tandai rusak</span>
-                            </Button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-xs font-semibold text-slate-700">
-                    Tidak ada reusable yang berada di area Kotor atau Area Pencucian saat ini.
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Recent Transactions & Stock Summary */}
           <Card className="h-full flex flex-col min-h-[400px]">

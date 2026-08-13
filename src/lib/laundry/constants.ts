@@ -103,6 +103,11 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
   },
   {
     type: "link",
+    label: "Area Pembersihan",
+    href: "/laundry/area-pembersihan",
+  },
+  {
+    type: "link",
     label: "Pengembalian",
     href: "/laundry/pengembalian",
   },
@@ -167,6 +172,10 @@ export const LAUNDRY_ROUTE_META: RouteMetaMap = {
   "/laundry/distribusi": {
     title: "Distribusi",
     description: "Catat barang keluar ke unit.",
+  },
+  "/laundry/area-pembersihan": {
+    title: "Area Pembersihan",
+    description: "Proses item reusable dari kotor ke area pencucian dan bersih.",
   },
   "/laundry/pengembalian": {
     title: "Pengembalian",
