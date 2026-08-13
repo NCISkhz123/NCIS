@@ -68,7 +68,7 @@ export async function processReturnAction(
     transactionDate,
     notes,
     returnLineId: returnLineId || undefined,
-  } as any); // Type cast for now, we will update the service next
+  }); // Type cast for now, we will update the service next
 
   if (!result.success) {
     return {

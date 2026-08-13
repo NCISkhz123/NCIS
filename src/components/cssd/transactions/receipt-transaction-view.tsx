@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 "use client";
 
 import { useActionState, useState } from "react";
@@ -47,7 +48,7 @@ export function ReceiptTransactionView({
   );
 
   const values = formState.values ?? {};
-  const defaultDate = new Date().toISOString().slice(0, 10);
+  const defaultDate = format(new Date(), 'yyyy-MM-dd');
   const activeItemLabel = items.length
     ? `${items[0]?.code} - ${items[0]?.name}`
     : "Belum ada item";

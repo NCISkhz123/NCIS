@@ -42,7 +42,8 @@ export async function listReturnTransactionSessions(
       "id, reference_no, returned_at, notes, laundry_hospital_units(id, name), profiles(full_name), laundry_return_transaction_lines(quantity, processed_to_sterilization_qty, processed_to_ready_qty, damaged_non_sterile_qty, damaged_sterilization_qty)"
     )
     .order("returned_at", { ascending: false })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (options?.startDate) {
     query = query.gte("returned_at", options.startDate);

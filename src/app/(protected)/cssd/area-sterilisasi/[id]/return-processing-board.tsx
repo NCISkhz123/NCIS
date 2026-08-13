@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 "use client";
 
 import { useActionState } from "react";
@@ -18,7 +19,7 @@ export function ReturnProcessingBoard({ session }: { session: ReturnTransactionS
     initialReusableProcessingFormState
   );
 
-  const defaultDate = new Date().toISOString().slice(0, 10);
+  const defaultDate = format(new Date(), 'yyyy-MM-dd');
 
   return (
     <Card className="border-slate-200 bg-white">

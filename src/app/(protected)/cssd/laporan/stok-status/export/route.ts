@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { buildExcelBuffer } from "@/lib/excel";
 import {
   buildReportExcelFilename,
@@ -10,7 +11,7 @@ import {
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 function getExportDate() {
-  return new Date().toISOString().slice(0, 10);
+  return format(new Date(), 'yyyy-MM-dd');
 }
 
 export async function GET(request: Request) {

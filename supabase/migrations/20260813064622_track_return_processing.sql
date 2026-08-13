@@ -3,14 +3,18 @@ alter table public.laundry_return_transaction_lines
 add column if not exists processed_to_sterilization_qty integer not null default 0,
 add column if not exists processed_to_ready_qty integer not null default 0,
 add column if not exists damaged_non_sterile_qty integer not null default 0,
-add column if not exists damaged_sterilization_qty integer not null default 0;
+add column if not exists damaged_sterilization_qty integer not null default 0,
+add constraint laundry_check_qty_bounds check (processed_to_sterilization_qty + damaged_non_sterile_qty <= quantity),
+add constraint laundry_check_sterilization_bounds check (processed_to_ready_qty + damaged_sterilization_qty <= processed_to_sterilization_qty);
 
 -- Add tracking columns to cssd return transaction lines
 alter table public.return_transaction_lines
 add column if not exists processed_to_sterilization_qty integer not null default 0,
 add column if not exists processed_to_ready_qty integer not null default 0,
 add column if not exists damaged_non_sterile_qty integer not null default 0,
-add column if not exists damaged_sterilization_qty integer not null default 0;
+add column if not exists damaged_sterilization_qty integer not null default 0,
+add constraint cssd_check_qty_bounds check (processed_to_sterilization_qty + damaged_non_sterile_qty <= quantity),
+add constraint cssd_check_sterilization_bounds check (processed_to_ready_qty + damaged_sterilization_qty <= processed_to_sterilization_qty);
 
 -- Drop and recreate laundry transfer function to accept return_line_id
 drop function if exists public.laundry_transfer_reusable_stock(uuid, integer, public.stock_position, public.stock_position, date, text, uuid);

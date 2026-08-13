@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 "use client";
 
 import { useActionState } from "react";
@@ -47,7 +48,7 @@ export function InternalUsageTransactionView({
   );
 
   const values = formState.values ?? {};
-  const defaultDate = new Date().toISOString().slice(0, 10);
+  const defaultDate = format(new Date(), 'yyyy-MM-dd');
   const consumableItems = items.filter(
     (item) => item.item_type === "CONSUMABLE"
   );

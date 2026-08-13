@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 "use client";
 
 import { useActionState, useState } from "react";
@@ -75,7 +76,7 @@ export function ReturnTransactionView({
       (selectedUnitId ? itemsInSelectedUnit.has(item.id) : false)
   );
 
-  const defaultDate = new Date().toISOString().slice(0, 10);
+  const defaultDate = format(new Date(), 'yyyy-MM-dd');
 
   return (
     <TransactionPageShell

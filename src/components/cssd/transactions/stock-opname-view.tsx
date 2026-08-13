@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 "use client";
 
 import { useActionState, useState } from "react";
@@ -127,7 +128,7 @@ export function StockOpnameView({
 
   const draftValues = draftState.values ?? {};
   const lineValues = lineState.values ?? {};
-  const defaultDate = new Date().toISOString().slice(0, 10);
+  const defaultDate = format(new Date(), 'yyyy-MM-dd');
 
   const hasUnitScope = Boolean(draftSession?.hospitalUnitId);
   const defaultPosition = lineValues.stockPosition ?? (hasUnitScope ? "IN_UNIT" : "READY");

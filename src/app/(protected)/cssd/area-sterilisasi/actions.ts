@@ -67,7 +67,7 @@ export async function processReturnAction(
     transactionDate,
     notes,
     returnLineId: returnLineId || undefined,
-  } as any);
+  });
 
   if (!result.success) {
     return {

@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 "use client";
 
 import { useActionState, useState } from "react";
@@ -50,7 +51,7 @@ export function DistributionTransactionView({
   );
 
   const values = formState.values ?? {};
-  const defaultDate = new Date().toISOString().slice(0, 10);
+  const defaultDate = format(new Date(), 'yyyy-MM-dd');
   const activeUnitLabel = hospitalUnits.length
     ? `${hospitalUnits[0]?.name} (${hospitalUnits[0]?.code})`
     : "Belum ada unit";
