@@ -6,7 +6,7 @@ import {
   listStockSummary,
 } from "@/lib/cssd/services/transaction-read-models";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { deleteTransactionAction } from "@/app/(protected)/cssd/actions";
+import { deleteCssdTransactionAction } from "@/app/(protected)/cssd/actions";
 
 export default function PengembalianPage() {
   return <PengembalianPageContent />;
@@ -47,7 +47,7 @@ async function PengembalianPageContent() {
       recentTransactions={recentTransactions}
       stockSummary={stockSummary}
       isAdmin={isAdmin}
-      onDelete={deleteTransactionAction}
+      onDelete={deleteCssdTransactionAction}
     />
   );
 }
