@@ -7,7 +7,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Package, Search } from "lucide-react";
 
 export default async function AreaSterilisasiPage(
@@ -67,9 +67,9 @@ export default async function AreaSterilisasiPage(
               Filter
             </Button>
             {(startDate || endDate) && (
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/cssd/area-sterilisasi">Reset</Link>
-              </Button>
+              <Link href="/cssd/area-sterilisasi" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                Reset
+              </Link>
             )}
           </form>
         </CardHeader>

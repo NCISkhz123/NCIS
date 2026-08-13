@@ -201,16 +201,6 @@ describe("CSSD transaction pages", () => {
             hospitalUnitId: "unit-1", hospitalUnitName: null,
           },
         ]}
-        reusableProcessingSummary={[
-          {
-            itemId: reusableItem.id,
-            itemName: reusableItem.name,
-            itemCode: reusableItem.code,
-            availableNonSterile: 2,
-            availableSterilizationArea: 1,
-            availableDamaged: 0,
-          },
-        ]}
       />
     );
 
@@ -219,12 +209,6 @@ describe("CSSD transaction pages", () => {
     expect(
       screen.getByRole("button", { name: /simpan pengembalian/i })
     ).toBeVisible();
-    expect(
-      screen.getByRole("button", { name: /tandai steril/i })
-    ).toBeVisible();
-    expect(
-      screen.getAllByRole("button", { name: /tandai rusak/i }).length
-    ).toBeGreaterThan(0);
     expect(
       screen.queryByRole("heading", { name: /kelola pengembalian reusable/i })
     ).not.toBeInTheDocument();

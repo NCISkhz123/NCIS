@@ -79,10 +79,7 @@ export function ReturnTransactionView({
   );
 
   const defaultDate = format(new Date(), 'yyyy-MM-dd');
-  const readyToProcessCount = reusableProcessingSummary.reduce(
-    (total, row) => total + row.availableNonSterile + row.availableSterilizationArea,
-    0
-  );
+
 
   return (
     <TransactionPageShell
@@ -92,12 +89,7 @@ export function ReturnTransactionView({
       summary={
         <TransactionSummaryStrip
           items={[
-            {
-              label: "Reusable siap diproses",
-              value: readyToProcessCount,
-              helper: "Di area kotor atau proses pencucian.",
-              accent: "emphasis",
-            },
+
             {
               label: "Riwayat terbaru",
               value: recentTransactions.length,

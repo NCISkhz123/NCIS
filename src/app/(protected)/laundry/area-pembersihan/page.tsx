@@ -7,7 +7,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Package, Search } from "lucide-react";
 
 export default async function AreaPembersihanPage(
@@ -67,9 +67,9 @@ export default async function AreaPembersihanPage(
               Filter
             </Button>
             {(startDate || endDate) && (
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/laundry/area-pembersihan">Reset</Link>
-              </Button>
+              <Link href="/laundry/area-pembersihan" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                Reset
+              </Link>
             )}
           </form>
         </CardHeader>

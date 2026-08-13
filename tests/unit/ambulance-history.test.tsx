@@ -25,6 +25,9 @@ describe('AmbulanceHistoryView', () => {
         ambulances: {
           name: 'Ambulans Alpha',
           plate_number: 'B 1234 CD'
+        },
+        profiles: {
+          full_name: 'Test User'
         }
       }
     ];
