@@ -121,13 +121,13 @@ export const CSSD_NAV_ITEMS: SidebarNavItem[] = [
   },
   {
     type: "link",
-    label: "Area Sterilisasi",
-    href: "/cssd/area-sterilisasi",
+    label: "Pengembalian",
+    href: "/cssd/pengembalian",
   },
   {
     type: "link",
-    label: "Pengembalian",
-    href: "/cssd/pengembalian",
+    label: "Area Sterilisasi",
+    href: "/cssd/area-sterilisasi",
   },
   {
     type: "link",

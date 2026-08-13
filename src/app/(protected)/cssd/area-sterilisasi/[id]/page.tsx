@@ -26,7 +26,7 @@ export default async function AreaSterilisasiDetailPage(
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl space-y-6">
+    <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center gap-4">
         <Link 
           href="/cssd/area-sterilisasi"
@@ -38,9 +38,6 @@ export default async function AreaSterilisasiDetailPage(
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Proses Pengembalian
           </h1>
-          <p className="text-slate-500 mt-1">
-            Transaksi dari <span className="font-semibold text-slate-800">{session.sourceUnitName}</span> pada {format(new Date(session.transactionDate), "dd MMMM yyyy", { locale: localeId })}
-          </p>
         </div>
       </div>
 

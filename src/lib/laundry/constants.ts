@@ -103,13 +103,13 @@ export const LAUNDRY_NAV_ITEMS: SidebarNavItem[] = [
   },
   {
     type: "link",
-    label: "Area Pembersihan",
-    href: "/laundry/area-pembersihan",
+    label: "Pengembalian",
+    href: "/laundry/pengembalian",
   },
   {
     type: "link",
-    label: "Pengembalian",
-    href: "/laundry/pengembalian",
+    label: "Area Pembersihan",
+    href: "/laundry/area-pembersihan",
   },
   {
     type: "link",

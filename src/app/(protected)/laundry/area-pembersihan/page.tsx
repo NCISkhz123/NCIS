@@ -29,7 +29,7 @@ export default async function AreaPembersihanPage(
   });
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl space-y-6">
+    <div className="container mx-auto py-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">
           Area Pembersihan
